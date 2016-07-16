@@ -189,6 +189,22 @@ public:
 	}
 
 	template<class T2>
+	void reset(T2 *p) {
+		decRef();
+		_refCount = new RefValue(1);
+		_deletion = new SharedPtrDeletionImpl<T2>(p);
+		_pointer = p;
+	}
+
+	template<class T2, class D>
+	void reset(T2 *p, D d) {
+		decRef();
+		_refCount = new RefValue(1);
+		_deletion = new SharedPtrDeletionDeleterImpl<T2, D>(p, d);
+		_pointer = p;
+	}
+
+	template<class T2>
 	bool operator==(const SharedPtr<T2> &r) const {
 		return _pointer == r.get();
 	}
