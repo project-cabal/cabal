@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "teenagent/font.h"
 
@@ -82,7 +84,7 @@ uint Font::render(Graphics::Surface *surface, int x, int y, char c, byte color) 
 	glyph += 2;
 	glyph += i0 * w + j0;
 	byte *dst = (byte *)surface->getBasePtr(x, y);
-	byte *end = (byte *)surface->getBasePtr(0, surface->h);
+	byte *end = (byte *)surface->getBasePtr(0, surface->getHeight());
 	for (int i = i0; i < h && dst < end; ++i) {
 		for (int j = j0; j < w; ++j) {
 			byte v = *glyph++;
@@ -99,7 +101,7 @@ uint Font::render(Graphics::Surface *surface, int x, int y, char c, byte color) 
 				dst[j] = v;
 			}
 		}
-		dst += surface->pitch;
+		dst += surface->getPitch();
 	}
 	return w - _widthPack;
 }
@@ -162,7 +164,7 @@ void Font::grid(Graphics::Surface *surface, int x, int y, int w, int h, byte col
 			if (((i ^ j) & 1) == 0)
 				dst[j] = color;
 		}
-		dst += surface->pitch;
+		dst += surface->getPitch();
 	}
 }
 

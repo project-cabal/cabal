@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/platform.h"
@@ -122,8 +124,8 @@ void Fonts::setFont(int fontNum) {
 	// Iterate through the frames to find the widest and tallest font characters
 	_fontHeight = _widestChar = 0;
 	for (uint idx = 0; idx < _charCount; ++idx) {
-		_fontHeight = MAX((uint16)_fontHeight, (*_font)[idx]._frame.h);
-		_widestChar = MAX((uint16)_widestChar, (*_font)[idx]._frame.w);
+		_fontHeight = MAX((uint16)_fontHeight, (*_font)[idx]._frame.getHeight());
+		_widestChar = MAX((uint16)_widestChar, (*_font)[idx]._frame.getWidth());
 	}
 
 	// Initialize the Y offset table for the extended character set
@@ -205,7 +207,7 @@ void Fonts::writeString(Surface *surface, const Common::String &str,
 		if (curChar < _charCount) {
 			ImageFrame &frame = (*_font)[curChar];
 			surface->transBlitFrom(frame, Common::Point(charPos.x, charPos.y + _yOffsets[curChar]), false, overrideColor);
-			charPos.x += frame._frame.w + 1;
+			charPos.x += frame._frame.getWidth() + 1;
 		} else {
 			warning("Invalid character encountered - %d", (int)curChar);
 		}
@@ -248,7 +250,7 @@ int Fonts::charWidth(unsigned char c) {
 	curChar = translateChar(c);
 
 	if (curChar < _charCount)
-		return (*_font)[curChar]._frame.w + 1;
+		return (*_font)[curChar]._frame.getWidth() + 1;
 	return 0;
 }
 

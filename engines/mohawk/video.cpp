@@ -325,7 +325,7 @@ bool VideoManager::updateMovies() {
 			if (frame && (*it)->isEnabled()) {
 				Graphics::PixelFormat pixelFormat = _vm->_system->getScreenFormat();
 
-				if (frame->format != pixelFormat) {
+				if (frame->getFormat() != pixelFormat) {
 					// We don't support downconverting to 8bpp without having
 					// support in the codec. Set _enableDither if shows up.
 					if (pixelFormat.bytesPerPixel == 1) {
@@ -348,7 +348,7 @@ bool VideoManager::updateMovies() {
 				// Clip the width/height to make sure we stay on the screen (Myst does this a few times)
 				uint16 width = MIN<int32>(video->getWidth(), _vm->_system->getWidth() - (*it)->getX());
 				uint16 height = MIN<int32>(video->getHeight(), _vm->_system->getHeight() - (*it)->getY());
-				_vm->_system->copyRectToScreen(frame->getPixels(), frame->pitch, (*it)->getX(), (*it)->getY(), width, height);
+				_vm->_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), (*it)->getX(), (*it)->getY(), width, height);
 
 				// We've drawn something to the screen, make sure we update it
 				updateScreen = true;

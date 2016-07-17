@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/debug.h"
 #include "common/endian.h"
@@ -101,7 +103,6 @@ DXADecoder::DXAVideoTrack::DXAVideoTrack(Common::SeekableReadStream *stream) {
 	}
 
 	_surface = new Graphics::Surface();
-	_surface->format = Graphics::PixelFormat::createFormatCLUT8();
 
 	debug(2, "flags 0x0%x framesCount %d width %d height %d rate %d", flags, getFrameCount(), getWidth(), getHeight(), getFrameRate().toInt());
 
@@ -165,7 +166,7 @@ bool DXADecoder::DXAVideoTrack::rewind() {
 }
 
 Graphics::PixelFormat DXADecoder::DXAVideoTrack::getPixelFormat() const {
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 void DXADecoder::DXAVideoTrack::setFrameStartPos() {
@@ -521,24 +522,19 @@ const Graphics::Surface *DXADecoder::DXAVideoTrack::decodeNextFrame() {
 			memcpy(&_scaledBuffer[2 * cy * _width], &_frameBuffer1[cy * _width], _width);
 			memset(&_scaledBuffer[((2 * cy) + 1) * _width], 0, _width);
 		}
-		_surface->setPixels(_scaledBuffer);
+		_surface->resetWithoutOwnership(getWidth(), getHeight(), getWidth(), _scaledBuffer, Graphics::PixelFormat::createFormatCLUT8());
 		break;
 	case S_DOUBLE:
 		for (int cy = 0; cy < _curHeight; cy++) {
 			memcpy(&_scaledBuffer[2 * cy * _width], &_frameBuffer1[cy * _width], _width);
 			memcpy(&_scaledBuffer[((2 * cy) + 1) * _width], &_frameBuffer1[cy * _width], _width);
 		}
-		_surface->setPixels(_scaledBuffer);
+		_surface->resetWithoutOwnership(getWidth(), getHeight(), getWidth(), _scaledBuffer, Graphics::PixelFormat::createFormatCLUT8());
 		break;
 	case S_NONE:
-		_surface->setPixels(_frameBuffer1);
+		_surface->resetWithoutOwnership(getWidth(), getHeight(), getWidth(), _frameBuffer1, Graphics::PixelFormat::createFormatCLUT8());
 		break;
 	}
-
-	// Copy in the relevant info to the Surface
-	_surface->w = getWidth();
-	_surface->h = getHeight();
-	_surface->pitch = getWidth();
 
 	_curFrame++;
 

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/scumm.h"
 #include "scumm/file.h"
@@ -362,8 +363,8 @@ void NutRenderer::drawChar(const Graphics::Surface &s, byte c, int x, int y, byt
 	// should never get written to. But sadly it does... For now we simply
 	// cast the const qualifier away.
 	byte *dst = (byte *)const_cast<void *>(s.getBasePtr(x, y));
-	const int width = MIN((int)_chars[c].width, s.w - x);
-	const int height = MIN((int)_chars[c].height, s.h - y);
+	const int width = MIN((int)_chars[c].width, s.getWidth() - x);
+	const int height = MIN((int)_chars[c].height, s.getHeight() - y);
 	const byte *src = unpackChar(c);
 	int srcPitch = _chars[c].width;
 
@@ -376,7 +377,7 @@ void NutRenderer::drawChar(const Graphics::Surface &s, byte c, int x, int y, byt
 
 	if (minY) {
 		src += minY * srcPitch;
-		dst += minY * s.pitch;
+		dst += minY * s.getPitch();
 	}
 
 	for (int ty = minY; ty < height; ty++) {
@@ -390,13 +391,13 @@ void NutRenderer::drawChar(const Graphics::Surface &s, byte c, int x, int y, byt
 			}
 		}
 		src += srcPitch;
-		dst += s.pitch;
+		dst += s.getPitch();
 	}
 }
 
 void NutRenderer::draw2byte(const Graphics::Surface &s, int c, int x, int y, byte color) {
 	const int width = _vm->_2byteWidth;
-	const int height = MIN(_vm->_2byteHeight, s.h - y);
+	const int height = MIN(_vm->_2byteHeight, s.getHeight() - y);
 	const byte *src = _vm->get2byteCharPtr(c);
 	byte bits = 0;
 
@@ -440,13 +441,13 @@ void NutRenderer::draw2byte(const Graphics::Surface &s, int c, int x, int y, byt
 			for (int tx = 0; tx < width; tx++) {
 				if ((tx & 7) == 0)
 					bits = *src++;
-				if (offX + tx < 0 || offX + tx >= s.w || offY + ty < 0)
+				if (offX + tx < 0 || offX + tx >= s.getWidth() || offY + ty < 0)
 					continue;
 				if (bits & revBitMask(tx % 8)) {
 					dst[tx] = drawColor;
 				}
 			}
-			dst += s.pitch;
+			dst += s.getPitch();
 		}
 	}
 }

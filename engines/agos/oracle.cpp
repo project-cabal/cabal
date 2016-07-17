@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifdef ENABLE_AGOS2
 
@@ -244,28 +244,28 @@ void AGOSEngine_Feeble::scrollOracleUp() {
 	byte *src, *dst;
 	uint16 w, h;
 
-	dst = getBackGround() + 103 * _backGroundBuf->pitch + 136;
-	src = getBackGround() + 106 * _backGroundBuf->pitch + 136;
+	dst = getBackGround() + 103 * _backGroundBuf->getPitch() + 136;
+	src = getBackGround() + 106 * _backGroundBuf->getPitch() + 136;
 
 	for (h = 0; h < 21; h++) {
 		for (w = 0; w < 360; w++) {
 			if (dst[w] == 0 || dst[w] == 113 || dst[w] == 116 || dst[w] == 252)
 				dst[w] = src[w];
 		}
-		dst += _backGroundBuf->pitch;
-		src += _backGroundBuf->pitch;
+		dst += _backGroundBuf->getPitch();
+		src += _backGroundBuf->getPitch();
 	}
 
 	for (h = 0; h < 80; h++) {
 		memcpy(dst, src, 360);
-		dst += _backGroundBuf->pitch;
-		src += _backGroundBuf->pitch;
+		dst += _backGroundBuf->getPitch();
+		src += _backGroundBuf->getPitch();
 	}
 
 	for (h = 0; h < 3; h++) {
 		memset(dst, 0, 360);
-		dst += _backGroundBuf->pitch;
-		src += _backGroundBuf->pitch;
+		dst += _backGroundBuf->getPitch();
+		src += _backGroundBuf->getPitch();
 	}
 }
 
@@ -273,13 +273,13 @@ void AGOSEngine_Feeble::scrollOracleDown() {
 	byte *src, *dst;
 	uint16 w, h;
 
-	src = getBackGround() + 203 * _backGroundBuf->pitch + 136;
-	dst = getBackGround() + 206 * _backGroundBuf->pitch + 136;
+	src = getBackGround() + 203 * _backGroundBuf->getPitch() + 136;
+	dst = getBackGround() + 206 * _backGroundBuf->getPitch() + 136;
 
 	for (h = 0; h < 77; h++) {
 		memcpy(dst, src, 360);
-		dst -= _backGroundBuf->pitch;
-		src -= _backGroundBuf->pitch;
+		dst -= _backGroundBuf->getPitch();
+		src -= _backGroundBuf->getPitch();
 	}
 
 	for (h = 0; h < 24; h++) {
@@ -292,8 +292,8 @@ void AGOSEngine_Feeble::scrollOracleDown() {
 				src[w] = 0;
 			}
 		}
-		dst -= _backGroundBuf->pitch;
-		src -= _backGroundBuf->pitch;
+		dst -= _backGroundBuf->getPitch();
+		src -= _backGroundBuf->getPitch();
 	}
 }
 
@@ -313,7 +313,7 @@ void AGOSEngine_Feeble::oracleLogo() {
 	srcRect.bottom = 43;
 
 	src = _iconFilePtr;
-	dst = getBackBuf() + _backBuf->pitch * dstRect.top + dstRect.left;
+	dst = getBackBuf() + _backBuf->getPitch() * dstRect.top + dstRect.left;
 
 	for (h = 0; h < dstRect.height(); h++) {
 		for (w = 0; w < dstRect.width(); w++) {
@@ -321,7 +321,7 @@ void AGOSEngine_Feeble::oracleLogo() {
 				dst[w] = src[w];
 		}
 		src += 336;
-		dst += _backBuf->pitch;
+		dst += _backBuf->getPitch();
 	}
 }
 
@@ -353,7 +353,7 @@ void AGOSEngine_Feeble::swapCharacterLogo() {
 	srcRect.right = srcRect.left + 42;
 
 	src = _iconFilePtr + srcRect.top * 336 + srcRect.left;
-	dst = getBackBuf() + _backBuf->pitch * dstRect.top + dstRect.left;
+	dst = getBackBuf() + _backBuf->getPitch() * dstRect.top + dstRect.left;
 
 	for (h = 0; h < dstRect.height(); h++) {
 		for (w = 0; w < dstRect.width(); w++) {
@@ -361,7 +361,7 @@ void AGOSEngine_Feeble::swapCharacterLogo() {
 				dst[w] = src[w];
 		}
 		src += 336;
-		dst += _backBuf->pitch;
+		dst += _backBuf->getPitch();
 	}
 }
 
@@ -504,14 +504,14 @@ void AGOSEngine_Feeble::windowBackSpace(WindowBlock *window) {
 	x = window->x + window->textColumn;
 	y = window->y + window->textRow;
 
-	dst = getBackGround() + _backGroundBuf->pitch * y + x;
+	dst = getBackGround() + _backGroundBuf->getPitch() * y + x;
 
 	for (h = 0; h < 13; h++) {
 		for (w = 0; w < 8; w++) {
 			if (dst[w] == 113 || dst[w] == 116 || dst[w] == 252)
 				dst[w] = 0;
 		}
-		dst += _backGroundBuf->pitch;
+		dst += _backGroundBuf->getPitch();
 	}
 
 	_videoLockOut &= ~0x8000;

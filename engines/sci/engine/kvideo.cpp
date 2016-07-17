@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "engines/util.h"
 #include "sci/engine/kernel.h"
@@ -106,7 +108,7 @@ void playVideo(Video::VideoDecoder *videoDecoder, VideoState videoState) {
 					g_sci->_gfxScreen->scale2x((const byte *)frame->getPixels(), scaleBuffer, videoDecoder->getWidth(), videoDecoder->getHeight(), bytesPerPixel);
 					g_system->copyRectToScreen(scaleBuffer, pitch, x, y, width, height);
 				} else {
-					g_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, width, height);
+					g_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, width, height);
 				}
 
 				if (videoDecoder->hasDirtyPalette()) {

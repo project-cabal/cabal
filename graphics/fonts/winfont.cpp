@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/file.h"
 #include "common/str.h"
@@ -327,7 +329,7 @@ bool WinFont::loadFromFNT(Common::SeekableReadStream &stream) {
 
 void WinFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) const {
 	assert(dst);
-	assert(dst->format.bytesPerPixel == 1 || dst->format.bytesPerPixel == 2 || dst->format.bytesPerPixel == 4);
+	assert(dst->getFormat().bytesPerPixel == 1 || dst->getFormat().bytesPerPixel == 2 || dst->getFormat().bytesPerPixel == 4);
 	assert(_glyphs);
 
 	GlyphEntry &glyph = _glyphs[characterToIndex(chr)];
@@ -335,11 +337,11 @@ void WinFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) con
 	for (uint16 i = 0; i < _pixHeight; i++) {
 		for (uint16 j = 0; j < glyph.charWidth; j++) {
 			if (glyph.bitmap[j + i * glyph.charWidth]) {
-				if (dst->format.bytesPerPixel == 1)
+				if (dst->getFormat().bytesPerPixel == 1)
 					*((byte *)dst->getBasePtr(x + j, y + i)) = color;
-				else if (dst->format.bytesPerPixel == 2)
+				else if (dst->getFormat().bytesPerPixel == 2)
 					*((uint16 *)dst->getBasePtr(x + j, y + i)) = color;
-				else if (dst->format.bytesPerPixel == 4)
+				else if (dst->getFormat().bytesPerPixel == 4)
 					*((uint32 *)dst->getBasePtr(x + j, y + i)) = color;
 			}
 		}

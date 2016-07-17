@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "neverhood/graphics.h"
 #include "neverhood/resource.h"
@@ -64,7 +66,7 @@ void BaseSurface::draw() {
 }
 
 void BaseSurface::clear() {
-	_surface->fillRect(Common::Rect(0, 0, _surface->w, _surface->h), 0);
+	_surface->fillRect(Common::Rect(_surface->getWidth(), _surface->getHeight()), 0);
 	++_version;
 }
 
@@ -117,11 +119,11 @@ void BaseSurface::copyFrom(Graphics::Surface *sourceSurface, int16 x, int16 y, N
 	// Copy a rectangle from sourceSurface, 0 is the transparent color
 	// Clipping is performed against the right/bottom border since x, y will always be >= 0
 
-	if (x + sourceRect.width > _surface->w)
-		sourceRect.width = _surface->w - x - 1;
+	if (x + sourceRect.width > _surface->getWidth())
+		sourceRect.width = _surface->getWidth() - x - 1;
 
-	if (y + sourceRect.height > _surface->h)
-		sourceRect.height = _surface->h - y - 1;
+	if (y + sourceRect.height > _surface->getHeight())
+		sourceRect.height = _surface->getHeight() - y - 1;
 
 	byte *source = (byte*)sourceSurface->getBasePtr(sourceRect.x, sourceRect.y);
 	byte *dest = (byte*)_surface->getBasePtr(x, y);
@@ -130,8 +132,8 @@ void BaseSurface::copyFrom(Graphics::Surface *sourceSurface, int16 x, int16 y, N
 		for (int xc = 0; xc < sourceRect.width; xc++)
 			if (source[xc] != 0)
 				dest[xc] = source[xc];
-		source += sourceSurface->pitch;
-		dest += _surface->pitch;
+		source += sourceSurface->getPitch();
+		dest += _surface->getPitch();
 	}
 	++_version;
 }

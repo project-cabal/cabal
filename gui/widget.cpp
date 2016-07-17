@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/system.h"
@@ -400,14 +402,14 @@ void PicButtonWidget::setGfx(const Graphics::Surface *gfx) {
 	if (!gfx || !gfx->getPixels())
 		return;
 
-	if (gfx->format.bytesPerPixel == 1) {
+	if (gfx->getFormat().bytesPerPixel == 1) {
 		warning("PicButtonWidget::setGfx got paletted surface passed");
 		return;
 	}
 
 
-	if (gfx->w > _w || gfx->h > _h) {
-		warning("PicButtonWidget has size %dx%d, but a surface with %dx%d is to be set", _w, _h, gfx->w, gfx->h);
+	if (gfx->getWidth() > _w || gfx->getHeight() > _h) {
+		warning("PicButtonWidget has size %dx%d, but a surface with %dx%d is to be set", _w, _h, gfx->getWidth(), gfx->getHeight());
 		return;
 	}
 
@@ -424,7 +426,7 @@ void PicButtonWidget::setGfx(int w, int h, int r, int g, int b) {
 
 	_gfx.free();
 	_gfx.create(w, h, requiredFormat);
-	_gfx.fillRect(Common::Rect(0, 0, w, h), _gfx.format.RGBToColor(r, g, b));
+	_gfx.fillRect(Common::Rect(0, 0, w, h), _gfx.getFormat().RGBToColor(r, g, b));
 }
 
 void PicButtonWidget::drawWidget() {
@@ -434,14 +436,14 @@ void PicButtonWidget::drawWidget() {
 		// Check whether the set up surface needs to be converted to the GUI
 		// color format.
 		const Graphics::PixelFormat &requiredFormat = g_gui.theme()->getPixelFormat();
-		if (_gfx.format != requiredFormat) {
+		if (_gfx.getFormat() != requiredFormat) {
 			_gfx.convertToInPlace(requiredFormat);
 		}
 
-		const int x = _x + (_w - _gfx.w) / 2;
-		const int y = _y + (_h - _gfx.h) / 2;
+		const int x = _x + (_w - _gfx.getWidth()) / 2;
+		const int y = _y + (_h - _gfx.getHeight()) / 2;
 
-		g_gui.theme()->drawSurface(Common::Rect(x, y, x + _gfx.w,  y + _gfx.h), _gfx, _state, _alpha, _transparency);
+		g_gui.theme()->drawSurface(Common::Rect(x, y, x + _gfx.getWidth(),  y + _gfx.getHeight()), _gfx, _state, _alpha, _transparency);
 	}
 }
 
@@ -650,13 +652,13 @@ void GraphicsWidget::setGfx(const Graphics::Surface *gfx) {
 	if (!gfx || !gfx->getPixels())
 		return;
 
-	if (gfx->format.bytesPerPixel == 1) {
+	if (gfx->getFormat().bytesPerPixel == 1) {
 		warning("GraphicsWidget::setGfx got paletted surface passed");
 		return;
 	}
 
-	if (gfx->w > _w || gfx->h > _h) {
-		warning("GraphicsWidget has size %dx%d, but a surface with %dx%d is to be set", _w, _h, gfx->w, gfx->h);
+	if (gfx->getWidth() > _w || gfx->getHeight() > _h) {
+		warning("GraphicsWidget has size %dx%d, but a surface with %dx%d is to be set", _w, _h, gfx->getWidth(), gfx->getHeight());
 		return;
 	}
 
@@ -673,7 +675,7 @@ void GraphicsWidget::setGfx(int w, int h, int r, int g, int b) {
 
 	_gfx.free();
 	_gfx.create(w, h, requiredFormat);
-	_gfx.fillRect(Common::Rect(0, 0, w, h), _gfx.format.RGBToColor(r, g, b));
+	_gfx.fillRect(Common::Rect(0, 0, w, h), _gfx.getFormat().RGBToColor(r, g, b));
 }
 
 void GraphicsWidget::drawWidget() {
@@ -681,14 +683,14 @@ void GraphicsWidget::drawWidget() {
 		// Check whether the set up surface needs to be converted to the GUI
 		// color format.
 		const Graphics::PixelFormat &requiredFormat = g_gui.theme()->getPixelFormat();
-		if (_gfx.format != requiredFormat) {
+		if (_gfx.getFormat() != requiredFormat) {
 			_gfx.convertToInPlace(requiredFormat);
 		}
 
-		const int x = _x + (_w - _gfx.w) / 2;
-		const int y = _y + (_h - _gfx.h) / 2;
+		const int x = _x + (_w - _gfx.getWidth()) / 2;
+		const int y = _y + (_h - _gfx.getHeight()) / 2;
 
-		g_gui.theme()->drawSurface(Common::Rect(x, y, x + _gfx.w,  y + _gfx.h), _gfx, _state, _alpha, _transparency);
+		g_gui.theme()->drawSurface(Common::Rect(x, y, x + _gfx.getWidth(),  y + _gfx.getHeight()), _gfx, _state, _alpha, _transparency);
 	}
 }
 

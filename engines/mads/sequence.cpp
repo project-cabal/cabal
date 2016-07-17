@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "mads/mads.h"
@@ -449,8 +451,8 @@ int SequenceList::addSpriteCycle(int srcSpriteIdx, bool flipped, int numTicks, i
 	Scene &scene = _vm->_game->_scene;
 	MSprite *spriteFrame = scene._sprites[srcSpriteIdx]->getFrame(0);
 	int depth = scene._depthSurface.getDepth(Common::Point(
-		spriteFrame->_offset.x + (spriteFrame->w / 2),
-		spriteFrame->_offset.y + (spriteFrame->h / 2)));
+		spriteFrame->_offset.x + (spriteFrame->getWidth() / 2),
+		spriteFrame->_offset.y + (spriteFrame->getHeight() / 2)));
 
 	return add(srcSpriteIdx, flipped, 1, triggerCountdown, timeoutTicks, extraTicks, numTicks, 0, 0,
 		true, 100, depth - 1, 1, ANIMTYPE_CYCLED, 0, 0);
@@ -463,8 +465,8 @@ int SequenceList::addReverseSpriteCycle(int srcSpriteIdx, bool flipped, int numT
 	SpriteAsset *asset = scene._sprites[srcSpriteIdx];
 	MSprite *spriteFrame = asset->getFrame(0);
 	int depth = scene._depthSurface.getDepth(Common::Point(
-		spriteFrame->_offset.x + (spriteFrame->w / 2),
-		spriteFrame->_offset.y + (spriteFrame->h / 2)));
+		spriteFrame->_offset.x + (spriteFrame->getWidth() / 2),
+		spriteFrame->_offset.y + (spriteFrame->getHeight() / 2)));
 
 	return add(srcSpriteIdx, flipped, asset->getCount(), triggerCountdown, timeoutTicks, extraTicks,
 		numTicks, 0, 0, true, 100, depth - 1, -1, ANIMTYPE_CYCLED, 0, 0);
@@ -484,7 +486,7 @@ int SequenceList::startPingPongCycle(int srcSpriteIndex, bool flipped, int numTi
 	SpriteAsset *sprites = _vm->_game->_scene._sprites[srcSpriteIndex];
 	MSprite *frame = sprites->getFrame(0);
 	int depth = _vm->_game->_scene._depthSurface.getDepth(Common::Point(
-		frame->_offset.x + frame->w / 2, frame->_offset.y + frame->h / 2));
+		frame->_offset.x + frame->getWidth() / 2, frame->_offset.y + frame->getHeight() / 2));
 
 	return add(srcSpriteIndex, flipped, 1, triggerCountdown, timeoutTicks,
 		extraTicks, numTicks, 0, 0, true, 100, depth - 1, 1, ANIMTYPE_PING_PONG, 0, 0);

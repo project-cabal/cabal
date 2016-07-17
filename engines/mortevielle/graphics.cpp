@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Mortville Manor DOS source code
@@ -87,7 +89,7 @@ void PaletteManager::setDefaultPalette() {
 #define BUFFER_SIZE 40000
 
 void GfxSurface::decode(const byte *pSrc) {
-	w = h = 0;
+	uint16 w = 0, h = 0;
 	// If no transparency, use invalid (for EGA) palette index of 16. Otherwise get index to use
 	_transparency = (*pSrc == 0) ? 16 : *(pSrc + 2);
 	bool offsetFlag = *pSrc++ == 0;
@@ -142,7 +144,12 @@ void GfxSurface::decode(const byte *pSrc) {
 		int decomCode = READ_BE_UINT16(pSrc);
 		_xSize = READ_BE_UINT16(pSrc + 2) + 1;
 		_ySize = READ_BE_UINT16(pSrc + 4) + 1;
-		majTtxTty();
+
+		if (!_yp)
+			w += _xSize;
+
+		if (!_xp)
+			h += _ySize;
 
 		pSrc += 6;
 		pDest = &outputBuffer[0];
@@ -431,14 +438,6 @@ void GfxSurface::decode(const byte *pSrc) {
 	::free(outputBuffer);
 	::free(lookupTable);
 	::free(srcBuffer);
-}
-
-void GfxSurface::majTtxTty() {
-	if (!_yp)
-		w += _xSize;
-
-	if (!_xp)
-		h += _ySize;
 }
 
 /**
@@ -899,10 +898,7 @@ void ScreenSurface::readFontData(Common::File &f, int dataSize) {
  */
 Graphics::Surface ScreenSurface::lockArea(const Common::Rect &bounds) {
 	_dirtyRects.push_back(bounds);
-
-	Graphics::Surface s;
-	s.init(bounds.width(), bounds.height(), pitch, getBasePtr(bounds.left, bounds.top), format);
-	return s;
+	return getSubArea(bounds);
 }
 
 /**
@@ -912,7 +908,7 @@ void ScreenSurface::updateScreen() {
 	// Iterate through copying dirty areas to the screen
 	for (Common::List<Common::Rect>::iterator i = _dirtyRects.begin(); i != _dirtyRects.end(); ++i) {
 		Common::Rect r = *i;
-		g_system->copyRectToScreen((const byte *)getBasePtr(r.left, r.top), pitch,
+		g_system->copyRectToScreen((const byte *)getBasePtr(r.left, r.top), getPitch(),
 			r.left, r.top, r.width(), r.height());
 	}
 	_dirtyRects.clear();
@@ -937,20 +933,20 @@ void ScreenSurface::drawPicture(GfxSurface &surface, int x, int y) {
 
 	// Lock the affected area of the surface to write to
 	Graphics::Surface destSurface = lockArea(Common::Rect(x * 2, y * 2,
-		(x + surface.w) * 2, (y + surface.h) * 2));
+		(x + surface.getWidth()) * 2, (y + surface.getHeight()) * 2));
 
 	// Get a lookup for the palette mapping
 	const byte *paletteMap = &_vm->_curPict[2];
 
 	// Loop through writing
-	for (int yp = 0; yp < surface.h; ++yp) {
+	for (int yp = 0; yp < surface.getHeight(); ++yp) {
 		if (((y + yp) < 0) || ((y + yp) >= 200))
 			continue;
 
 		const byte *pSrc = (const byte *)surface.getBasePtr(0, yp);
 		byte *pDest = (byte *)destSurface.getBasePtr(0, yp * 2);
 
-		for (int xp = 0; xp < surface.w; ++xp, ++pSrc) {
+		for (int xp = 0; xp < surface.getWidth(); ++xp, ++pSrc) {
 			if (*pSrc == surface._transparency) {
 				// Transparent point, so skip pixels
 				pDest += 2;
@@ -973,16 +969,16 @@ void ScreenSurface::drawPicture(GfxSurface &surface, int x, int y) {
  * Copys a given surface to the given position
  */
 void ScreenSurface::copyFrom(Graphics::Surface &src, int x, int y) {
-	lockArea(Common::Rect(x, y, x + src.w, y + src.h));
+	lockArea(Common::Rect(x, y, x + src.getWidth(), y + src.getHeight()));
 
 	// Loop through writing
-	for (int yp = 0; yp < src.h; ++yp) {
+	for (int yp = 0; yp < src.getHeight(); ++yp) {
 		if (((y + yp) < 0) || ((y + yp) >= SCREEN_HEIGHT))
 			continue;
 
 		const byte *pSrc = (const byte *)src.getBasePtr(0, yp);
 		byte *pDest = (byte *)getBasePtr(0, yp);
-		Common::copy(pSrc, pSrc + src.w, pDest);
+		Common::copy(pSrc, pSrc + src.getWidth(), pDest);
 	}
 }
 
@@ -1025,12 +1021,12 @@ void ScreenSurface::drawBox(int x, int y, int dx, int dy, int col) {
 
 	destSurface.hLine(0, 0, dx, col);
 	destSurface.hLine(0, 1, dx, col);
-	destSurface.hLine(0, destSurface.h - 1, dx, col);
-	destSurface.hLine(0, destSurface.h - 2, dx, col);
-	destSurface.vLine(0, 2, destSurface.h - 3, col);
-	destSurface.vLine(1, 2, destSurface.h - 3, col);
-	destSurface.vLine(dx - 1, 2, destSurface.h - 3, col);
-	destSurface.vLine(dx - 2, 2, destSurface.h - 3, col);
+	destSurface.hLine(0, destSurface.getHeight() - 1, dx, col);
+	destSurface.hLine(0, destSurface.getHeight() - 2, dx, col);
+	destSurface.vLine(0, 2, destSurface.getHeight() - 3, col);
+	destSurface.vLine(1, 2, destSurface.getHeight() - 3, col);
+	destSurface.vLine(dx - 1, 2, destSurface.getHeight() - 3, col);
+	destSurface.vLine(dx - 2, 2, destSurface.getHeight() - 3, col);
 }
 
 /**
@@ -1043,7 +1039,7 @@ void ScreenSurface::fillRect(int color, const Common::Rect &bounds) {
 		bounds.right, bounds.bottom * 2));
 
 	// Fill the area
-	destSurface.fillRect(Common::Rect(0, 0, destSurface.w, destSurface.h), color);
+	destSurface.fillRect(Common::Rect(destSurface.getWidth(), destSurface.getHeight()), color);
 }
 
 /**

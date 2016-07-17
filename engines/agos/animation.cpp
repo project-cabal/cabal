@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifdef ENABLE_AGOS2
 
@@ -344,7 +344,7 @@ void MoviePlayerDXA::handleNextFrame() {
 
 bool MoviePlayerDXA::processFrame() {
 	Graphics::Surface *screen = _vm->_system->lockScreen();
-	copyFrameToBuffer((byte *)screen->getPixels(), (_vm->_screenWidth - getWidth()) / 2, (_vm->_screenHeight - getHeight()) / 2, screen->pitch);
+	copyFrameToBuffer((byte *)screen->getPixels(), (_vm->_screenWidth - getWidth()) / 2, (_vm->_screenHeight - getHeight()) / 2, screen->getPitch());
 	_vm->_system->unlockScreen();
 
 	uint32 soundTime = _mixer->getSoundElapsedTime(_bgSound);
@@ -495,7 +495,7 @@ void MoviePlayerSMK::nextFrame() {
 
 bool MoviePlayerSMK::processFrame() {
 	Graphics::Surface *screen = _vm->_system->lockScreen();
-	copyFrameToBuffer((byte *)screen->getPixels(), (_vm->_screenWidth - getWidth()) / 2, (_vm->_screenHeight - getHeight()) / 2, screen->pitch);
+	copyFrameToBuffer((byte *)screen->getPixels(), (_vm->_screenWidth - getWidth()) / 2, (_vm->_screenHeight - getHeight()) / 2, screen->getPitch());
 	_vm->_system->unlockScreen();
 
 	uint32 waitTime = getTimeToNextFrame();

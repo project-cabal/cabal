@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef VECTOR_RENDERER_SPEC_H
 #define VECTOR_RENDERER_SPEC_H
@@ -69,7 +71,7 @@ public:
 	void setGradientColors(uint8 r1, uint8 g1, uint8 b1, uint8 r2, uint8 g2, uint8 b2);
 
 	void copyFrame(OSystem *sys, const Common::Rect &r);
-	void copyWholeFrame(OSystem *sys) { copyFrame(sys, Common::Rect(0, 0, _activeSurface->w, _activeSurface->h)); }
+	void copyWholeFrame(OSystem *sys) { copyFrame(sys, Common::Rect(_activeSurface->getWidth(), _activeSurface->getHeight())); }
 
 	void fillSurface();
 	void blitSurface(const Graphics::Surface *source, const Common::Rect &r);

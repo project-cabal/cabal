@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/file.h"
 #include "common/textconsole.h"
@@ -308,12 +310,12 @@ void TuckerEngine::loadImage(const char *fname, uint8 *dst, int type) {
 		error("Error while reading PCX image");
 
 	const ::Graphics::Surface *pcxSurface = pcx.getSurface();
-	if (pcxSurface->format.bytesPerPixel != 1)
-		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->format.bytesPerPixel);
-	if (pcxSurface->w != 320 || pcxSurface->h != 200)
-		error("Invalid PCX surface size (%d x %d)", pcxSurface->w, pcxSurface->h);
-	for (uint16 y = 0; y < pcxSurface->h; y++)
-		memcpy(dst + y * 320, pcxSurface->getBasePtr(0, y), pcxSurface->w);
+	if (pcxSurface->getFormat().bytesPerPixel != 1)
+		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->getFormat().bytesPerPixel);
+	if (pcxSurface->getWidth() != 320 || pcxSurface->getHeight() != 200)
+		error("Invalid PCX surface size (%d x %d)", pcxSurface->getWidth(), pcxSurface->getHeight());
+	for (uint16 y = 0; y < pcxSurface->getHeight(); y++)
+		memcpy(dst + y * 320, pcxSurface->getBasePtr(0, y), pcxSurface->getWidth());
 
 	if (type != 0) {
 		memcpy(_currentPalette, pcx.getPalette(), 3 * 256);

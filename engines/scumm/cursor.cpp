@@ -136,7 +136,7 @@ void ScummEngine_v6::grabCursor(int x, int y, int w, int h) {
 		return;
 	}
 
-	setCursorFromBuffer((byte *)vs->getBasePtr(x, y - vs->topline), w, h, vs->pitch);
+	setCursorFromBuffer((byte *)vs->getBasePtr(x, y - vs->topline), w, h, vs->getPitch());
 }
 
 void ScummEngine_v6::setDefaultCursor() {
@@ -330,7 +330,7 @@ void ScummEngine_v6::useIm01Cursor(const byte *im, int w, int h) {
 	for (i = 0; i < h; i++) {
 		memcpy(dst, src, w);
 		dst += w;
-		src += vs->pitch;
+		src += vs->getPitch();
 	}
 
 	// Do some drawing
@@ -343,7 +343,7 @@ void ScummEngine_v6::useIm01Cursor(const byte *im, int w, int h) {
 	_gdi->enableZBuffer();
 
 	// Grab the data we just drew and setup the cursor with it
-	setCursorFromBuffer(vs->getPixels(0, 0), w, h, vs->pitch);
+	setCursorFromBuffer(vs->getPixels(0, 0), w, h, vs->getPitch());
 
 	// Restore the screen content
 	src = buf;
@@ -351,7 +351,7 @@ void ScummEngine_v6::useIm01Cursor(const byte *im, int w, int h) {
 
 	for (i = 0; i < h; i++) {
 		memcpy(dst, src, w);
-		dst += vs->pitch;
+		dst += vs->getPitch();
 		src += w;
 	}
 
@@ -414,18 +414,18 @@ void ScummEngine_v5::redefineBuiltinCursorFromChar(int index, int chr) {
 		Graphics::Surface s;
 		byte buf[16*17];
 		memset(buf, 123, 16*17);
-		s.init(_charset->getCharWidth(chr), _charset->getFontHeight(),
+		s.resetWithoutOwnership(_charset->getCharWidth(chr), _charset->getFontHeight(),
 		       _charset->getCharWidth(chr), buf,
 		       Graphics::PixelFormat::createFormatCLUT8());
 		// s.h = 17 for FM-TOWNS Loom Japanese. Fixes bug #1166917
-		assert(s.w <= 16 && s.h <= 17);
+		assert(s.getWidth() <= 16 && s.getHeight() <= 17);
 
 		_charset->drawChar(chr, s, 0, 0);
 
 		memset(ptr, 0, 17 * sizeof(uint16));
-		for (h = 0; h < s.h; h++) {
-			for (int w = 0; w < s.w; w++) {
-				if (buf[s.pitch * h + w] != 123)
+		for (h = 0; h < s.getHeight(); h++) {
+			for (int w = 0; w < s.getWidth(); w++) {
+				if (buf[s.getPitch() * h + w] != 123)
 					*ptr |= 1 << (15 - w);
 			}
 			ptr++;

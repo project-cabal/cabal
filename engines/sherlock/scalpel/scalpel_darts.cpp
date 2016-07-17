@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/scalpel/scalpel_darts.h"
 #include "sherlock/scalpel/scalpel.h"
@@ -438,7 +440,7 @@ int Darts::dartScore(const Common::Point &pt) {
 	Common::Point pos(pt.x - 37, pt.y - 33);
 	Graphics::Surface &scoreImg = (*_dartImages)[1]._frame;
 
-	if (pos.x < 0 || pos.y < 0 || pos.x >= scoreImg.w || pos.y >= scoreImg.h)
+	if (pos.x < 0 || pos.y < 0 || pos.x >= scoreImg.getWidth() || pos.y >= scoreImg.getHeight())
 		// Not on the board
 		return 0;
 

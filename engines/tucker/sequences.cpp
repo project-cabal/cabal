@@ -775,8 +775,8 @@ bool AnimationSequencePlayer::decodeNextAnimationFrame(int index, bool copyDirty
 	const ::Graphics::Surface *surface = _flicPlayer[index].decodeNextFrame();
 
 	if (!copyDirtyRects) {
-		for (uint16 y = 0; (y < surface->h) && (y < kScreenHeight); y++)
-			memcpy(_offscreenBuffer + y * kScreenWidth, (const byte *)surface->getBasePtr(0, y), surface->w);
+		for (uint16 y = 0; (y < surface->getHeight()) && (y < kScreenHeight); y++)
+			memcpy(_offscreenBuffer + y * kScreenWidth, (const byte *)surface->getBasePtr(0, y), surface->getWidth());
 	} else {
 		_flicPlayer[index].copyDirtyRectsToBuffer(_offscreenBuffer, kScreenWidth);
 	}

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "image/codecs/cinepak.h"
 #include "image/codecs/cinepak_tables.h"
@@ -331,14 +333,14 @@ void decodeVectorsTmpl(CinepakFrame &frame, const byte *clipTable, const byte *c
 
 					// Get the codebook
 					byte codebook = stream.readByte();
-					CodebookConverter::decodeBlock1(codebook, frame.strips[strip], iy, clipTable, colorMap, frame.surface->format);
+					CodebookConverter::decodeBlock1(codebook, frame.strips[strip], iy, clipTable, colorMap, frame.surface->getFormat());
 				} else if (flag & mask) {
 					if ((stream.pos() - startPos + 4) > (int32)chunkSize)
 						return;
 
 					byte codebook[4];
 					stream.read(codebook, 4);
-					CodebookConverter::decodeBlock4(codebook, frame.strips[strip], iy, clipTable, colorMap, frame.surface->format);
+					CodebookConverter::decodeBlock4(codebook, frame.strips[strip], iy, clipTable, colorMap, frame.surface->getFormat());
 				}
 			}
 
@@ -599,11 +601,11 @@ void CinepakDecoder::ditherCodebookQT(uint16 strip, byte codebookType, uint16 co
 }
 
 void CinepakDecoder::decodeVectors(Common::SeekableReadStream &stream, uint16 strip, byte chunkID, uint32 chunkSize) {
-	if (_curFrame.surface->format.bytesPerPixel == 1) {
+	if (_curFrame.surface->getFormat().bytesPerPixel == 1) {
 		decodeVectorsTmpl<byte, CodebookConverterRaw>(_curFrame, _clipTable, _colorMap, stream, strip, chunkID, chunkSize);
-	} else if (_curFrame.surface->format.bytesPerPixel == 2) {
+	} else if (_curFrame.surface->getFormat().bytesPerPixel == 2) {
 		decodeVectorsTmpl<uint16, CodebookConverterRaw>(_curFrame, _clipTable, _colorMap, stream, strip, chunkID, chunkSize);
-	} else if (_curFrame.surface->format.bytesPerPixel == 4) {
+	} else if (_curFrame.surface->getFormat().bytesPerPixel == 4) {
 		decodeVectorsTmpl<uint32, CodebookConverterRaw>(_curFrame, _clipTable, _colorMap, stream, strip, chunkID, chunkSize);
 	}
 }

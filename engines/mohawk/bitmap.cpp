@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mohawk/bitmap.h"
 
@@ -572,7 +574,7 @@ void MohawkBitmap::drawRaw(Graphics::Surface *surface) {
 				byte b = _data->readByte();
 				byte g = _data->readByte();
 				byte r = _data->readByte();
-				if (surface->format.bytesPerPixel == 2)
+				if (surface->getFormat().bytesPerPixel == 2)
 					*((uint16 *)surface->getBasePtr(x, y)) = pixelFormat.RGBToColor(r, g, b);
 				else
 					*((uint32 *)surface->getBasePtr(x, y)) = pixelFormat.RGBToColor(r, g, b);
@@ -642,7 +644,7 @@ MohawkSurface *MystBitmap::decodeImage(Common::SeekableReadStream *stream) {
 	const Graphics::Surface *bmpSurface = bitmapDecoder.getSurface();
 	Graphics::Surface *newSurface = 0;
 
-	if (bmpSurface->format.bytesPerPixel == 1) {
+	if (bmpSurface->getFormat().bytesPerPixel == 1) {
 		_bitsPerPixel = 8;
 		newSurface = new Graphics::Surface();
 		newSurface->copyFrom(*bmpSurface);
@@ -799,17 +801,17 @@ MohawkSurface *DOSBitmap::decodeImage(Common::SeekableReadStream *stream) {
 }
 
 void DOSBitmap::expandMonochromePlane(Graphics::Surface *surface, Common::SeekableReadStream *rawStream) {
-	assert(surface->format.bytesPerPixel == 1);
+	assert(surface->getFormat().bytesPerPixel == 1);
 
 	byte *dst = (byte *)surface->getPixels();
 
 	// Expand the 8 pixels in a byte into a full byte per pixel
 
-	for (uint32 i = 0; i < surface->h; i++) {
-		for (uint x = 0; x < surface->w;) {
+	for (uint32 i = 0; i < surface->getHeight(); i++) {
+		for (uint x = 0; x < surface->getWidth();) {
 			byte temp = rawStream->readByte();
 
-			for (int j = 7; j >= 0 && x < surface->w; j--) {
+			for (int j = 7; j >= 0 && x < surface->getWidth(); j--) {
 				if (temp & (1 << j))
 					*dst++ = 0xf;
 				else
@@ -825,17 +827,17 @@ void DOSBitmap::expandMonochromePlane(Graphics::Surface *surface, Common::Seekab
 	*(dst + j * 4 + dstPixel) = (*(dst + j * 4 + dstPixel) >> 1) | (((temp >> srcBit) & 1) << 3)
 
 void DOSBitmap::expandEGAPlanes(Graphics::Surface *surface, Common::SeekableReadStream *rawStream) {
-	assert(surface->format.bytesPerPixel == 1);
+	assert(surface->getFormat().bytesPerPixel == 1);
 
 	// Note that the image is in EGA planar form and not just standard 4bpp
 	// This seems to contradict the PoP specs which seem to do something else
 
 	byte *dst = (byte *)surface->getPixels();
 
-	for (uint32 i = 0; i < surface->h; i++) {
+	for (uint32 i = 0; i < surface->getHeight(); i++) {
 		uint x = 0;
 
-		for (int32 j = 0; j < surface->w / 4; j++) {
+		for (int32 j = 0; j < surface->getWidth() / 4; j++) {
 			byte temp = rawStream->readByte();
 			ADD_BIT(3, 4);
 			ADD_BIT(2, 5);
@@ -847,13 +849,13 @@ void DOSBitmap::expandEGAPlanes(Graphics::Surface *surface, Common::SeekableRead
 			ADD_BIT(1, 2);
 			ADD_BIT(0, 3);
 
-			if (x < 3 && j + 1 >= surface->w / 4) {
+			if (x < 3 && j + 1 >= surface->getWidth() / 4) {
 				j = -1;
 				x++;
 			}
 		}
 
-		dst += surface->w;
+		dst += surface->getWidth();
 	}
 }
 

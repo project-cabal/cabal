@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/config-manager.h"
@@ -577,12 +579,12 @@ void PictureDialog::save() {
 
 	// Get the inventory frame, and adjust the dialog position to allow for it
 	MSprite *frame = asset->getFrame(0);
-	_position.y = frame->h + 12;
+	_position.y = frame->getHeight() + 12;
 	if ((_position.y + _height) > _vm->_screen.getHeight())
 		_position.y -= (_position.y + _height) - _vm->_screen.getHeight();
 
 	// Draw the inventory picture
-	frame->copyTo(&_vm->_screen, Common::Point(160 - frame->w / 2, 6),
+	frame->copyTo(&_vm->_screen, Common::Point(160 - frame->getWidth() / 2, 6),
 		frame->getTransparencyIndex());
 	_vm->_screen.copyRectToScreen(_vm->_screen.getBounds());
 

@@ -256,7 +256,7 @@ void CineEngine::showSplashScreen() {
 		return;
 
 	const Graphics::Surface *surface = decoder.getSurface();
-	if (surface->w == 640 && surface->h == 480) {
+	if (surface->getWidth() == 640 && surface->getHeight() == 480) {
 		initGraphics(640, 480, true);
 
 		const byte *palette = decoder.getPalette();

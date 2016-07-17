@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "access/font.h"
 
@@ -54,7 +56,7 @@ void Font::load(const int *fontIndex, const byte *fontData) {
 			byte pixel;
 
 			byte *pDest = (byte *)_chars[i].getBasePtr(0, y);
-			for (int x = 0; x < _chars[i].w; ++x, ++pDest) {
+			for (int x = 0; x < _chars[i].getWidth(); ++x, ++pDest) {
 				// Get the pixel
 				pixel = 0;
 				for (int pixelCtr = 0; pixelCtr < _bitWidth; ++pixelCtr, --bitsLeft) {
@@ -79,7 +81,7 @@ int Font::charWidth(char c) {
 	if (c < ' ')
 		return 0;
 
-	return _chars[c - ' '].w;
+	return _chars[c - ' '].getWidth();
 }
 
 int Font::stringWidth(const Common::String &msg) {
@@ -152,21 +154,21 @@ void Font::drawString(ASurface *s, const Common::String &msg, const Common::Poin
 int Font::drawChar(ASurface *s, char c, Common::Point &pt) {
 	Graphics::Surface &ch = _chars[c - ' '];
 
-	s->addDirtyRect(Common::Rect(pt.x, pt.y, pt.x + ch.w, pt.y + ch.h));
+	s->addDirtyRect(Common::Rect(pt.x, pt.y, pt.x + ch.getWidth(), pt.y + ch.getHeight()));
 
 	// Loop through the lines of the character
-	for (int y = 0; y < ch.h; ++y) {
+	for (int y = 0; y < ch.getHeight(); ++y) {
 		byte *pSrc = (byte *)ch.getBasePtr(0, y);
 		byte *pDest = (byte *)s->getBasePtr(pt.x, pt.y + y);
 
 		// Loop through the horizontal pixels of the line
-		for (int x = 0; x < ch.w; ++x, ++pSrc, ++pDest) {
+		for (int x = 0; x < ch.getWidth(); ++x, ++pSrc, ++pDest) {
 			if (*pSrc != 0)
 				*pDest = _fontColors[*pSrc];
 		}
 	}
 
-	return ch.w;
+	return ch.getWidth();
 }
 
 /*------------------------------------------------------------------------*/

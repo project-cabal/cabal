@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/config-manager.h"
 #include "common/fs.h"
@@ -921,8 +923,8 @@ void AmigaDisk_ns::loadBackground(BackgroundInfo& info, const char *name) {
 	decoder.loadStream(*s);
 
 	info.bg.copyFrom(*decoder.getSurface());
-	info.width = info.bg.w;
-	info.height = info.bg.h;
+	info.width = info.bg.getWidth();
+	info.height = info.bg.getHeight();
 
 	const byte *p = decoder.getPalette();
 	for (uint i = 0; i < 32; i++) {
@@ -975,7 +977,7 @@ void AmigaDisk_ns::loadMask_internal(BackgroundInfo& info, const char *name) {
 
 	info._mask = new MaskBuffer;
 	// surface width was shrunk to 1/4th of the bitmap width due to the pixel packing
-	info._mask->create(decoder.getSurface()->w * 4, decoder.getSurface()->h);
+	info._mask->create(decoder.getSurface()->getWidth() * 4, decoder.getSurface()->getHeight());
 	memcpy(info._mask->data, decoder.getSurface()->getPixels(), info._mask->size);
 	info._mask->bigEndian = true;
 }
@@ -997,7 +999,7 @@ void AmigaDisk_ns::loadPath_internal(BackgroundInfo& info, const char *name) {
 
 	info._path = new PathBuffer;
 	// surface width was shrunk to 1/8th of the bitmap width due to the pixel packing
-	info._path->create(decoder.getSurface()->w * 8, decoder.getSurface()->h);
+	info._path->create(decoder.getSurface()->getWidth() * 8, decoder.getSurface()->getHeight());
 	memcpy(info._path->data, decoder.getSurface()->getPixels(), info._path->size);
 	info._path->bigEndian = true;
 }

@@ -82,9 +82,9 @@ private:
 		PSXVideoTrack(Common::SeekableReadStream &firstSector, CDSpeed speed, int frameCount);
 		~PSXVideoTrack();
 
-		uint16 getWidth() const { return _surface->w; }
-		uint16 getHeight() const { return _surface->h; }
-		Graphics::PixelFormat getPixelFormat() const { return _surface->format; }
+		uint16 getWidth() const { return _surface->getWidth(); }
+		uint16 getHeight() const { return _surface->getHeight(); }
+		Graphics::PixelFormat getPixelFormat() const { return _surface->getFormat(); }
 		bool endOfTrack() const { return _endOfTrack; }
 		int getCurFrame() const { return _curFrame; }
 		int getFrameCount() const { return _frameCount; }

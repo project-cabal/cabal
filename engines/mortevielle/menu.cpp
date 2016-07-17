@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Mortville Manor DOS source code
@@ -512,7 +514,7 @@ void Menu::menuDown(int ii) {
 void Menu::menuUp(int msgId) {
 	if (_multiTitle) {
 		/* Restore the background area */
-		assert(_vm->_screenSurface->pitch == _vm->_backgroundSurface.pitch);
+		assert(_vm->_screenSurface->getPitch() == _vm->_backgroundSurface.getPitch());
 
 		// Get a pointer to the source and destination of the area to restore
 		const byte *pSrc = (const byte *)_vm->_backgroundSurface.getBasePtr(0, 10);

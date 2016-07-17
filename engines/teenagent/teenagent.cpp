@@ -402,7 +402,7 @@ bool TeenAgentEngine::showLogo() {
 				return true;
 			}
 
-			_system->copyRectToScreen(s.getPixels(), s.w, s.x, s.y, s.w, s.h);
+			_system->copyRectToScreen(s.getPixels(), s.getWidth(), s.x, s.y, s.getWidth(), s.getHeight());
 			_system->updateScreen();
 
 			_system->delayMillis(100);

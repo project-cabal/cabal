@@ -4570,7 +4570,7 @@ void Scene1337::setCursorData(int resNum, int rlbNum, int frameNum) {
 
 		Graphics::Surface surface = s.lockSurface();
 		const byte *cursorData = (const byte *)surface.getPixels();
-		CursorMan.replaceCursor(cursorData, surface.w, surface.h, s._centroid.x, s._centroid.y, s._transColor);
+		CursorMan.replaceCursor(cursorData, surface.getWidth(), surface.getHeight(), s._centroid.x, s._centroid.y, s._transColor);
 		s.unlockSurface();
 
 		DEALLOCATE(cursor);

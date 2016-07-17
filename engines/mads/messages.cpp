@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "mads/mads.h"
@@ -233,7 +235,7 @@ void KernelMessages::processText(int msgIndex) {
 
 			int yAmount = player._currentScale * player._centerOfGravity / 100;
 			x1 = player._playerPos.x;
-			y1 = (frame->h * player._currentScale / -100) + yAmount +
+			y1 = (frame->getHeight() * player._currentScale / -100) + yAmount +
 				player._playerPos.y - 15;
 		} else {
 			x1 = 160;

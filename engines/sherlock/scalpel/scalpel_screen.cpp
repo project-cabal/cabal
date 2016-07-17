@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/scalpel/scalpel_screen.h"
 #include "sherlock/scalpel/scalpel.h"
@@ -126,8 +128,8 @@ void Scalpel3DOScreen::transBlitFromUnscaled(const Graphics::Surface &src, const
 		return;
 	}
 
-	Common::Rect drawRect(0, 0, src.w, src.h);
-	Common::Rect destRect(pt.x, pt.y, pt.x + src.w, pt.y + src.h);
+	Common::Rect drawRect(src.getWidth(), src.getHeight());
+	Common::Rect destRect(pt.x, pt.y, pt.x + src.getWidth(), pt.y + src.getHeight());
 
 	// Clip the display area to on-screen
 	if (!clip(drawRect, destRect))
@@ -135,14 +137,14 @@ void Scalpel3DOScreen::transBlitFromUnscaled(const Graphics::Surface &src, const
 		return;
 
 	if (flipped)
-		drawRect = Common::Rect(src.w - drawRect.right, src.h - drawRect.bottom,
-		src.w - drawRect.left, src.h - drawRect.top);
+		drawRect = Common::Rect(src.getWidth() - drawRect.right, src.getHeight() - drawRect.bottom,
+		src.getWidth() - drawRect.left, src.getHeight() - drawRect.top);
 
 	Common::Point destPt(destRect.left, destRect.top);
 	addDirtyRect(Common::Rect(destPt.x * 2, destPt.y * 2, (destPt.x + drawRect.width()) * 2,
 		(destPt.y + drawRect.height()) * 2));
 
-	assert(src.format.bytesPerPixel == 2 && _surface.format.bytesPerPixel == 2);
+	assert(src.getFormat().bytesPerPixel == 2 && _surface.getFormat().bytesPerPixel == 2);
 
 	for (int yp = 0; yp < drawRect.height(); ++yp) {
 		const uint16 *srcP = (const uint16 *)src.getBasePtr(
@@ -322,16 +324,16 @@ void Scalpel3DOScreen::blitFrom3DOcolorLimit(uint16 limitColor) {
 }
 
 uint16 Scalpel3DOScreen::w() const {
-	return _vm->_isScreenDoubled ? _surface.w / 2 : _surface.w;
+	return _vm->_isScreenDoubled ? _surface.getWidth() / 2 : _surface.getWidth();
 }
 
 uint16 Scalpel3DOScreen::h() const {
-	return _vm->_isScreenDoubled ? _surface.h / 2 : _surface.h;
+	return _vm->_isScreenDoubled ? _surface.getHeight() / 2 : _surface.getHeight();
 }
 
 void Scalpel3DOScreen::rawBlitFrom(const Graphics::Surface &src, const Common::Point &pt) {
-	Common::Rect srcRect(0, 0, src.w, src.h);
-	Common::Rect destRect(pt.x, pt.y, pt.x + src.w, pt.y + src.h);
+	Common::Rect srcRect(src.getWidth(), src.getHeight());
+	Common::Rect destRect(pt.x, pt.y, pt.x + src.getWidth(), pt.y + src.getHeight());
 
 	addDirtyRect(destRect);
 	_surface.copyRectToSurface(src, destRect.left, destRect.top, srcRect);

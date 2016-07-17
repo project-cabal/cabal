@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "graphics/fonts/bdf.h"
 
@@ -103,7 +105,7 @@ void BdfFont::drawChar(Surface *dst, uint32 chr, const int tx, const int ty, con
 	// equal to 50 and the decision of the theme designer?
 	// asserting _data.maxAdvance <= 50: let the theme designer decide what looks best
 	assert(_data.maxAdvance <= 50);
-	assert(dst->format.bytesPerPixel == 1 || dst->format.bytesPerPixel == 2 || dst->format.bytesPerPixel == 4);
+	assert(dst->getFormat().bytesPerPixel == 1 || dst->getFormat().bytesPerPixel == 2 || dst->getFormat().bytesPerPixel == 4);
 
 	const int idx = mapToIndex(chr);
 	if (idx < 0)
@@ -139,8 +141,8 @@ void BdfFont::drawChar(Surface *dst, uint32 chr, const int tx, const int ty, con
 		y = 0;
 	}
 
-	if (y + height > dst->h)
-		height = dst->h - y;
+	if (y + height > dst->getHeight())
+		height = dst->getHeight() - y;
 
 	if (height <= 0)
 		return;
@@ -152,8 +154,8 @@ void BdfFont::drawChar(Surface *dst, uint32 chr, const int tx, const int ty, con
 		x = 0;
 	}
 
-	if (x + width > dst->w)
-		width = dst->w - x;
+	if (x + width > dst->getWidth())
+		width = dst->getWidth() - x;
 
 	if (width <= 0)
 		return;
@@ -162,12 +164,12 @@ void BdfFont::drawChar(Surface *dst, uint32 chr, const int tx, const int ty, con
 
 	byte *ptr = (byte *)dst->getBasePtr(x, y);
 
-	if (dst->format.bytesPerPixel == 1)
-		drawCharIntern<byte>(ptr, dst->pitch, src, height, originalWidth, xStart, xEnd, color);
-	else if (dst->format.bytesPerPixel == 2)
-		drawCharIntern<uint16>(ptr, dst->pitch, src, height, originalWidth, xStart, xEnd, color);
-	else if (dst->format.bytesPerPixel == 4)
-		drawCharIntern<uint32>(ptr, dst->pitch, src, height, originalWidth, xStart, xEnd, color);
+	if (dst->getFormat().bytesPerPixel == 1)
+		drawCharIntern<byte>(ptr, dst->getPitch(), src, height, originalWidth, xStart, xEnd, color);
+	else if (dst->getFormat().bytesPerPixel == 2)
+		drawCharIntern<uint16>(ptr, dst->getPitch(), src, height, originalWidth, xStart, xEnd, color);
+	else if (dst->getFormat().bytesPerPixel == 4)
+		drawCharIntern<uint32>(ptr, dst->getPitch(), src, height, originalWidth, xStart, xEnd, color);
 }
 
 namespace {

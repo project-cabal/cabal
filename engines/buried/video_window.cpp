@@ -151,7 +151,7 @@ void VideoWindow::updateVideo() {
 
 				if (_vm->isTrueColor()) {
 					// Convert to the screen format if necessary
-					if (frame->format == g_system->getScreenFormat()) {
+					if (frame->getFormat() == g_system->getScreenFormat()) {
 						_lastFrame = frame;
 					} else {
 						_ownedFrame = frame->convertTo(g_system->getScreenFormat(), _video->getPalette());

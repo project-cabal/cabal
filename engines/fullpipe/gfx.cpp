@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "fullpipe/fullpipe.h"
 
@@ -669,7 +671,7 @@ void Picture::displayPicture() {
 		return;
 
 	g_fp->_backgroundSurface.fillRect(Common::Rect(0, 0, 800, 600), 0);
-	g_fp->_system->copyRectToScreen(g_fp->_backgroundSurface.getBasePtr(0, 0), g_fp->_backgroundSurface.pitch, 0, 0, 800, 600);
+	g_fp->_system->copyRectToScreen(g_fp->_backgroundSurface.getBasePtr(0, 0), g_fp->_backgroundSurface.getPitch(), 0, 0, 800, 600);
 
 	draw(0, 0, 0, 0);
 
@@ -853,7 +855,7 @@ void Bitmap::putDib(int x, int y, int32 *palette, int alpha) {
 	int alphac = TS_ARGB(0xff, alpha, 0xff, 0xff);
 
 	_surface->blit(g_fp->_backgroundSurface, x1, y1, _flipping, &sub, alphac);
-	g_fp->_system->copyRectToScreen(g_fp->_backgroundSurface.getBasePtr(x1, y1), g_fp->_backgroundSurface.pitch, x1, y1, sub.width(), sub.height());
+	g_fp->_system->copyRectToScreen(g_fp->_backgroundSurface.getBasePtr(x1, y1), g_fp->_backgroundSurface.getPitch(), x1, y1, sub.width(), sub.height());
 }
 
 bool Bitmap::putDibRB(int32 *palette) {

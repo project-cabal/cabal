@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Hugo Trilogy source code
@@ -116,15 +118,15 @@ Seq *FileManager::readPCX(Common::SeekableReadStream &f, Seq *seqPtr, byte *imag
 		error("Error while reading PCX image");
 
 	const Graphics::Surface *pcxSurface = pcx.getSurface();
-	if (pcxSurface->format.bytesPerPixel != 1)
-		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->format.bytesPerPixel);
+	if (pcxSurface->getFormat().bytesPerPixel != 1)
+		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->getFormat().bytesPerPixel);
 
 	// Find size of image data in 8-bit DIB format
 	// Note save of x2 - marks end of valid data before garbage
-	seqPtr->_lines = pcxSurface->h;
-	seqPtr->_x2 = seqPtr->_bytesPerLine8 = pcxSurface->w;
+	seqPtr->_lines = pcxSurface->getHeight();
+	seqPtr->_x2 = seqPtr->_bytesPerLine8 = pcxSurface->getWidth();
 	// Size of the image
-	uint16 size = pcxSurface->w * pcxSurface->h;
+	uint16 size = pcxSurface->getWidth() * pcxSurface->getHeight();
 
 	// Allocate memory for image data if NULL
 	if (imagePtr == 0)
@@ -133,8 +135,8 @@ Seq *FileManager::readPCX(Common::SeekableReadStream &f, Seq *seqPtr, byte *imag
 	assert(imagePtr);
 
 	seqPtr->_imagePtr = imagePtr;
-	for (uint16 y = 0; y < pcxSurface->h; y++)
-		memcpy(imagePtr + y * pcxSurface->w, pcxSurface->getBasePtr(0, y), pcxSurface->w);
+	for (uint16 y = 0; y < pcxSurface->getHeight(); y++)
+		memcpy(imagePtr + y * pcxSurface->getWidth(), pcxSurface->getBasePtr(0, y), pcxSurface->getWidth());
 
 	return seqPtr;
 }

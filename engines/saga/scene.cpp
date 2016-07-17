@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Scene management module
 #include "saga/saga.h"
@@ -466,8 +468,8 @@ void Scene::changeScene(int16 sceneNumber, int actorsEntrance, SceneTransitionTy
 					Image::IFFDecoder decoder;
 					decoder.loadStream(file);
 					pal = decoder.getPalette();
-					rect.setWidth(decoder.getSurface()->w);
-					rect.setHeight(decoder.getSurface()->h);
+					rect.setWidth(decoder.getSurface()->getWidth());
+					rect.setHeight(decoder.getSurface()->getHeight());
 					_vm->_gfx->drawRegion(rect, (const byte *)decoder.getSurface()->getPixels());
 					for (int j = 0; j < PAL_ENTRIES; j++) {
 						cPal[j].red = *pal++;

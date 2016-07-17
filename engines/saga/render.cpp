@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Main rendering loop
 
@@ -215,7 +217,7 @@ void Render::addDirtyRect(Common::Rect r) {
 		return;
 
 	// Clip rectangle
-	r.clip(_backGroundSurface.w, _backGroundSurface.h);
+	r.clip(_backGroundSurface.getWidth(), _backGroundSurface.getHeight());
 
 	// If it is empty after clipping, we are done
 	if (r.isEmpty())
@@ -248,7 +250,7 @@ void Render::restoreChangedRects() {
 		for (it = _dirtyRects.begin(); it != _dirtyRects.end(); ++it) {
 			//_backGroundSurface.frameRect(*it, 1);		// DEBUG
 			if (_vm->_interface->getFadeMode() != kFadeOut)
-				g_system->copyRectToScreen(_vm->_gfx->getBackBufferPixels(), _backGroundSurface.w, it->left, it->top, it->width(), it->height());
+				g_system->copyRectToScreen(_vm->_gfx->getBackBufferPixels(), _backGroundSurface.getWidth(), it->left, it->top, it->width(), it->height());
 		}
 	}
 	_dirtyRects.clear();
@@ -260,7 +262,7 @@ void Render::drawDirtyRects() {
 		for (it = _dirtyRects.begin(); it != _dirtyRects.end(); ++it) {
 			//_backGroundSurface.frameRect(*it, 2);		// DEBUG
 			if (_vm->_interface->getFadeMode() != kFadeOut)
-				g_system->copyRectToScreen(_vm->_gfx->getBackBufferPixels(), _backGroundSurface.w, it->left, it->top, it->width(), it->height());
+				g_system->copyRectToScreen(_vm->_gfx->getBackBufferPixels(), _backGroundSurface.getWidth(), it->left, it->top, it->width(), it->height());
 		}
 	} else {
 		_system->copyRectToScreen(_vm->_gfx->getBackBufferPixels(), _vm->_gfx->getBackBufferWidth(), 0, 0,

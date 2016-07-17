@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef PARALLACTION_GRAPHICS_H
 #define PARALLACTION_GRAPHICS_H
@@ -107,10 +109,7 @@ public:
 	}
 	void	getRect(uint16 index, Common::Rect &r) {
 		assert(index == 0);
-		r.left = 0;
-		r.top = 0;
-		r.setWidth(_surf->w);
-		r.setHeight(_surf->h);
+		r = Common::Rect(_surf->getWidth(), _surf->getHeight());
 	}
 	uint	getRawSize(uint16 index) {
 		assert(index == 0);
@@ -118,7 +117,7 @@ public:
 	}
 	uint	getSize(uint16 index) {
 		assert(index == 0);
-		return _surf->w * _surf->h;
+		return _surf->getWidth() * _surf->getHeight();
 	}
 
 };

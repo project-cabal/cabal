@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mohawk/cursors.h"
 #include "mohawk/mohawk.h"
@@ -120,8 +122,8 @@ void MystCursorManager::setCursor(uint16 id) {
 	delete clrcStream;
 
 	// Myst ME stores some cursors as 24bpp images instead of 8bpp
-	if (surface->format.bytesPerPixel == 1) {
-		CursorMan.replaceCursor(surface->getPixels(), surface->w, surface->h, hotspotX, hotspotY, 0);
+	if (surface->getFormat().bytesPerPixel == 1) {
+		CursorMan.replaceCursor(surface->getPixels(), surface->getWidth(), surface->getHeight(), hotspotX, hotspotY, 0);
 
 		// We're using the screen palette for the original game, but we need
 		// to use this for any 8bpp cursor in ME.
@@ -129,7 +131,7 @@ void MystCursorManager::setCursor(uint16 id) {
 			CursorMan.replaceCursorPalette(mhkSurface->getPalette(), 0, 256);
 	} else {
 		Graphics::PixelFormat pixelFormat = g_system->getScreenFormat();
-		CursorMan.replaceCursor(surface->getPixels(), surface->w, surface->h, hotspotX, hotspotY, pixelFormat.RGBToColor(255, 255, 255), false, &pixelFormat);
+		CursorMan.replaceCursor(surface->getPixels(), surface->getWidth(), surface->getHeight(), hotspotX, hotspotY, pixelFormat.RGBToColor(255, 255, 255), false, &pixelFormat);
 	}
 
 	_vm->_needsUpdate = true;

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,8 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #include "engines/util.h"
 #include "mads/compression.h"
 #include "mads/screen.h"
@@ -33,34 +35,21 @@ namespace MADS {
 MADSEngine *MSurface::_vm = nullptr;
 
 MSurface::MSurface() {
-	pixels = nullptr;
-	_freeFlag = false;
 }
 
 MSurface::MSurface(int width, int height) {
-	pixels = nullptr;
-	_freeFlag = false;
 	setSize(width, height);
 }
 
 MSurface::~MSurface() {
-	if (_freeFlag)
-		Graphics::Surface::free();
 }
 
 void MSurface::setSize(int width, int height) {
-	if (_freeFlag)
-		Graphics::Surface::free();
-	Graphics::Surface::create(width, height, Graphics::PixelFormat::createFormatCLUT8());
-	_freeFlag = true;
+	create(width, height, Graphics::PixelFormat::createFormatCLUT8());
 }
 
 void MSurface::setPixels(byte *pData, int horizSize, int vertSize) {
-	_freeFlag = false;
-	pixels = pData;
-	w = pitch = horizSize;
-	h = vertSize;
-	format.bytesPerPixel = 1;
+	resetWithoutOwnership(horizSize, vertSize, horizSize, pData, Graphics::PixelFormat::createFormatCLUT8());
 }
 
 int MSurface::scaleValue(int value, int scale, int err) {
@@ -182,7 +171,7 @@ void MSurface::drawSprite(const Common::Point &pt, SpriteInfo &info, const Commo
 
 					tempDst++;
 				}
-				dst += pitch;
+				dst += getPitch();
 				heightAmt--;
 
 				errY += 100;
@@ -205,28 +194,28 @@ void MSurface::drawSprite(const Common::Point &pt, SpriteInfo &info, const Commo
 }
 
 void MSurface::empty() {
-	Common::fill(getBasePtr(0, 0), getBasePtr(0, h), 0);
+	Common::fill(getBasePtr(0, 0), getBasePtr(0, getHeight()), 0);
 }
 
 void MSurface::copyFrom(MSurface *src, const Common::Rect &srcBounds,
 		const Common::Point &destPos, int transparentColor) {
 	// Validation of the rectangle and position
 	int destX = destPos.x, destY = destPos.y;
-	if ((destX >= w) || (destY >= h))
+	if (destX >= getWidth() || destY >= getHeight())
 		return;
 
 	Common::Rect copyRect = srcBounds;
 	if (destX < 0) {
 		copyRect.left += -destX;
 		destX = 0;
-	} else if (destX + copyRect.width() > w) {
-		copyRect.right -= destX + copyRect.width() - w;
+	} else if (destX + copyRect.width() > getWidth()) {
+		copyRect.right -= destX + copyRect.width() - getWidth();
 	}
 	if (destY < 0) {
 		copyRect.top += -destY;
 		destY = 0;
-	} else if (destY + copyRect.height() > h) {
-		copyRect.bottom -= destY + copyRect.height() - h;
+	} else if (destY + copyRect.height() > getHeight()) {
+		copyRect.bottom -= destY + copyRect.height() - getHeight();
 	}
 
 	if (!copyRect.isValidRect())
@@ -236,7 +225,7 @@ void MSurface::copyFrom(MSurface *src, const Common::Rect &srcBounds,
 
 	byte *data = src->getData();
 	byte *srcPtr = data + (src->getWidth() * copyRect.top + copyRect.left);
-	byte *destPtr = (byte *)pixels + (destY * getWidth()) + destX;
+	byte *destPtr = (byte *)getPixels() + (destY * getWidth()) + destX;
 
 	for (int rowCtr = 0; rowCtr < copyRect.height(); ++rowCtr) {
 		if (transparentColor == -1) {
@@ -295,14 +284,14 @@ void MSurface::copyFrom(MSurface *src, const Common::Point &destPos, int depth,
 		if (destX < 0) {
 			copyRect.left += -destX;
 			destX = 0;
-		} else if (destX + copyRect.width() > w) {
-			copyRect.right -= destX + copyRect.width() - w;
+		} else if (destX + copyRect.width() > getWidth()) {
+			copyRect.right -= destX + copyRect.width() - getWidth();
 		}
 		if (destY < 0) {
 			copyRect.top += -destY;
 			destY = 0;
-		} else if (destY + copyRect.height() > h) {
-			copyRect.bottom -= destY + copyRect.height() - h;
+		} else if (destY + copyRect.height() > getHeight()) {
+			copyRect.bottom -= destY + copyRect.height() - getHeight();
 		}
 
 		if (!copyRect.isValidRect())
@@ -313,7 +302,7 @@ void MSurface::copyFrom(MSurface *src, const Common::Point &destPos, int depth,
 
 		byte *data = src->getData();
 		byte *srcPtr = data + (src->getWidth() * copyRect.top + copyRect.left);
-		byte *destPtr = (byte *)pixels + (destY * pitch) + destX;
+		byte *destPtr = (byte *)getPixels() + (destY * getPitch()) + destX;
 		if (flipped)
 			srcPtr += copyRect.width() - 1;
 
@@ -387,7 +376,7 @@ void MSurface::copyFrom(MSurface *src, const Common::Point &destPos, int depth,
 	spriteLeft = spriteLeft * direction;
 
 	// Loop through the lines of the sprite
-	for (int yp = 0, sprY = -1; yp < frameHeight; ++yp, srcPixelsP += src->pitch) {
+	for (int yp = 0, sprY = -1; yp < frameHeight; ++yp, srcPixelsP += src->getPitch()) {
 		if (!lineDist[yp])
 			// Not a display line, so skip it
 			continue;
@@ -411,8 +400,8 @@ void MSurface::copyFrom(MSurface *src, const Common::Point &destPos, int depth,
 				continue;
 
 			// Get depth of current output pixel in depth surface
-			Common::Point pt((destP - (byte *)this->pixels) % this->pitch,
-				(destP - (byte *)this->pixels) / this->pitch);
+			Common::Point pt((destP - (byte *)getPixels()) % getPitch(),
+				(destP - (byte *)getPixels()) / getPitch());
 			int pixelDepth = (depthSurface == nullptr) ? 15 : depthSurface->getDepth(pt);
 
 			if ((*srcP != transparentColor) && (depth <= pixelDepth))
@@ -422,7 +411,7 @@ void MSurface::copyFrom(MSurface *src, const Common::Point &destPos, int depth,
 		}
 
 		// Move to the next destination line
-		destPixelsP += this->pitch;
+		destPixelsP += getPitch();
 	}
 }
 
@@ -437,19 +426,19 @@ void MSurface::scrollX(int xAmount) {
 
 	byte *srcP = getBasePtr(0, 0);
 
-	for (int y = 0; y < this->h; ++y, srcP += pitch) {
+	for (int y = 0; y < getHeight(); ++y, srcP += getPitch()) {
 		if (direction < 0) {
 			// Copy area to be overwritten
 			Common::copy(srcP, srcP + xSize, &buffer[0]);
 			// Shift the remainder of the line over the given area
-			Common::copy(srcP + xSize, srcP + this->w, srcP);
+			Common::copy(srcP + xSize, srcP + getWidth(), srcP);
 			// Move buffered area to the end of the line
-			Common::copy(&buffer[0], &buffer[xSize], srcP + this->w - xSize);
+			Common::copy(&buffer[0], &buffer[xSize], srcP + getWidth() - xSize);
 		} else {
 			// Copy area to be overwritten
-			Common::copy_backward(srcP + this->w - xSize, srcP + this->w, &buffer[80]);
+			Common::copy_backward(srcP + getWidth() - xSize, srcP + getWidth(), &buffer[80]);
 			// Shift the remainder of the line over the given area
-			Common::copy_backward(srcP, srcP + this->w - xSize, srcP + this->w);
+			Common::copy_backward(srcP, srcP + getWidth() - xSize, srcP + getWidth());
 			// Move buffered area to the start of the line
 			Common::copy_backward(&buffer[80 - xSize], &buffer[80], srcP + xSize);
 		}
@@ -462,39 +451,39 @@ void MSurface::scrollY(int yAmount) {
 
 	int direction = (yAmount > 0) ? 1 : -1;
 	int ySize = ABS(yAmount);
-	assert(ySize < (this->h / 2));
-	assert(this->w == pitch);
+	assert(ySize < (getHeight() / 2));
+	assert(getWidth() == getPitch());
 
-	int blockSize = ySize * this->w;
+	int blockSize = ySize * getWidth();
 	byte *tempData = new byte[blockSize];
 	byte *pixelsP = getBasePtr(0, 0);
 
 	if (direction > 0) {
 		// Buffer the lines to be overwritten
-		byte *srcP = (byte *)getBasePtr(0, this->h - ySize);
-		Common::copy(srcP, srcP + (pitch * ySize), tempData);
+		byte *srcP = (byte *)getBasePtr(0, getHeight() - ySize);
+		Common::copy(srcP, srcP + (getPitch() * ySize), tempData);
 		// Vertically shift all the lines
-		Common::copy_backward(pixelsP, pixelsP + (pitch * (this->h - ySize)),
-			pixelsP + (pitch * this->h));
+		Common::copy_backward(pixelsP, pixelsP + (getPitch() * (getHeight() - ySize)),
+			pixelsP + (getPitch() * getHeight()));
 		// Transfer the buffered lines top the top of the screen
 		Common::copy(tempData, tempData + blockSize, pixelsP);
 	} else {
 		// Buffer the lines to be overwritten
-		Common::copy(pixelsP, pixelsP + (pitch * ySize), tempData);
+		Common::copy(pixelsP, pixelsP + (getPitch() * ySize), tempData);
 		// Vertically shift all the lines
-		Common::copy(pixelsP + (pitch * ySize), pixelsP + (pitch * this->h), pixelsP);
+		Common::copy(pixelsP + (getPitch() * ySize), pixelsP + (getPitch() * getHeight()), pixelsP);
 		// Transfer the buffered lines to the bottom of the screen
-		Common::copy(tempData, tempData + blockSize, pixelsP + (pitch * (this->h - ySize)));
+		Common::copy(tempData, tempData + blockSize, pixelsP + (getPitch() * (getHeight() - ySize)));
 	}
 
 	delete[] tempData;
 }
 
 void MSurface::translate(Common::Array<RGB6> &palette) {
-	for (int y = 0; y < this->h; ++y) {
+	for (int y = 0; y < getHeight(); ++y) {
 		byte *pDest = getBasePtr(0, y);
 
-		for (int x = 0; x < this->w; ++x, ++pDest) {
+		for (int x = 0; x < getWidth(); ++x, ++pDest) {
 			if (*pDest < 255)	// scene 752 has some palette indices of 255
 				*pDest = palette[*pDest]._palIndex;
 		}
@@ -502,23 +491,23 @@ void MSurface::translate(Common::Array<RGB6> &palette) {
 }
 
 void MSurface::translate(byte map[PALETTE_COUNT]) {
-	for (int y = 0; y < this->h; ++y) {
+	for (int y = 0; y < getHeight(); ++y) {
 		byte *pDest = getBasePtr(0, y);
 
-		for (int x = 0; x < this->w; ++x, ++pDest) {
+		for (int x = 0; x < getWidth(); ++x, ++pDest) {
 				*pDest = map[*pDest];
 		}
 	}
 }
 
 MSurface *MSurface::flipHorizontal() const {
-	MSurface *dest = new MSurface(this->w, this->h);
+	MSurface *dest = new MSurface(getWidth(), getHeight());
 
-	for (int y = 0; y < this->h; ++y) {
-		const byte *srcP = getBasePtr(this->w - 1, y);
+	for (int y = 0; y < getHeight(); ++y) {
+		const byte *srcP = getBasePtr(getWidth() - 1, y);
 		byte *destP = dest->getBasePtr(0, y);
 
-		for (int x = 0; x < this->w; ++x)
+		for (int x = 0; x < getWidth(); ++x)
 			*destP++ = *srcP--;
 	}
 
@@ -547,7 +536,7 @@ int DepthSurface::getDepth(const Common::Point &pt) {
 		byte v = *getBasePtr(pt.x >> 2, pt.y);
 		return v >> bits;
 	} else {
-		if (pt.x < 0 || pt.y < 0 || pt.x >= this->w || pt.y >= this->h)
+		if (pt.x < 0 || pt.y < 0 || pt.x >= getWidth() || pt.y >= getHeight())
 			return 0;
 
 		return *getBasePtr(pt.x, pt.y) & 0xF;
@@ -560,7 +549,7 @@ int DepthSurface::getDepthHighBit(const Common::Point &pt) {
 		byte v = *getBasePtr(pt.x >> 2, pt.y);
 		return (v >> bits) & 2;
 	} else {
-		if (pt.x < 0 || pt.y < 0 || pt.x >= this->w || pt.y >= this->h)
+		if (pt.x < 0 || pt.y < 0 || pt.x >= getWidth() || pt.y >= getHeight())
 			return 0;
 
 		return *getBasePtr(pt.x, pt.y) & 0x80;

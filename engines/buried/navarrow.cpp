@@ -106,8 +106,8 @@ bool NavArrowWindow::updateAllArrows(const LocationStaticData &locationStaticDat
 bool NavArrowWindow::drawArrow(int xDst, int yDst, int arrow) {
 	Graphics::Surface *arrowBitmap = _vm->_gfx->getBitmap(_arrowBitmaps[arrow][_arrowStatus[arrow]]);
 
-	for (int ySrc = 0; ySrc < arrowBitmap->h; ySrc++)
-		memcpy(_background->getBasePtr(xDst, yDst + ySrc), arrowBitmap->getBasePtr(0, ySrc), arrowBitmap->w * arrowBitmap->format.bytesPerPixel);
+	for (int ySrc = 0; ySrc < arrowBitmap->getHeight(); ySrc++)
+		memcpy(_background->getBasePtr(xDst, yDst + ySrc), arrowBitmap->getBasePtr(0, ySrc), arrowBitmap->getWidth() * arrowBitmap->getFormat().bytesPerPixel);
 
 	arrowBitmap->free();
 	delete arrowBitmap;
@@ -125,7 +125,7 @@ bool NavArrowWindow::rebuildArrows() {
 	drawArrow(38, 68, 3);
 
 	Graphics::Surface *centerArrow = _vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]);
-	_vm->_gfx->opaqueTransparentBlit(_background, 39, 49, centerArrow->w, centerArrow->h, centerArrow, 0, 0, (_arrowStatus[4] == BUTTON_DISABLED) ? 50 : 85, 255, 255, 255);
+	_vm->_gfx->opaqueTransparentBlit(_background, 39, 49, centerArrow->getWidth(), centerArrow->getHeight(), centerArrow, 0, 0, (_arrowStatus[4] == BUTTON_DISABLED) ? 50 : 85, 255, 255, 255);
 	centerArrow->free();
 	delete centerArrow;
 	return true;

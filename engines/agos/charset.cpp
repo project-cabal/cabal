@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 
@@ -363,12 +365,12 @@ void AGOSEngine::windowScroll(WindowBlock *window) {
 		h = (window->height -1) * 8;
 
 		dst = (byte *)screen->getBasePtr(window->x * 8, window->y);
-		src = dst + 8 * screen->pitch;
+		src = dst + 8 * screen->getPitch();
 
 		do {
 			memcpy(dst, src, w);
-			src += screen->pitch;
-			dst += screen->pitch;
+			src += screen->getPitch();
+			dst += screen->getPitch();
 		} while (--h);
 
 		_system->unlockScreen();

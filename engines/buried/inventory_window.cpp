@@ -144,7 +144,7 @@ bool InventoryWindow::rebuildPreBuffer() {
 	if (!_itemArray.empty()) {
 		// Draw the icon for the current item
 		Graphics::Surface *icon = _vm->_gfx->getBitmap(IDB_PICON_BITMAP_BASE + _itemArray[_curItem]);
-		_vm->_gfx->crossBlit(_background, 17, 8, icon->w, icon->h, icon, 0, 0);
+		_vm->_gfx->crossBlit(_background, 17, 8, icon->getWidth(), icon->getHeight(), icon, 0, 0);
 	}
 
 	return true;
@@ -243,8 +243,8 @@ bool InventoryWindow::startDraggingNewItem(int itemID, const Common::Point &poin
 		_draggingItemSpriteData.image = _vm->_gfx->getBitmap(IDB_DRAG_BITMAP_BASE + staticItemData.firstDragID - 1);
 	_draggingItemSpriteData.xPos = 0;
 	_draggingItemSpriteData.yPos = 0;
-	_draggingItemSpriteData.width = _draggingItemSpriteData.image->w;
-	_draggingItemSpriteData.height = _draggingItemSpriteData.image->h;
+	_draggingItemSpriteData.width = _draggingItemSpriteData.image->getWidth();
+	_draggingItemSpriteData.height = _draggingItemSpriteData.image->getHeight();
 
 	if (_vm->isTrueColor()) {
 		_draggingItemSpriteData.redTrans = 255;
@@ -423,8 +423,8 @@ void InventoryWindow::onLButtonDown(const Common::Point &point, uint flags) {
 
 			_draggingItemSpriteData.xPos = 0;
 			_draggingItemSpriteData.yPos = 0;
-			_draggingItemSpriteData.width = _draggingItemSpriteData.image->w;
-			_draggingItemSpriteData.height = _draggingItemSpriteData.image->h;
+			_draggingItemSpriteData.width = _draggingItemSpriteData.image->getWidth();
+			_draggingItemSpriteData.height = _draggingItemSpriteData.image->getHeight();
 
 			if (_vm->isTrueColor()) {
 				_draggingItemSpriteData.redTrans = 255;
@@ -655,8 +655,8 @@ void InventoryWindow::onMouseMove(const Common::Point &point, uint flags) {
 					_draggingItemSpriteData.image = _vm->_gfx->getBitmap(IDB_DRAG_BITMAP_BASE + staticItemData.firstDragID + newIcon - 1);
 				_draggingItemSpriteData.xPos = 0;
 				_draggingItemSpriteData.yPos = 0;
-				_draggingItemSpriteData.width = _draggingItemSpriteData.image->w;
-				_draggingItemSpriteData.height = _draggingItemSpriteData.image->h;
+				_draggingItemSpriteData.width = _draggingItemSpriteData.image->getWidth();
+				_draggingItemSpriteData.height = _draggingItemSpriteData.image->getHeight();
 				_draggingIconIndex = newIcon;
 
 				if (_vm->isTrueColor()) {

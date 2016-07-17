@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef VECTOR_RENDERER_H
 #define VECTOR_RENDERER_H
@@ -284,7 +286,7 @@ public:
 	 */
 	virtual void clearSurface() {
 		byte *src = (byte *)_activeSurface->getPixels();
-		memset(src, 0, _activeSurface->pitch * _activeSurface->h);
+		memset(src, 0, _activeSurface->getPitch() * _activeSurface->getHeight());
 	}
 
 	/**

@@ -158,8 +158,8 @@ void Screen::drawSurface(Graphics::Surface *sourceSurface, int x, int y, int16 f
 	byte *source, *dest, *maskp = 0;
 	int startX = 0;
 	int startY = 0;
-	int clipWidth = sourceSurface->w;
-	int clipHeight = sourceSurface->h;
+	int clipWidth = sourceSurface->getWidth();
+	int clipHeight = sourceSurface->getHeight();
 
 	if (x < clipInfo.clipRect.left) {
 		startX = clipInfo.clipRect.left - x;
@@ -191,17 +191,17 @@ void Screen::drawSurface(Graphics::Surface *sourceSurface, int x, int y, int16 f
 
 	if (flipX) {
 		linePtrAdd = -1;
-		sourceAdd = sourceSurface->w - startX - 1;
+		sourceAdd = sourceSurface->getWidth() - startX - 1;
 	} else {
 		linePtrAdd = 1;
 		sourceAdd = startX;
 	}
 
 	if (flipY) {
-		sourcePitch = -sourceSurface->pitch;
-		source += (clipHeight - 1) * sourceSurface->pitch;
+		sourcePitch = -sourceSurface->getPitch();
+		source += (clipHeight - 1) * sourceSurface->getPitch();
 	} else {
-		sourcePitch = sourceSurface->pitch;
+		sourcePitch = sourceSurface->getPitch();
 	}
 
 	for (int16 yc = 0; yc < clipHeight; yc++) {
@@ -215,9 +215,9 @@ void Screen::drawSurface(Graphics::Surface *sourceSurface, int x, int y, int16 f
 		}
 
 		source += sourcePitch;
-		dest += clipInfo.destSurface->pitch;
+		dest += clipInfo.destSurface->getPitch();
 		if (_vm->getGameID() != GID_RTZ)
-			maskp += _maskDrawCtx.destSurface->pitch;
+			maskp += _maskDrawCtx.destSurface->getPitch();
 	}
 
 }
@@ -351,7 +351,7 @@ void Screen::updateSprites() {
 	drawSpriteChannels(_backgroundScreenDrawCtx, 3, 0);
 	drawSpriteChannels(_workScreenDrawCtx, 1, 2);
 
-	_vm->_system->copyRectToScreen(_workScreen->getPixels(), _workScreen->pitch, 0, 0, _workScreen->w, _workScreen->h);
+	_vm->_system->copyRectToScreen(_workScreen->getPixels(), _workScreen->getPitch(), 0, 0, _workScreen->getWidth(), _workScreen->getHeight());
 	_vm->_screen->updateScreenAndWait(10);
 }
 
@@ -647,7 +647,7 @@ void Screen::printChar(uint c, int16 x, int16 y, byte color) {
 				dest[xc] = color;
 			p <<= 1;
 		}
-		dest += _fontDrawCtx.destSurface->pitch;
+		dest += _fontDrawCtx.destSurface->getPitch();
 	}
 
 }
@@ -780,7 +780,7 @@ void Screen::unlockScreen() {
 }
 
 void Screen::showWorkScreen() {
-	_vm->_system->copyRectToScreen(_workScreen->getPixels(), _workScreen->pitch, 0, 0, _workScreen->w, _workScreen->h);
+	_vm->_system->copyRectToScreen(_workScreen->getPixels(), _workScreen->getPitch(), 0, 0, _workScreen->getWidth(), _workScreen->getHeight());
 }
 
 void Screen::copyRectToScreen(const void *buf, int pitch, int x, int y, int w, int h) {

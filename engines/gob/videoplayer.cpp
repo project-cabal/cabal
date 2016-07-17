@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "gob/videoplayer.h"
 #include "gob/global.h"
@@ -738,7 +739,7 @@ bool VideoPlayer::copyFrame(int slot, Surface &dest,
 	// is only used read-only in this case (as far as I can tell). Not casting
 	// the const qualifier away will lead to an additional allocation and copy
 	// of the frame data which is undesirable.
-	Surface src(surface->w, surface->h, surface->format.bytesPerPixel, (byte *)const_cast<void *>(surface->getPixels()));
+	Surface src(surface->getWidth(), surface->getHeight(), surface->getFormat().bytesPerPixel, (byte *)const_cast<void *>(surface->getPixels()));
 
 	dest.blit(src, left, top, left + width - 1, top + height - 1, x, y, transp);
 	return true;

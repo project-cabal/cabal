@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -68,7 +70,7 @@ TitlerControl::TitlerControl(ZVision *engine, uint32 key, Common::SeekableReadSt
 	if (!_rectangle.isEmpty()) {
 		_surface = new Graphics::Surface;
 		_surface->create(_rectangle.width(), _rectangle.height(), _engine->_resourcePixelFormat);
-		_surface->fillRect(Common::Rect(_surface->w, _surface->h), 0);
+		_surface->fillRect(Common::Rect(_surface->getWidth(), _surface->getHeight()), 0);
 	}
 }
 
@@ -81,7 +83,7 @@ TitlerControl::~TitlerControl() {
 
 void TitlerControl::setString(int strLine) {
 	if (strLine != _curString && strLine >= 0 && strLine < (int)_strings.size()) {
-		_surface->fillRect(Common::Rect(_surface->w, _surface->h), 0);
+		_surface->fillRect(Common::Rect(_surface->getWidth(), _surface->getHeight()), 0);
 		_engine->getTextRenderer()->drawTextWithWordWrapping(_strings[strLine], *_surface);
 		_engine->getRenderManager()->blitSurfaceToBkg(*_surface, _rectangle.left, _rectangle.top);
 		_curString = strLine;

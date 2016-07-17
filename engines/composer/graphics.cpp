@@ -38,12 +38,12 @@ namespace Composer {
 bool Sprite::contains(const Common::Point &pos) const {
 	Common::Point adjustedPos = pos - _pos;
 
-	if (adjustedPos.x < 0 || adjustedPos.x >= _surface.w)
+	if (adjustedPos.x < 0 || adjustedPos.x >= _surface.getWidth())
 		return false;
-	if (adjustedPos.y < 0 || adjustedPos.y >= _surface.h)
+	if (adjustedPos.y < 0 || adjustedPos.y >= _surface.getHeight())
 		return false;
 	const byte *pixels = (const byte *)_surface.getPixels();
-	return (pixels[(_surface.h - adjustedPos.y - 1) * _surface.w + adjustedPos.x] != 0);
+	return (pixels[(_surface.getHeight() - adjustedPos.y - 1) * _surface.getWidth() + adjustedPos.x] != 0);
 }
 
 enum {
@@ -509,8 +509,8 @@ const Sprite *ComposerEngine::getSpriteAtPos(const Common::Point &pos) {
 }
 
 void ComposerEngine::dirtySprite(const Sprite &sprite) {
-	Common::Rect rect(sprite._pos.x, sprite._pos.y, sprite._pos.x + sprite._surface.w, sprite._pos.y + sprite._surface.h);
-	rect.clip(_screen.w, _screen.h);
+	Common::Rect rect(sprite._pos.x, sprite._pos.y, sprite._pos.x + sprite._surface.getWidth(), sprite._pos.y + sprite._surface.getHeight());
+	rect.clip(_screen.getWidth(), _screen.getHeight());
 	if (rect.isEmpty())
 		return;
 
@@ -529,7 +529,7 @@ void ComposerEngine::redraw() {
 		return;
 
 	for (Common::List<Sprite>::iterator i = _sprites.begin(); i != _sprites.end(); i++) {
-		Common::Rect rect(i->_pos.x, i->_pos.y, i->_pos.x + i->_surface.w, i->_pos.y + i->_surface.h);
+		Common::Rect rect(i->_pos.x, i->_pos.y, i->_pos.x + i->_surface.getWidth(), i->_pos.y + i->_surface.getHeight());
 		bool intersects = false;
 		for (uint j = 0; j < _dirtyRects.size(); j++) {
 			if (!_dirtyRects[j].intersects(rect))
@@ -545,7 +545,7 @@ void ComposerEngine::redraw() {
 	for (uint i = 0; i < _dirtyRects.size(); i++) {
 		const Common::Rect &rect = _dirtyRects[i];
 		byte *pixels = (byte *)_screen.getBasePtr(rect.left, rect.top);
-		_system->copyRectToScreen(pixels, _screen.pitch, rect.left, rect.top, rect.width(), rect.height());
+		_system->copyRectToScreen(pixels, _screen.getPitch(), rect.left, rect.top, rect.width(), rect.height());
 	}
 	_system->updateScreen();
 
@@ -818,15 +818,15 @@ void ComposerEngine::drawSprite(const Sprite &sprite) {
 
 	// incoming data is BMP-style (bottom-up), so flip it
 	byte *pixels = (byte *)_screen.getPixels();
-	for (int j = 0; j < sprite._surface.h; j++) {
+	for (int j = 0; j < sprite._surface.getHeight(); j++) {
 		if (j + y < 0)
 			continue;
-		if (j + y >= _screen.h)
+		if (j + y >= _screen.getHeight())
 			break;
-		const byte *in = (const byte *)sprite._surface.getBasePtr(0, sprite._surface.h - j - 1);
-		byte *out = pixels + ((j + y) * _screen.w) + x;
-		for (int i = 0; i < sprite._surface.w; i++)
-			if ((x + i >= 0) && (x + i < _screen.w) && in[i])
+		const byte *in = (const byte *)sprite._surface.getBasePtr(0, sprite._surface.getHeight() - j - 1);
+		byte *out = pixels + ((j + y) * _screen.getWidth()) + x;
+		for (int i = 0; i < sprite._surface.getWidth(); i++)
+			if ((x + i >= 0) && (x + i < _screen.getWidth()) && in[i])
 				out[i] = in[i];
 	}
 }

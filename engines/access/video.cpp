@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "access/video.h"
 #include "access/access.h"
@@ -129,7 +131,7 @@ void VideoPlayer::playVideo() {
 			// Loop across lines if necessary
 			while (count >= (pLine + _xCount - pDest)) {
 				count -= (pLine + _xCount - pDest);
-				pLine += _vidSurface->pitch;
+				pLine += _vidSurface->getPitch();
 				pDest = pLine;
 			}
 
@@ -143,7 +145,7 @@ void VideoPlayer::playVideo() {
 				int lineCount = (pLine + _xCount - pDest);
 				_videoData->_stream->read(pDest, lineCount);
 				count -= lineCount;
-				pLine += _vidSurface->pitch;
+				pLine += _vidSurface->getPitch();
 				pDest = pLine;
 			}
 
@@ -189,8 +191,8 @@ void VideoPlayer::copyVideo() {
 	byte *destP = (byte *)_vm->_buffer2.getPixels() + destIdx;
 	for (int i = 0; i < vh; i++) {
 		Common::copy(srcP, srcP + vw, destP);
-		srcP += _vm->_vidBuf.pitch;
-		destP += _vm->_buffer2.pitch;
+		srcP += _vm->_vidBuf.getPitch();
+		destP += _vm->_buffer2.getPitch();
 	}
 }
 

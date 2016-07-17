@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "graphics.h"
 #include "disk.h"
@@ -242,7 +243,7 @@ void Gfx::drawGfxObject(GfxObj *obj, Graphics::Surface &surf) {
 void Gfx::drawText(Font *font, Graphics::Surface* surf, uint16 x, uint16 y, const char *text, byte color) {
 	byte *dst = (byte *)surf->getBasePtr(x, y);
 	font->setColor(color);
-	font->drawString(dst, surf->w, text);
+	font->drawString(dst, surf->getWidth(), text);
 }
 
 void Gfx::unpackBlt(const Common::Rect& r, byte *data, uint size, Graphics::Surface *surf, uint16 z, uint scale, byte transparentColor) {
@@ -296,7 +297,7 @@ void Gfx::bltMaskScale(const Common::Rect& r, byte *data, Graphics::Surface *sur
 	Common::Rect dstRect(scaledWidth, scaledHeight);
 	dstRect.moveTo(scaledLeft, scaledTop);
 
-	Common::Rect clipper(surf->w, surf->h);
+	Common::Rect clipper(surf->getWidth(), surf->getHeight());
 	dstRect.clip(clipper);
 	if (!dstRect.isValidRect()) return;
 
@@ -358,7 +359,7 @@ void Gfx::bltMaskScale(const Common::Rect& r, byte *data, Graphics::Surface *sur
 		}
 
 		s += width - srcRect.width();
-		d += surf->w;
+		d += surf->getWidth();
 		line++;
 	}
 
@@ -374,7 +375,7 @@ void Gfx::bltMaskNoScale(const Common::Rect& r, byte *data, Graphics::Surface *s
 	Common::Point dp;
 	Common::Rect q(r);
 
-	Common::Rect clipper(surf->w, surf->h);
+	Common::Rect clipper(surf->getWidth(), surf->getHeight());
 
 	q.clip(clipper);
 	if (!q.isValidRect()) return;
@@ -388,7 +389,7 @@ void Gfx::bltMaskNoScale(const Common::Rect& r, byte *data, Graphics::Surface *s
 	byte *d = (byte *)surf->getBasePtr(dp.x, dp.y);
 
 	uint sPitch = r.width() - q.width();
-	uint dPitch = surf->w - q.width();
+	uint dPitch = surf->getWidth() - q.width();
 
 	for (uint16 i = 0; i < q.height(); i++) {
 
@@ -416,7 +417,7 @@ void Gfx::bltNoMaskNoScale(const Common::Rect& r, byte *data, Graphics::Surface 
 	Common::Point dp;
 	Common::Rect q(r);
 
-	Common::Rect clipper(surf->w, surf->h);
+	Common::Rect clipper(surf->getWidth(), surf->getHeight());
 
 	q.clip(clipper);
 	if (!q.isValidRect()) return;
@@ -430,7 +431,7 @@ void Gfx::bltNoMaskNoScale(const Common::Rect& r, byte *data, Graphics::Surface 
 	byte *d = (byte *)surf->getBasePtr(dp.x, dp.y);
 
 	uint sPitch = r.width() - q.width();
-	uint dPitch = surf->w - q.width();
+	uint dPitch = surf->getWidth() - q.width();
 
 	for (uint16 i = q.top; i < q.bottom; i++) {
 		for (uint16 j = q.left; j < q.right; j++) {

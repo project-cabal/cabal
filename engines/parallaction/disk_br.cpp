@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/config-manager.h"
 #include "common/fs.h"
@@ -318,8 +320,8 @@ void DosDisk_br::loadSlide(BackgroundInfo& info, const char *name) {
 	byte rgb[768];
 
 	loadBitmap(*stream, info.bg, rgb);
-	info.width = info.bg.w;
-	info.height = info.bg.h;
+	info.width = info.bg.getWidth();
+	info.height = info.bg.getHeight();
 
 	delete stream;
 
@@ -374,8 +376,8 @@ void DosDisk_br::loadScenery(BackgroundInfo& info, const char *name, const char 
 		byte rgb[768];
 
 		loadBitmap(*stream, info.bg, rgb);
-		info.width = info.bg.w;
-		info.height = info.bg.h;
+		info.width = info.bg.getWidth();
+		info.height = info.bg.getHeight();
 
 		for (uint i = 0; i < 256; i++) {
 			info.palette.setEntry(i, rgb[i] >> 2, rgb[i+256] >> 2, rgb[i+512] >> 2);
@@ -448,7 +450,7 @@ void AmigaDisk_br::init() {
 }
 
 void AmigaDisk_br::adjustForPalette(Graphics::Surface &surf, int transparentColor) {
-	uint size = surf.w * surf.h;
+	uint size = surf.getWidth() * surf.getHeight();
 	byte *data = (byte *)surf.getPixels();
 	for (uint i = 0; i < size; i++, data++) {
 		if (transparentColor == -1 || transparentColor != *data)
@@ -491,8 +493,8 @@ void AmigaDisk_br::loadBackground(BackgroundInfo& info, const char *filename) {
 	decoder.loadStream(*stream);
 
 	info.bg.copyFrom(*decoder.getSurface());
-	info.width = info.bg.w;
-	info.height = info.bg.h;
+	info.width = info.bg.getWidth();
+	info.height = info.bg.getHeight();
 
 	// Overwrite the first color (transparent key) in the palette
 	p = decoder.getPalette();
@@ -551,7 +553,7 @@ MaskBuffer *AmigaDisk_br::loadMask(const char *name, uint32 w, uint32 h) {
 
 	MaskBuffer *buffer = new MaskBuffer;
 	// surface width was shrunk to 1/4th of the bitmap width due to the pixel packing
-	buffer->create(decoder.getSurface()->w * 4, decoder.getSurface()->h);
+	buffer->create(decoder.getSurface()->getWidth() * 4, decoder.getSurface()->getHeight());
 	memcpy(buffer->data, decoder.getSurface()->getPixels(), buffer->size);
 	buffer->bigEndian = true;
 	finalpass(buffer->data, buffer->size);
@@ -605,16 +607,16 @@ GfxObj* AmigaDisk_br::loadStatic(const char* name) {
 	if (!stream) {
 		debugC(9, kDebugDisk, "Cannot find shadow file for '%s'\n", name);
 	} else {
-		uint32 shadowWidth = ((surf->w + 15)/8) & ~1;
-		uint32 shadowSize = shadowWidth * surf->h;
+		uint32 shadowWidth = ((surf->getWidth() + 15)/8) & ~1;
+		uint32 shadowSize = shadowWidth * surf->getHeight();
 		byte *shadow = new byte[shadowSize];
 		assert(shadow);
 		stream->read(shadow, shadowSize);
-		for (int32 i = 0; i < surf->h; ++i) {
+		for (int32 i = 0; i < surf->getHeight(); ++i) {
 			byte *src = shadow + shadowWidth * i;
-			byte *dst = (byte *)surf->getPixels() + surf->pitch * i;
+			byte *dst = (byte *)surf->getPixels() + surf->getPitch() * i;
 
-			for (int32 j = 0; j < surf->w; ++j, ++dst) {
+			for (int32 j = 0; j < surf->getWidth(); ++j, ++dst) {
 				byte bit = src[j/8] & (1 << (7 - (j & 7)));
 				if (bit == 0) *dst = 0;
 			}
@@ -729,7 +731,7 @@ GfxObj* AmigaDisk_br::loadObjects(const char *name, uint8 part) {
 
 	byte *data = new byte[max * 2601];
 	const byte *srcPtr = (const byte *)decoder.getSurface()->getBasePtr(0,0);
-	int w = decoder.getSurface()->w;
+	int w = decoder.getSurface()->getWidth();
 
 	// Convert to the expected display format
 	for (int i = 0; i < max; i++) {

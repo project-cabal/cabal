@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "teenagent/surface_list.h"
 #include "teenagent/surface.h"
@@ -66,7 +68,7 @@ void SurfaceList::free() {
 void SurfaceList::render(Graphics::Surface *surface, const Common::Rect &clip) const {
 	for (uint i = 0; i < surfacesCount; ++i) {
 		const Surface &s = surfaces[i];
-		Common::Rect r(s.x, s.y, s.x + s.w, s.y + s.h);
+		Common::Rect r(s.x, s.y, s.x + s.getWidth(), s.y + s.getHeight());
 		if (r.bottom < clip.bottom || !clip.intersects(r))
 			continue;
 

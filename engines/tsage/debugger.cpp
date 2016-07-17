@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "tsage/debugger.h"
 #include "tsage/globals.h"
@@ -150,10 +152,10 @@ bool Debugger::Cmd_PriorityRegions(int argc, const char **argv) {
 		Region &r = *i;
 
 		if ((regionNum == 0) || (regionNum == (count + 1))) {
-			for (int y = 0; y < destSurface.h; ++y) {
+			for (int y = 0; y < destSurface.getHeight(); ++y) {
 				byte *destP = (byte *)destSurface.getBasePtr(0, y);
 
-				for (int x = 0; x < destSurface.w; ++x) {
+				for (int x = 0; x < destSurface.getWidth(); ++x) {
 					if (r.contains(Common::Point(g_globals->_sceneManager._scene->_sceneBounds.left + x,
 							g_globals->_sceneManager._scene->_sceneBounds.top + y)))
 						*destP = color;
@@ -203,10 +205,10 @@ bool Debugger::Cmd_SceneRegions(int argc, const char **argv) {
 		Region &r = *i;
 
 		if ((regionNum == 0) || (regionNum == (count + 1))) {
-			for (int y = 0; y < destSurface.h; ++y) {
+			for (int y = 0; y < destSurface.getHeight(); ++y) {
 				byte *destP = (byte *)destSurface.getBasePtr(0, y);
 
-				for (int x = 0; x < destSurface.w; ++x) {
+				for (int x = 0; x < destSurface.getWidth(); ++x) {
 					if (r.contains(Common::Point(g_globals->_sceneManager._scene->_sceneBounds.left + x,
 							g_globals->_sceneManager._scene->_sceneBounds.top + y)))
 						*destP = color;

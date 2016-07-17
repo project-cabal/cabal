@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/actor.h"
 #include "scumm/charset.h"
@@ -1036,7 +1038,7 @@ void ScummEngine_v2::o2_drawSentence() {
 	_string[2].charset = 1;
 	_string[2].ypos = _virtscr[kVerbVirtScreen].topline;
 	_string[2].xpos = 0;
-	_string[2].right = _virtscr[kVerbVirtScreen].w - 1;
+	_string[2].right = _virtscr[kVerbVirtScreen].getWidth() - 1;
 	if (_game.platform == Common::kPlatformNES) {
 		_string[2].xpos = 16;
 		_string[2].color = 0;
@@ -1071,12 +1073,12 @@ void ScummEngine_v2::o2_drawSentence() {
 		sentenceline.top = _virtscr[kVerbVirtScreen].topline;
 		sentenceline.bottom = _virtscr[kVerbVirtScreen].topline + 16;
 		sentenceline.left = 16;
-		sentenceline.right = _virtscr[kVerbVirtScreen].w - 1;
+		sentenceline.right = _virtscr[kVerbVirtScreen].getWidth() - 1;
 	} else {
 		sentenceline.top = _virtscr[kVerbVirtScreen].topline;
 		sentenceline.bottom = _virtscr[kVerbVirtScreen].topline + 8;
 		sentenceline.left = 0;
-		sentenceline.right = _virtscr[kVerbVirtScreen].w - 1;
+		sentenceline.right = _virtscr[kVerbVirtScreen].getWidth() - 1;
 	}
 	restoreBackground(sentenceline);
 
@@ -1610,7 +1612,7 @@ void ScummEngine_v2::setUserState(byte state) {
 	Common::Rect rect;
 	rect.top = _virtscr[kVerbVirtScreen].topline;
 	rect.bottom = _virtscr[kVerbVirtScreen].topline + 8 * 88;
-	rect.right = _virtscr[kVerbVirtScreen].w - 1;
+	rect.right = _virtscr[kVerbVirtScreen].getHeight() - 1;
 	if (_game.platform == Common::kPlatformNES) {
 		rect.left = 16;
 	} else {

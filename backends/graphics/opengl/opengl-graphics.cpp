@@ -268,7 +268,7 @@ OSystem::TransactionError OpenGLGraphicsManager::endGFXTransaction() {
 		if (_currentState.gameFormat.bytesPerPixel == 1) {
 			_gameScreen->fill(0);
 		} else {
-			_gameScreen->fill(_gameScreen->getSurface()->format.RGBToColor(0, 0, 0));
+			_gameScreen->fill(_gameScreen->getSurface()->getFormat().RGBToColor(0, 0, 0));
 		}
 	}
 
@@ -484,10 +484,10 @@ void OpenGLGraphicsManager::grabOverlay(void *buf, int pitch) {
 	const byte *src = (const byte *)overlayData->getPixels();
 	byte *dst = (byte *)buf;
 
-	for (uint h = overlayData->h; h > 0; --h) {
-		memcpy(dst, src, overlayData->w * overlayData->format.bytesPerPixel);
+	for (uint h = overlayData->getHeight(); h > 0; --h) {
+		memcpy(dst, src, overlayData->getWidth() * overlayData->getFormat().bytesPerPixel);
 		dst += pitch;
-		src += overlayData->pitch;
+		src += overlayData->getPitch();
 	}
 }
 
@@ -611,27 +611,27 @@ void OpenGLGraphicsManager::setMouseCursor(const void *buf, uint w, uint h, int 
 
 		// Copy the cursor data to the actual texture surface. This will make
 		// sure that the data is also converted to the expected format.
-		Graphics::crossBlit((byte *)dst->getPixels(), (const byte *)buf, dst->pitch, srcPitch,
-		                    w, h, dst->format, inputFormat);
+		Graphics::crossBlit((byte *)dst->getPixels(), (const byte *)buf, dst->getPitch(), srcPitch,
+		                    w, h, dst->getFormat(), inputFormat);
 
 		// We apply the color key by setting the alpha bits of the pixels to
 		// fully transparent.
-		const uint32 aMask = (0xFF >> dst->format.aLoss) << dst->format.aShift;
-		if (dst->format.bytesPerPixel == 2) {
+		const uint32 aMask = (0xFF >> dst->getFormat().aLoss) << dst->getFormat().aShift;
+		if (dst->getFormat().bytesPerPixel == 2) {
 			if (inputFormat.bytesPerPixel == 2) {
 				applyColorKey<uint16, uint16>((uint16 *)dst->getPixels(), (const uint16 *)buf, w, h,
-				                              dst->pitch, srcPitch, keycolor, aMask);
+				                              dst->getPitch(), srcPitch, keycolor, aMask);
 			} else if (inputFormat.bytesPerPixel == 4) {
 				applyColorKey<uint16, uint32>((uint16 *)dst->getPixels(), (const uint32 *)buf, w, h,
-				                              dst->pitch, srcPitch, keycolor, aMask);
+				                              dst->getPitch(), srcPitch, keycolor, aMask);
 			}
 		} else {
 			if (inputFormat.bytesPerPixel == 2) {
 				applyColorKey<uint32, uint16>((uint32 *)dst->getPixels(), (const uint16 *)buf, w, h,
-				                              dst->pitch, srcPitch, keycolor, aMask);
+				                              dst->getPitch(), srcPitch, keycolor, aMask);
 			} else if (inputFormat.bytesPerPixel == 4) {
 				applyColorKey<uint32, uint32>((uint32 *)dst->getPixels(), (const uint32 *)buf, w, h,
-				                              dst->pitch, srcPitch, keycolor, aMask);
+				                              dst->getPitch(), srcPitch, keycolor, aMask);
 			}
 		}
 
@@ -689,18 +689,18 @@ void OpenGLGraphicsManager::displayMessageOnOSD(const char *msg) {
 	}
 
 	// Clip the rect
-	width  = MIN<int>(width,  dst->w);
-	height = MIN<int>(height, dst->h);
+	width  = MIN<int>(width,  dst->getWidth());
+	height = MIN<int>(height, dst->getHeight());
 
-	int dstX = (dst->w - width) / 2;
-	int dstY = (dst->h - height) / 2;
+	int dstX = (dst->getWidth() - width) / 2;
+	int dstY = (dst->getHeight() - height) / 2;
 
 	// Draw a dark gray rect.
-	const uint32 color = dst->format.RGBToColor(40, 40, 40);
+	const uint32 color = dst->getFormat().RGBToColor(40, 40, 40);
 	dst->fillRect(Common::Rect(dstX, dstY, dstX + width, dstY + height), color);
 
 	// Render the message, centered, and in white
-	const uint32 white = dst->format.RGBToColor(255, 255, 255);
+	const uint32 white = dst->getFormat().RGBToColor(255, 255, 255);
 	for (uint i = 0; i < osdLines.size(); ++i) {
 		font->drawString(dst, osdLines[i],
 		                 dstX, dstY + i * lineHeight + vOffset + lineSpacing, width,

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "mads/mads.h"
@@ -89,11 +91,11 @@ void DirtyArea::setSpriteSlot(const SpriteSlot *spriteSlot) {
 		MSprite *frame = spriteSet.getFrame(ABS(spriteSlot->_frameNumber) - 1);
 
 		if (spriteSlot->_scale == -1) {
-			width = frame->w;
-			height = frame->h;
+			width = frame->getWidth();
+			height = frame->getHeight();
 		} else {
-			width = frame->w * spriteSlot->_scale / 100;
-			height = frame->h * spriteSlot->_scale / 100;
+			width = frame->getWidth() * spriteSlot->_scale / 100;
+			height = frame->getHeight() * spriteSlot->_scale / 100;
 
 			_bounds.left -= width / 2;
 			_bounds.top += -(height - 1);
@@ -123,7 +125,7 @@ void DirtyArea::setUISlot(const UISlot *slot) {
 	case IMG_REFRESH:
 		_bounds.left = 0;
 		_bounds.top = 0;
-		setArea(intSurface.w, intSurface.h, intSurface.w, intSurface.h);
+		setArea(intSurface.getWidth(), intSurface.getHeight(), intSurface.getWidth(), intSurface.getHeight());
 		break;
 
 	case IMG_OVERPRINT:
@@ -131,14 +133,14 @@ void DirtyArea::setUISlot(const UISlot *slot) {
 		_bounds.top = slot->_position.y;
 		_bounds.setWidth(slot->_width);
 		_bounds.setHeight(slot->_height);
-		setArea(slot->_width, slot->_height, intSurface.w, intSurface.h);
+		setArea(slot->_width, slot->_height, intSurface.getWidth(), intSurface.getHeight());
 		break;
 
 	default: {
 		SpriteAsset *asset = _vm->_game->_scene._sprites[slot->_spritesIndex];
 		MSprite *frame = asset->getFrame(slot->_frameNumber - 1);
-		int w = frame->w;
-		int h = frame->h;
+		int w = frame->getWidth();
+		int h = frame->getHeight();
 
 		if (slot->_segmentId == IMG_SPINNING_OBJECT) {
 			_bounds.left = slot->_position.x;
@@ -148,7 +150,7 @@ void DirtyArea::setUISlot(const UISlot *slot) {
 			_bounds.top = slot->_position.y - h + 1;
 		}
 
-		setArea(w, h, intSurface.w, intSurface.h);
+		setArea(w, h, intSurface.getWidth(), intSurface.getHeight());
 		break;
 	}
 	}
@@ -557,21 +559,14 @@ void ScreenObjects::synchronize(Common::Serializer &s) {
 ScreenSurface::ScreenSurface() {
 	_shakeCountdown = -1;
 	_random = 0x4D2;
-	_surfacePixels = nullptr;
 }
 
 void ScreenSurface::init() {
 	// Set the size for the screen
-	setSize(MADS_SCREEN_WIDTH, MADS_SCREEN_HEIGHT);
+	_realSurface.create(MADS_SCREEN_WIDTH, MADS_SCREEN_HEIGHT, Graphics::PixelFormat::createFormatCLUT8());
 
-	// Store a copy of the raw pixels pointer for the screen, since the surface
-	// itself may be later changed to only a subset of the screen
-	_surfacePixels = (byte *)getPixels();
-	_freeFlag = false;
-}
-
-ScreenSurface::~ScreenSurface() {
-	::free(_surfacePixels);
+	// Initialize this screen with a pointer to that one
+	setClipBounds(Common::Rect(_realSurface.getWidth(), _realSurface.getHeight()));
 }
 
 void ScreenSurface::copyRectToScreen(const Common::Rect &bounds) {
@@ -581,7 +576,7 @@ void ScreenSurface::copyRectToScreen(const Common::Rect &bounds) {
 	destBounds.translate(_clipBounds.left, _clipBounds.top);
 
 	if (bounds.width() != 0 && bounds.height() != 0)
-		g_system->copyRectToScreen(buf, this->pitch, destBounds.left, destBounds.top,
+		g_system->copyRectToScreen(buf, getPitch(), destBounds.left, destBounds.top,
 		destBounds.width(), destBounds.height());
 }
 
@@ -597,11 +592,11 @@ void ScreenSurface::updateScreen() {
 		// an effect of shaking the screen
 		offset *= 4;
 		const byte *buf = getBasePtr(offset, 0);
-		g_system->copyRectToScreen(buf, this->pitch, 0, 0,
-			this->pitch - offset, this->h);
+		g_system->copyRectToScreen(buf, getPitch(), 0, 0,
+			getPitch() - offset, getHeight());
 		if (offset > 0)
-			g_system->copyRectToScreen(this->pixels, this->pitch,
-				this->pitch - offset, 0, offset, this->h);
+			g_system->copyRectToScreen(getPixels(), getPitch(),
+				getPitch() - offset, 0, offset, getHeight());
 	}
 
 	g_system->updateScreen();
@@ -670,8 +665,7 @@ void ScreenSurface::transition(ScreenTransition transitionType, bool surfaceFlag
 
 void ScreenSurface::setClipBounds(const Common::Rect &r) {
 	_clipBounds = r;
-	setPixels(_surfacePixels + pitch * r.top + r.left, r.width(), r.height());
-	this->pitch = MADS_SCREEN_WIDTH;
+	resetWithoutOwnership(r.width(), r.height(), _realSurface.getPitch(), (byte *)_realSurface.getBasePtr(r.top, r.left), _realSurface.getFormat());
 }
 
 void ScreenSurface::resetClipBounds() {
@@ -691,9 +685,9 @@ void ScreenSurface::panTransition(MSurface &newScreen, byte *palData, int entryS
 //	uint32 baseTicks, currentTicks;
 	byte paletteMap[256];
 
-	size.x = MIN(newScreen.w, (uint16)MADS_SCREEN_WIDTH);
-	size.y = newScreen.h;
-	if (newScreen.h >= MADS_SCREEN_HEIGHT)
+	size.x = MIN(newScreen.getWidth(), (uint16)MADS_SCREEN_WIDTH);
+	size.y = newScreen.getHeight();
+	if (newScreen.getHeight() >= MADS_SCREEN_HEIGHT)
 		size.y = MADS_SCENE_HEIGHT;
 
 	// Set starting position and direction delta for the transition

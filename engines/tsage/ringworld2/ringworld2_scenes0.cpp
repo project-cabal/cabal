@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "tsage/scenes.h"
 #include "tsage/tsage.h"
@@ -5166,11 +5168,11 @@ void Scene500::TransparentDoor::draw() {
 	Graphics::Surface s = frame.lockSurface();
 	Graphics::Surface screen = g_globals->gfxManager().getSurface().lockSurface();
 
-	for (int yp = 0; yp < s.h; ++yp) {
+	for (int yp = 0; yp < s.getHeight(); ++yp) {
 		byte *frameSrcP = (byte *)s.getBasePtr(0, yp);
 		byte *screenP = (byte *)screen.getBasePtr(destRect.left, destRect.top + yp);
 
-		for (int xp = 0; xp < s.w; ++xp, ++frameSrcP, ++screenP) {
+		for (int xp = 0; xp < s.getWidth(); ++xp, ++frameSrcP, ++screenP) {
 			if (*frameSrcP != frame._transColor && *frameSrcP < 6) {
 				*frameSrcP = R2_GLOBALS._fadePaletteMap[*frameSrcP][*screenP];
 			}
@@ -5790,11 +5792,11 @@ void Scene600::Smoke::draw() {
 	// Loop through every pixel of the frame. Any pixel of the frame that's not a
 	// tranparency, get the same pixel from the screen background, and shade it using
 	// the scene's pixel translation map
-	for (int yp = 0; yp < s.h; ++yp) {
+	for (int yp = 0; yp < s.getHeight(); ++yp) {
 		byte *frameSrcP = (byte *)s.getBasePtr(0, yp);
 		byte *screenP = (byte *)screen.getBasePtr(destRect.left, destRect.top + yp);
 
-		for (int xp = 0; xp < s.w; ++xp, ++frameSrcP, ++screenP) {
+		for (int xp = 0; xp < s.getWidth(); ++xp, ++frameSrcP, ++screenP) {
 			if (*frameSrcP != frame._transColor) {
 				*frameSrcP = pixelMap[*screenP];
 			}

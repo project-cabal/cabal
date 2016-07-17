@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/config-manager.h"
 #include "common/system.h"
@@ -2694,7 +2696,7 @@ void ScummEngine_v6::o6_kernelGetFunctions() {
 		// in Sam & Max use hard coded values for the maximum height and width.
 		// This causes problems in rooms (ie. Credits) where their values are
 		// lower, so we set result to zero if out of bounds.
-		if (args[1] >= 0 && args[1] <= vs->w && args[2] >= 0 && args[2] <= vs->h) {
+		if (args[1] >= 0 && args[1] <= vs->getWidth() && args[2] >= 0 && args[2] <= vs->getHeight()) {
 			byte pixel = *vs->getPixels(args[1], args[2]);
 			push(pixel);
 		} else {

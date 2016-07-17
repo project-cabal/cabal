@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on Broken Sword 2.5 engine
@@ -89,8 +91,8 @@ bool SWImage::setContent(const byte *pixeldata, uint size, uint offset, uint str
 }
 
 uint SWImage::getPixel(int x, int y) {
-	assert(x >= 0 && x < _image.w);
-	assert(y >= 0 && y < _image.h);
+	assert(x >= 0 && x < _image.getWidth());
+	assert(y >= 0 && y < _image.getHeight());
 
 	return *((const uint32 *)_image.getBasePtr(0, 0));
 }

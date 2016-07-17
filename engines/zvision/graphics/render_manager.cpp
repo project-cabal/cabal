@@ -1,24 +1,26 @@
-/* ScummVM - Graphic Adventure Engine
-*
-* ScummVM is the legal property of its developers, whose names
-* are too numerous to list here. Please refer to the COPYRIGHT
-* file distributed with this source distribution.
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
+/* Cabal - Legacy Game Implementations
+ *
+ * Cabal is the legal property of its developers, whose names
+ * are too numerous to list here. Please refer to the COPYRIGHT
+ * file distributed with this source distribution.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ */
 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-*
-*/
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -140,7 +142,7 @@ void RenderManager::copyToScreen(const Graphics::Surface &surface, Common::Rect 
 	// Convert the surface to RGB565, if needed
 	Graphics::Surface *outSurface = surface.convertTo(_engine->_screenPixelFormat);
 	_system->copyRectToScreen(outSurface->getBasePtr(srcLeft, srcTop),
-		                        outSurface->pitch,
+		                        outSurface->getPitch(),
 		                        rect.left,
 		                        rect.top,
 		                        rect.width(),
@@ -196,8 +198,6 @@ void RenderManager::readImageToSurface(const Common::String &fileName, Graphics:
 	uint32 imageHeight;
 	Image::TGADecoder tga;
 	uint16 *buffer;
-	// All Z-Vision images are in RGB 555
-	destination.format = _engine->_resourcePixelFormat;
 
 	bool isTGZ;
 
@@ -230,8 +230,8 @@ void RenderManager::readImageToSurface(const Common::String &fileName, Graphics:
 		}
 
 		Graphics::Surface tgaSurface = *(tga.getSurface());
-		imageWidth = tgaSurface.w;
-		imageHeight = tgaSurface.h;
+		imageWidth = tgaSurface.getWidth();
+		imageHeight = tgaSurface.getHeight();
 
 		buffer = (uint16 *)tgaSurface.getPixels();
 	}
@@ -245,7 +245,7 @@ void RenderManager::readImageToSurface(const Common::String &fileName, Graphics:
 
 	// If the destination internal buffer is the same size as what we're copying into it,
 	// there is no need to free() and re-create
-	if (imageWidth != destination.w || imageHeight != destination.h) {
+	if (imageWidth != destination.getWidth() || imageHeight != destination.getHeight() || destination.getFormat() != _engine->_resourcePixelFormat) {
 		destination.create(imageWidth, imageHeight, _engine->_resourcePixelFormat);
 	}
 
@@ -262,7 +262,7 @@ void RenderManager::readImageToSurface(const Common::String &fileName, Graphics:
 			}
 		}
 	} else {
-		memcpy(destination.getPixels(), buffer, imageWidth * imageHeight * destination.format.bytesPerPixel);
+		memcpy(destination.getPixels(), buffer, imageWidth * imageHeight * destination.getFormat().bytesPerPixel);
 	}
 
 	// Cleanup
@@ -311,8 +311,8 @@ RenderTable *RenderManager::getRenderTable() {
 
 void RenderManager::setBackgroundImage(const Common::String &fileName) {
 	readImageToSurface(fileName, _currentBackgroundImage);
-	_backgroundWidth = _currentBackgroundImage.w;
-	_backgroundHeight = _currentBackgroundImage.h;
+	_backgroundWidth = _currentBackgroundImage.getWidth();
+	_backgroundHeight = _currentBackgroundImage.getHeight();
 	_backgroundDirtyRect = Common::Rect(_backgroundWidth, _backgroundHeight);
 }
 
@@ -340,16 +340,16 @@ uint32 RenderManager::getCurrentBackgroundOffset() {
 
 Graphics::Surface *RenderManager::tranposeSurface(const Graphics::Surface *surface) {
 	Graphics::Surface *tranposedSurface = new Graphics::Surface();
-	tranposedSurface->create(surface->h, surface->w, surface->format);
+	tranposedSurface->create(surface->getHeight(), surface->getWidth(), surface->getFormat());
 
 	const uint16 *source = (const uint16 *)surface->getPixels();
 	uint16 *dest = (uint16 *)tranposedSurface->getPixels();
 
-	for (uint32 y = 0; y < tranposedSurface->h; ++y) {
-		uint32 columnIndex = y * tranposedSurface->w;
+	for (uint32 y = 0; y < tranposedSurface->getHeight(); ++y) {
+		uint32 columnIndex = y * tranposedSurface->getWidth();
 
-		for (uint32 x = 0; x < tranposedSurface->w; ++x) {
-			dest[columnIndex + x] = source[x * surface->w + y];
+		for (uint32 x = 0; x < tranposedSurface->getWidth(); ++x) {
+			dest[columnIndex + x] = source[x * surface->getWidth() + y];
 		}
 	}
 
@@ -386,15 +386,15 @@ void RenderManager::scaleBuffer(const void *src, void *dst, uint32 srcWidth, uin
 void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Common::Rect &_srcRect , Graphics::Surface &dst, int _x, int _y) {
 	Common::Rect srcRect = _srcRect;
 	if (srcRect.isEmpty())
-		srcRect = Common::Rect(src.w, src.h);
-	srcRect.clip(src.w, src.h);
-	Common::Rect dstRect = Common::Rect(-_x + srcRect.left , -_y + srcRect.top, -_x + srcRect.left + dst.w, -_y + srcRect.top + dst.h);
+		srcRect = Common::Rect(src.getWidth(), src.getHeight());
+	srcRect.clip(src.getWidth(), src.getHeight());
+	Common::Rect dstRect(-_x + srcRect.left , -_y + srcRect.top, -_x + srcRect.left + dst.getWidth(), -_y + srcRect.top + dst.getHeight());
 	srcRect.clip(dstRect);
 
 	if (srcRect.isEmpty() || !srcRect.isValidRect())
 		return;
 
-	Graphics::Surface *srcAdapted = src.convertTo(dst.format);
+	Graphics::Surface *srcAdapted = src.convertTo(dst.getFormat());
 
 	// Copy srcRect from src surface to dst surface
 	const byte *srcBuffer = (const byte *)srcAdapted->getBasePtr(srcRect.left, srcRect.top);
@@ -407,7 +407,7 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	if (yy < 0)
 		yy = 0;
 
-	if (_x >= dst.w || _y >= dst.h) {
+	if (_x >= dst.getWidth() || _y >= dst.getHeight()) {
 		srcAdapted->free();
 		delete srcAdapted;
 		return;
@@ -419,9 +419,9 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	int32 h = srcRect.height();
 
 	for (int32 y = 0; y < h; y++) {
-		memcpy(dstBuffer, srcBuffer, w * srcAdapted->format.bytesPerPixel);
-		srcBuffer += srcAdapted->pitch;
-		dstBuffer += dst.pitch;
+		memcpy(dstBuffer, srcBuffer, w * srcAdapted->getFormat().bytesPerPixel);
+		srcBuffer += srcAdapted->getPitch();
+		dstBuffer += dst.getPitch();
 	}
 
 	srcAdapted->free();
@@ -431,16 +431,16 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Common::Rect &_srcRect , Graphics::Surface &dst, int _x, int _y, uint32 colorkey) {
 	Common::Rect srcRect = _srcRect;
 	if (srcRect.isEmpty())
-		srcRect = Common::Rect(src.w, src.h);
-	srcRect.clip(src.w, src.h);
-	Common::Rect dstRect = Common::Rect(-_x + srcRect.left , -_y + srcRect.top, -_x + srcRect.left + dst.w, -_y + srcRect.top + dst.h);
+		srcRect = Common::Rect(src.getWidth(), src.getHeight());
+	srcRect.clip(src.getWidth(), src.getHeight());
+	Common::Rect dstRect = Common::Rect(-_x + srcRect.left , -_y + srcRect.top, -_x + srcRect.left + dst.getWidth(), -_y + srcRect.top + dst.getHeight());
 	srcRect.clip(dstRect);
 
 	if (srcRect.isEmpty() || !srcRect.isValidRect())
 		return;
 
-	Graphics::Surface *srcAdapted = src.convertTo(dst.format);
-	uint32 keycolor = colorkey & ((1 << (src.format.bytesPerPixel << 3)) - 1);
+	Graphics::Surface *srcAdapted = src.convertTo(dst.getFormat());
+	uint32 keycolor = colorkey & ((1 << (src.getFormat().bytesPerPixel << 3)) - 1);
 
 	// Copy srcRect from src surface to dst surface
 	const byte *srcBuffer = (const byte *)srcAdapted->getBasePtr(srcRect.left, srcRect.top);
@@ -453,7 +453,7 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	if (yy < 0)
 		yy = 0;
 
-	if (_x >= dst.w || _y >= dst.h) {
+	if (_x >= dst.getWidth() || _y >= dst.getHeight()) {
 		srcAdapted->free();
 		delete srcAdapted;
 		return;
@@ -465,7 +465,7 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	int32 h = srcRect.height();
 
 	for (int32 y = 0; y < h; y++) {
-		switch (srcAdapted->format.bytesPerPixel) {
+		switch (srcAdapted->getFormat().bytesPerPixel) {
 		case 1: {
 			const uint *srcTemp = (const uint *)srcBuffer;
 			uint *dstTemp = (uint *)dstBuffer;
@@ -505,8 +505,8 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 		default:
 			break;
 		}
-		srcBuffer += srcAdapted->pitch;
-		dstBuffer += dst.pitch;
+		srcBuffer += srcAdapted->getPitch();
+		dstBuffer += dst.getPitch();
 	}
 
 	srcAdapted->free();
@@ -519,7 +519,7 @@ void RenderManager::blitSurfaceToBkg(const Graphics::Surface &src, int x, int y,
 		blitSurfaceToSurface(src, empt, _currentBackgroundImage, x, y, colorkey);
 	else
 		blitSurfaceToSurface(src, empt, _currentBackgroundImage, x, y);
-	Common::Rect dirty(src.w, src.h);
+	Common::Rect dirty(src.getWidth(), src.getHeight());
 	dirty.translate(x, y);
 	if (_backgroundDirtyRect.isEmpty())
 		_backgroundDirtyRect = dirty;
@@ -528,12 +528,12 @@ void RenderManager::blitSurfaceToBkg(const Graphics::Surface &src, int x, int y,
 }
 
 void RenderManager::blitSurfaceToBkgScaled(const Graphics::Surface &src, const Common::Rect &_dstRect, int32 colorkey) {
-	if (src.w == _dstRect.width() && src.h == _dstRect.height()) {
+	if (src.getWidth() == _dstRect.width() && src.getHeight() == _dstRect.height()) {
 		blitSurfaceToBkg(src, _dstRect.left, _dstRect.top, colorkey);
 	} else {
 		Graphics::Surface *tmp = new Graphics::Surface;
-		tmp->create(_dstRect.width(), _dstRect.height(), src.format);
-		scaleBuffer(src.getPixels(), tmp->getPixels(), src.w, src.h, src.format.bytesPerPixel, _dstRect.width(), _dstRect.height());
+		tmp->create(_dstRect.width(), _dstRect.height(), src.getFormat());
+		scaleBuffer(src.getPixels(), tmp->getPixels(), src.getWidth(), src.getHeight(), src.getFormat().bytesPerPixel, _dstRect.width(), _dstRect.height());
 		blitSurfaceToBkg(*tmp, _dstRect.left, _dstRect.top, colorkey);
 		tmp->free();
 		delete tmp;
@@ -546,7 +546,7 @@ void RenderManager::blitSurfaceToMenu(const Graphics::Surface &src, int x, int y
 		blitSurfaceToSurface(src, empt, _menuSurface, x, y, colorkey);
 	else
 		blitSurfaceToSurface(src, empt, _menuSurface, x, y);
-	Common::Rect dirty(src.w, src.h);
+	Common::Rect dirty(src.getWidth(), src.getHeight());
 	dirty.translate(x, y);
 	if (_menuSurfaceDirtyRect.isEmpty())
 		_menuSurfaceDirtyRect = dirty;
@@ -562,7 +562,7 @@ Graphics::Surface *RenderManager::getBkgRect(Common::Rect &rect) {
 		return NULL;
 
 	Graphics::Surface *srf = new Graphics::Surface;
-	srf->create(dst.width(), dst.height(), _currentBackgroundImage.format);
+	srf->create(dst.width(), dst.height(), _currentBackgroundImage.getFormat());
 
 	srf->copyRectToSurface(_currentBackgroundImage, 0, 0, Common::Rect(dst));
 
@@ -656,7 +656,7 @@ void RenderManager::prepareBackground() {
 }
 
 void RenderManager::clearMenuSurface() {
-	_menuSurfaceDirtyRect = Common::Rect(0, 0, _menuSurface.w, _menuSurface.h);
+	_menuSurfaceDirtyRect = Common::Rect(_menuSurface.getWidth(), _menuSurface.getHeight());
 	_menuSurface.fillRect(_menuSurfaceDirtyRect, 0);
 }
 
@@ -670,7 +670,7 @@ void RenderManager::clearMenuSurface(const Common::Rect &r) {
 
 void RenderManager::renderMenuToScreen() {
 	if (!_menuSurfaceDirtyRect.isEmpty()) {
-		_menuSurfaceDirtyRect.clip(Common::Rect(_menuSurface.w, _menuSurface.h));
+		_menuSurfaceDirtyRect.clip(Common::Rect(_menuSurface.getWidth(), _menuSurface.getHeight()));
 		if (!_menuSurfaceDirtyRect.isEmpty()) {
 			Common::Rect rect(
 				_menuSurfaceDirtyRect.left + _menuArea.left,
@@ -748,7 +748,7 @@ void RenderManager::processSubs(uint16 deltatime) {
 	}
 
 	if (redraw) {
-		_subtitleSurface.fillRect(Common::Rect(_subtitleSurface.w, _subtitleSurface.h), 0);
+		_subtitleSurface.fillRect(Common::Rect(_subtitleSurface.getWidth(), _subtitleSurface.getHeight()), 0);
 
 		for (SubtitleMap::iterator it = _subsList.begin(); it != _subsList.end(); it++) {
 			OneSubtitle *sub = &it->_value;
@@ -766,8 +766,8 @@ void RenderManager::processSubs(uint16 deltatime) {
 		Common::Rect rect(
 			_subtitleArea.left,
 			_subtitleArea.top,
-			_subtitleArea.left + _subtitleSurface.w,
-			_subtitleArea.top + _subtitleSurface.h
+			_subtitleArea.left + _subtitleSurface.getWidth(),
+			_subtitleArea.top + _subtitleSurface.getHeight()
 		);
 		copyToScreen(_subtitleSurface, rect, 0, 0);
 	}
@@ -837,7 +837,7 @@ EffectMap *RenderManager::makeEffectMap(const Common::Point &xy, int16 depth, co
 
 	uint16 color = *(uint16 *)_currentBackgroundImage.getBasePtr(xy.x, xy.y);
 	uint8 stC1, stC2, stC3;
-	_currentBackgroundImage.format.colorToRGB(color, stC1, stC2, stC3);
+	_currentBackgroundImage.getFormat().colorToRGB(color, stC1, stC2, stC3);
 	EffectMap *newMap = new EffectMap;
 
 	EffectMapUnit unit;
@@ -859,7 +859,7 @@ EffectMap *RenderManager::makeEffectMap(const Common::Point &xy, int16 depth, co
 		for (int16 i = 0; i < w; i++) {
 			uint16 curClr = pix[i];
 			uint8 cC1, cC2, cC3;
-			_currentBackgroundImage.format.colorToRGB(curClr, cC1, cC2, cC3);
+			_currentBackgroundImage.getFormat().colorToRGB(curClr, cC1, cC2, cC3);
 
 			bool use = false;
 
@@ -923,8 +923,8 @@ EffectMap *RenderManager::makeEffectMap(const Graphics::Surface &surf, uint16 tr
 	unit.count = 0;
 	unit.inEffect = false;
 
-	int16 w = surf.w;
-	int16 h = surf.h;
+	int16 w = surf.getWidth();
+	int16 h = surf.getHeight();
 
 	EffectMap *newMap = new EffectMap;
 

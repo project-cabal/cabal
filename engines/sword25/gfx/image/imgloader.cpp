@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on Broken Sword 2.5 engine
@@ -74,7 +76,7 @@ bool ImgLoader::decodeThumbnailImage(const byte *pFileData, uint fileSize, Graph
 		r = *src++;
 		g = *src++;
 		b = *src++;
-		*dst++ = dest->format.RGBToColor(r, g, b);
+		*dst++ = dest->getFormat().RGBToColor(r, g, b);
 	}
 
 	return true;

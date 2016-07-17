@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Misc. graphics routines
 
@@ -94,9 +96,9 @@ void Surface::blit(const Common::Rect &destRect, const byte *sourceBuffer) {
 	clipData.destPoint.x = destRect.left;
 	clipData.destPoint.y = destRect.top;
 	clipData.destRect.left = 0;
-	clipData.destRect.right = w;
+	clipData.destRect.right = getWidth();
 	clipData.destRect.top = 0;
-	clipData.destRect.bottom = h;
+	clipData.destRect.bottom = getHeight();
 
 	if (!clipData.calcClip()) {
 		return;
@@ -106,12 +108,12 @@ void Surface::blit(const Common::Rect &destRect, const byte *sourceBuffer) {
 	readPointer = (sourceBuffer + clipData.drawSource.x) +
 						(clipData.sourceRect.right * clipData.drawSource.y);
 
-	writePointer = ((byte *)pixels + clipData.drawDest.x) + (pitch * clipData.drawDest.y);
+	writePointer = ((byte *)getPixels() + clipData.drawDest.x) + (getPitch() * clipData.drawDest.y);
 
 	for (row = 0; row < clipData.drawHeight; row++) {
 		memcpy(writePointer, readPointer, clipData.drawWidth);
 
-		writePointer += pitch;
+		writePointer += getPitch();
 		readPointer += clipData.sourceRect.right;
 	}
 }
@@ -130,7 +132,7 @@ void Surface::drawPolyLine(const Point *points, int count, int color) {
 // Dissolve one image with another. If flags is set to 1, do zero masking.
 void Surface::transitionDissolve(const byte *sourceBuffer, const Common::Rect &sourceRect, int flags, double percent) {
 #define XOR_MASK 0xB400;
-	int pixelcount = w * h;
+	int pixelcount = getWidth() * getHeight();
 	int seqlimit = (int)(65535 * percent);
 	int seq = 1;
 	int i, x1, y1;
@@ -150,13 +152,13 @@ void Surface::transitionDissolve(const byte *sourceBuffer, const Common::Rect &s
 		if (seq >= pixelcount) {
 			continue;
 		} else {
-			x1 = seq % w;
-			y1 = seq / w;
+			x1 = seq % getWidth();
+			y1 = seq / getWidth();
 
 			if (sourceRect.contains(x1, y1)) {
 				color = sourceBuffer[(x1-sourceRect.left) + sourceRect.width()*(y1-sourceRect.top)];
 				if (flags == 0 || color)
-					((byte *)pixels)[seq] = color;
+					((byte *)getPixels())[seq] = color;
 			}
 		}
 	}

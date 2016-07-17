@@ -320,7 +320,7 @@ void PegasusEngine::runIntro() {
 				const Graphics::Surface *frame = video->decodeNextFrame();
 
 				if (frame) {
-					_system->copyRectToScreen((const byte *)frame->getPixels(), frame->pitch, 0, 0, frame->w, frame->h);
+					_system->copyRectToScreen((const byte *)frame->getPixels(), frame->getPitch(), 0, 0, frame->getWidth(), frame->getHeight());
 					_system->updateScreen();
 				}
 			}
@@ -1420,10 +1420,10 @@ bool PegasusEngine::playMovieScaled(Video::VideoDecoder *video, uint16 x, uint16
 			const Graphics::Surface *frame = video->decodeNextFrame();
 
 			if (frame) {
-				if (frame->w <= 320 && frame->h <= 240) {
+				if (frame->getWidth() <= 320 && frame->getHeight() <= 240) {
 					drawScaledFrame(frame, x, y);
 				} else {
-					_system->copyRectToScreen((const byte *)frame->getPixels(), frame->pitch, x, y, frame->w, frame->h);
+					_system->copyRectToScreen((const byte *)frame->getPixels(), frame->getPitch(), x, y, frame->getWidth(), frame->getHeight());
 					_system->updateScreen();
 				}
 			}
@@ -2334,14 +2334,14 @@ static void scaleFrame(const PixelInt *src, PixelInt *dst, int w, int h, int src
 void PegasusEngine::drawScaledFrame(const Graphics::Surface *frame, uint16 x, uint16 y) {
 	// Scale up the frame doing some simple scaling
 	Graphics::Surface scaledFrame;
-	scaledFrame.create(frame->w * 2, frame->h * 2, frame->format);
+	scaledFrame.create(frame->getWidth() * 2, frame->getHeight() * 2, frame->getFormat());
 
-	if (frame->format.bytesPerPixel == 2)
-		scaleFrame<uint16>((const uint16 *)frame->getPixels(), (uint16 *)scaledFrame.getPixels(), frame->w, frame->h, frame->pitch);
+	if (frame->getFormat().bytesPerPixel == 2)
+		scaleFrame<uint16>((const uint16 *)frame->getPixels(), (uint16 *)scaledFrame.getPixels(), frame->getWidth(), frame->getHeight(), frame->getPitch());
 	else
-		scaleFrame<uint32>((const uint32 *)frame->getPixels(), (uint32 *)scaledFrame.getPixels(), frame->w, frame->h, frame->pitch);
+		scaleFrame<uint32>((const uint32 *)frame->getPixels(), (uint32 *)scaledFrame.getPixels(), frame->getWidth(), frame->getHeight(), frame->getPitch());
 
-	_system->copyRectToScreen((byte *)scaledFrame.getPixels(), scaledFrame.pitch, x, y, scaledFrame.w, scaledFrame.h);
+	_system->copyRectToScreen((byte *)scaledFrame.getPixels(), scaledFrame.getPitch(), x, y, scaledFrame.getWidth(), scaledFrame.getHeight());
 	_system->updateScreen();
 	scaledFrame.free();
 }

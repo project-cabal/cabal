@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "engines/util.h"
@@ -76,7 +78,7 @@ void MSprite::loadSprite(Common::SeekableReadStream *source,
 
 	outp = getData();
 	lineStart = getData();
-	int spriteSize = this->w * this->h;
+	int spriteSize = getWidth() * getHeight();
 	byte transIndex = getTransparencyIndex();
 	Common::fill(outp, outp + spriteSize, transIndex);
 
@@ -125,7 +127,7 @@ void MSprite::loadSprite(Common::SeekableReadStream *source,
 
 	// Do a final iteration over the sprite to convert it's pixels to
 	// the final positions in the main palette
-	spriteSize = this->w * this->h;
+	spriteSize = getWidth() * getHeight();
 	for (outp = getData(); spriteSize > 0; --spriteSize, ++outp) {
 		if (*outp != transIndex)
 			*outp = palette[*outp]._palIndex;
@@ -252,8 +254,8 @@ void SpriteSlots::drawBackground() {
 				Common::Point pt = spriteSlot._position;
 				if (spriteSlot._scale != -1) {
 					// Adjust the drawing position
-					pt.x -= frame->w / 2;
-					pt.y -= frame->h - 1;
+					pt.x -= frame->getWidth() / 2;
+					pt.y -= frame->getHeight() - 1;
 				}
 
 				if (spriteSlot._depth <= 1) {
@@ -328,8 +330,8 @@ void SpriteSlots::drawSprites(MSurface *s) {
 				xp = slot._position.x - scene._posAdjust.x;
 				yp = slot._position.y - scene._posAdjust.y;
 			} else {
-				xp = slot._position.x - (sprite->w / 2) - scene._posAdjust.x;
-				yp = slot._position.y - sprite->h - scene._posAdjust.y + 1;
+				xp = slot._position.x - (sprite->getWidth() / 2) - scene._posAdjust.x;
+				yp = slot._position.y - sprite->getHeight() - scene._posAdjust.y + 1;
 			}
 
 			if (slot._depth > 1) {

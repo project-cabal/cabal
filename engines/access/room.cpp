@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/memstream.h"
@@ -437,7 +439,7 @@ void Room::buildColumn(int playX, int screenX) {
 		for (int tileY = 0; tileY < TILE_HEIGHT; ++tileY) {
 			Common::copy(pTile, pTile + TILE_WIDTH, pDest);
 			pTile += TILE_WIDTH;
-			pDest += _vm->_buffer1.pitch;
+			pDest += _vm->_buffer1.getPitch();
 		}
 
 		pSrc += _playFieldWidth;
@@ -447,7 +449,7 @@ void Room::buildColumn(int playX, int screenX) {
 void Room::buildRow(int playY, int screenY) {
 	if (playY < 0 || playY >= _playFieldHeight)
 		return;
-	assert(screenY <= (_vm->_screen->h - TILE_HEIGHT));
+	assert(screenY <= (_vm->_screen->getHeight() - TILE_HEIGHT));
 
 	const byte *pSrc = _playField + playY *_playFieldWidth + _vm->_scrollCol;
 
@@ -461,7 +463,7 @@ void Room::buildRow(int playY, int screenY) {
 		for (int tileY = 0; tileY < TILE_HEIGHT; ++tileY) {
 			Common::copy(pTile, pTile + TILE_WIDTH, pDest);
 			pTile += TILE_WIDTH;
-			pDest += _vm->_buffer1.pitch;
+			pDest += _vm->_buffer1.getPitch();
 		}
 
 		++pSrc;

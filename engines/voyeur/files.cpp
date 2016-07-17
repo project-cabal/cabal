@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "voyeur/files.h"
 #include "voyeur/graphics.h"
@@ -1137,7 +1139,7 @@ PictureResource::PictureResource(Graphics::Surface *surface) {
 	_planeSize = 0;
 	_keyColor = 0;
 
-	_bounds = Common::Rect(0, 0, surface->w, surface->h);
+	_bounds = Common::Rect(surface->getWidth(), surface->getHeight());
 	_imgData = (byte *)surface->getPixels();
 	_freeImgData = DisposeAfterUse::NO;
 }

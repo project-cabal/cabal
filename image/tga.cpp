@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /* Based on code from xoreos https://github.com/DrMcCoy/xoreos/
  * relicensed under GPLv2+ with permission from DrMcCoy and clone2727
@@ -39,6 +41,8 @@ TGADecoder::TGADecoder() {
 	_colorMapLength = 0;
 	_colorMapEntryLength = 0;
 	_colorMap = NULL;
+	_width = 0;
+	_height = 0;
 }
 
 TGADecoder::~TGADecoder() {
@@ -48,6 +52,8 @@ TGADecoder::~TGADecoder() {
 void TGADecoder::destroy() {
 	_surface.free();
 	delete[] _colorMap;
+	_width = 0;
+	_height = 0;
 }
 
 bool TGADecoder::loadStream(Common::SeekableReadStream &tga) {
@@ -122,12 +128,11 @@ bool TGADecoder::readHeader(Common::SeekableReadStream &tga, byte &imageType, by
 	tga.skip(2 + 2);
 
 	// Image dimensions
-	_surface.w = tga.readUint16LE();
-	_surface.h = tga.readUint16LE();
+	_width = tga.readUint16LE();
+	_height = tga.readUint16LE();
 
 	// Bits per pixel
 	pixelDepth = tga.readByte();
-	_surface.format.bytesPerPixel = pixelDepth / 8;
 
 	// Image descriptor
 	byte imgDesc = tga.readByte();
@@ -221,41 +226,41 @@ bool TGADecoder::readColorMap(Common::SeekableReadStream &tga, byte imageType, b
 bool TGADecoder::readData(Common::SeekableReadStream &tga, byte imageType, byte pixelDepth) {
 	// TrueColor
 	if (imageType == TYPE_TRUECOLOR) {
-		_surface.create(_surface.w, _surface.h, _format);
+		_surface.create(_width, _height, _format);
 
 		if (pixelDepth == 16) {
-			for (int i = 0; i < _surface.h; i++) {
+			for (int i = 0; i < _surface.getHeight(); i++) {
 				uint16 *dst;
 				if (!_originTop) {
-					dst = (uint16 *)_surface.getBasePtr(0, _surface.h - i - 1);
+					dst = (uint16 *)_surface.getBasePtr(0, _surface.getHeight() - i - 1);
 				} else {
 					dst = (uint16 *)_surface.getBasePtr(0, i);
 				}
-				for (int j = 0; j < _surface.w; j++) {
+				for (int j = 0; j < _surface.getWidth(); j++) {
 					*dst++ = tga.readUint16LE();
 				}
 			}
 		} else if (pixelDepth == 32) {
-			for (int i = 0; i < _surface.h; i++) {
+			for (int i = 0; i < _surface.getHeight(); i++) {
 				uint32 *dst;
 				if (!_originTop) {
-					dst = (uint32 *)_surface.getBasePtr(0, _surface.h - i - 1);
+					dst = (uint32 *)_surface.getBasePtr(0, _surface.getHeight() - i - 1);
 				} else {
 					dst = (uint32 *)_surface.getBasePtr(0, i);
 				}
-				for (int j = 0; j < _surface.w; j++) {
+				for (int j = 0; j < _surface.getWidth(); j++) {
 					*dst++ = tga.readUint32LE();
 				}
 			}
 		} else if (pixelDepth == 24) {
-			for (int i = 0; i < _surface.h; i++) {
+			for (int i = 0; i < _surface.getHeight(); i++) {
 				byte *dst;
 				if (!_originTop) {
-					dst = (byte *)_surface.getBasePtr(0, _surface.h - i - 1);
+					dst = (byte *)_surface.getBasePtr(0, _surface.getHeight() - i - 1);
 				} else {
 					dst = (byte *)_surface.getBasePtr(0, i);
 				}
-				for (int j = 0; j < _surface.w; j++) {
+				for (int j = 0; j < _surface.getWidth(); j++) {
 					byte r = tga.readByte();
 					byte g = tga.readByte();
 					byte b = tga.readByte();
@@ -273,10 +278,10 @@ bool TGADecoder::readData(Common::SeekableReadStream &tga, byte imageType, byte 
 		}
 		// Black/White
 	} else if (imageType == TYPE_BW) {
-		_surface.create(_surface.w, _surface.h, _format);
+		_surface.create(_width, _height, _format);
 
 		byte *data  = (byte *)_surface.getPixels();
-		uint32 count = _surface.w * _surface.h;
+		uint32 count = _surface.getWidth() * _surface.getHeight();
 
 		while (count-- > 0) {
 			byte g = tga.readByte();
@@ -292,16 +297,16 @@ bool TGADecoder::readData(Common::SeekableReadStream &tga, byte imageType, byte 
 bool TGADecoder::readDataColorMapped(Common::SeekableReadStream &tga, byte imageType, byte indexDepth) {
 	// Color-mapped
 	if (imageType == TYPE_CMAP) {
-		_surface.create(_surface.w, _surface.h, _format);
+		_surface.create(_width, _height, _format);
 		if (indexDepth == 8) {
-			for (int i = 0; i < _surface.h; i++) {
+			for (int i = 0; i < _surface.getHeight(); i++) {
 				byte *dst;
 				if (!_originTop) {
-					dst = (byte *)_surface.getBasePtr(0, _surface.h - i - 1);
+					dst = (byte *)_surface.getBasePtr(0, _surface.getHeight() - i - 1);
 				} else {
 					dst = (byte *)_surface.getBasePtr(0, i);
 				}
-				for (int j = 0; j < _surface.w; j++) {
+				for (int j = 0; j < _surface.getWidth(); j++) {
 					byte index = tga.readByte();
 					*dst++ = index;
 				}
@@ -319,8 +324,8 @@ bool TGADecoder::readDataColorMapped(Common::SeekableReadStream &tga, byte image
 bool TGADecoder::readDataRLE(Common::SeekableReadStream &tga, byte imageType, byte pixelDepth) {
 	// RLE-TrueColor / RLE-Black/White
 	if (imageType == TYPE_RLE_TRUECOLOR || imageType == TYPE_RLE_BW || imageType == TYPE_RLE_CMAP) {
-		_surface.create(_surface.w, _surface.h, _format);
-		uint32 count = _surface.w * _surface.h;
+		_surface.create(_width, _height, _format);
+		uint32 count = _surface.getWidth() * _surface.getHeight();
 		byte *data = (byte *)_surface.getPixels();
 
 		while (count > 0) {

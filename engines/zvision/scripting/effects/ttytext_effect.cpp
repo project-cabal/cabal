@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -143,10 +145,10 @@ void ttyTextNode::scroll() {
 	while (_dy - scrl > _r.height() - _fnt.getFontHeight())
 		scrl += _fnt.getFontHeight();
 	int8 *pixels = (int8 *)_img.getPixels();
-	for (uint16 h = scrl; h < _img.h; h++)
-		memcpy(pixels + _img.pitch * (h - scrl), pixels + _img.pitch * h, _img.pitch);
+	for (uint16 h = scrl; h < _img.getHeight(); h++)
+		memcpy(pixels + _img.getPitch() * (h - scrl), pixels + _img.getPitch() * h, _img.getPitch());
 
-	_img.fillRect(Common::Rect(0, _img.h - scrl, _img.w, _img.h), 0);
+	_img.fillRect(Common::Rect(0, _img.getHeight() - scrl, _img.getWidth(), _img.getHeight()), 0);
 	_dy -= scrl;
 }
 

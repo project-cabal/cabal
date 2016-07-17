@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "engines/util.h"
 #include "gui/saveload.h"
@@ -1218,7 +1220,7 @@ void ScalpelEngine::doBrumwellMirror() {
 		bool flipped = people[HOLMES]._sequenceNumber == WALK_LEFT || people[HOLMES]._sequenceNumber == STOP_LEFT
 			|| people[HOLMES]._sequenceNumber == WALK_UPRIGHT || people[HOLMES]._sequenceNumber == STOP_UPRIGHT
 			|| people[HOLMES]._sequenceNumber == WALK_DOWNLEFT || people[HOLMES]._sequenceNumber == STOP_DOWNLEFT;
-		_screen->_backBuffer1.transBlitFrom(imageFrame, pt + Common::Point(38, -imageFrame._frame.h - 25), flipped);
+		_screen->_backBuffer1.transBlitFrom(imageFrame, pt + Common::Point(38, -imageFrame._frame.getHeight() - 25), flipped);
 
 		// Redraw the mirror borders to prevent the drawn image of Holmes from appearing outside of the mirror
 		_screen->_backBuffer1.blitFrom(_screen->_backBuffer2, Common::Point(114, 18),

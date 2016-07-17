@@ -372,7 +372,7 @@ void AGOSEngine::drawStuff(const byte *src, uint xoffs) {
 	for (uint h = 0; h < 6; h++) {
 		memcpy(dst, src, 4);
 		src += 4;
-		dst += screen->pitch;
+		dst += screen->getPitch();
 	}
 
 	_system->unlockScreen();

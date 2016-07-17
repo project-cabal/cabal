@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,7 +20,9 @@
  *
  */
 
- // Based off ffmpeg's msvideo.cpp
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Based off ffmpeg's msvideo.cpp
 
 #include "image/codecs/msvideo1.h"
 #include "common/stream.h"
@@ -50,11 +52,11 @@ MSVideo1Decoder::~MSVideo1Decoder() {
 void MSVideo1Decoder::decode8(Common::SeekableReadStream &stream) {
     byte colors[8];
     byte *pixels = (byte *)_surface->getPixels();
-    uint16 stride = _surface->w;
+    uint16 stride = _surface->getWidth();
 
     int skipBlocks = 0;
-    uint16 blocks_wide = _surface->w / 4;
-    uint16 blocks_high = _surface->h / 4;
+    uint16 blocks_wide = _surface->getWidth() / 4;
+    uint16 blocks_high = _surface->getHeight() / 4;
     uint32 totalBlocks = blocks_wide * blocks_high;
     uint32 blockInc = 4;
     uint16 rowDec = stride + 4;
@@ -130,11 +132,11 @@ void MSVideo1Decoder::decode16(Common::SeekableReadStream &stream) {
     /* decoding parameters */
     uint16 colors[8];
     uint16 *pixels = (uint16 *)_surface->getPixels();
-    int32 stride = _surface->w;
+    int32 stride = _surface->getWidth();
 
     int32 skip_blocks = 0;
-    int32 blocks_wide = _surface->w / 4;
-    int32 blocks_high = _surface->h / 4;
+    int32 blocks_wide = _surface->getWidth() / 4;
+    int32 blocks_high = _surface->getHeight() / 4;
     int32 total_blocks = blocks_wide * blocks_high;
     int32 block_inc = 4;
     int32 row_dec = stride + 4;

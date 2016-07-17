@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "image/codecs/cdtoons.h"
 #include "common/rect.h"
@@ -298,7 +300,7 @@ Graphics::Surface *CDToonsDecoder::decodeFrame(Common::SeekableReadStream &strea
 	for (uint i = 0; i < actions.size(); i++) {
 		CDToonsAction &action = actions[i];
 		if (i == 0 && action.blockId == 0)
-			memset(_surface->getPixels(), backgroundColor, _surface->w * _surface->h);
+			memset(_surface->getPixels(), backgroundColor, _surface->getWidth() * _surface->getHeight());
 		if (!_blocks.contains(action.blockId))
 			continue;
 		if (!action.rect.right)
@@ -334,10 +336,10 @@ void CDToonsDecoder::renderBlock(byte *data, uint dataSize, int destX, int destY
 	debugN(9, "CDToons renderBlock at (%d, %d), width %d, height %d\n",
 		destX, destY, width, height);
 
-	if (destX + width > _surface->w)
-		width = _surface->w - destX;
-	if (destY + height > _surface->h)
-		height = _surface->h - destY;
+	if (destX + width > _surface->getWidth())
+		width = _surface->getWidth() - destX;
+	if (destY + height > _surface->getHeight())
+		height = _surface->getHeight() - destY;
 
 	uint skip = 0;
 	if (destX < 0) {
@@ -349,7 +351,7 @@ void CDToonsDecoder::renderBlock(byte *data, uint dataSize, int destX, int destY
 	}
 
 	for (uint y = 0; y < height; y++) {
-		if (destY + (int)y >= _surface->h)
+		if (destY + (int)y >= _surface->getHeight())
 			break;
 
 		if (currData + 2 > dataEnd)
@@ -399,8 +401,8 @@ void CDToonsDecoder::renderBlock(byte *data, uint dataSize, int destX, int destY
 				size = width - x;
 				done = true;
 			}
-			if (destX + (int)x + size >= (int)_surface->w) {
-				size = MIN<int>((int)_surface->w - destX - (int)x, width - x);
+			if (destX + (int)x + size >= (int)_surface->getWidth()) {
+				size = MIN<int>((int)_surface->getWidth() - destX - (int)x, width - x);
 				done = true;
 			}
 			if (size <= 0) {

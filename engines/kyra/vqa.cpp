@@ -447,7 +447,7 @@ uint16 VQADecoder::VQAVideoTrack::getHeight() const {
 }
 
 Graphics::PixelFormat VQADecoder::VQAVideoTrack::getPixelFormat() const {
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 int VQADecoder::VQAVideoTrack::getCurFrame() const {
@@ -656,7 +656,7 @@ void VQAMovie::play() {
 					_system->getPaletteManager()->setPalette(systemPalette, 0, 256);
 				}
 
-				_system->copyRectToScreen((const byte *)surface->getBasePtr(0, 0), surface->pitch, x, y, width, height);
+				_system->copyRectToScreen((const byte *)surface->getBasePtr(0, 0), surface->getPitch(), x, y, width, height);
 			}
 
 			_system->updateScreen();

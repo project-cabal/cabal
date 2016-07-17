@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/memstream.h"
 
@@ -132,7 +134,7 @@ int Sprite::getPixel(int x, int y, const Displacement &displacement) const {
 
 void Sprite::drawReScaled(Surface *surface, bool markDirty, const Displacement &displacement) const {
 	const Common::Rect destRect(getRect(displacement));
-	Common::Rect clippedDestRect(0, 0, surface->w, surface->h);
+	Common::Rect clippedDestRect(surface->getWidth(), surface->getHeight());
 	clippedDestRect.clip(destRect);
 
 	// Calculate by how much we need to adjust the source rectangle to account for cropping
@@ -178,7 +180,7 @@ void Sprite::drawReScaled(Surface *surface, bool markDirty, const Displacement &
 		}
 
 		// Advance to next row
-		dst += surface->pitch;
+		dst += surface->getPitch();
 	}
 
 	// Mark the sprite's rectangle dirty
@@ -198,7 +200,7 @@ void Sprite::drawReScaled(Surface *surface, bool markDirty, const Displacement &
  */
 void Sprite::draw(Surface *surface, bool markDirty, int relX, int relY) const {
 	const Common::Rect destRect(_x + relX, _y + relY, _x + relX + _width, _y + relY + _height);
-	Common::Rect clippedDestRect(0, 0, surface->w, surface->h);
+	Common::Rect clippedDestRect(surface->getWidth(), surface->getHeight());
 	clippedDestRect.clip(destRect);
 
 	// Calculate by how much we need to adjust the source rectangle to account for cropping
@@ -232,7 +234,7 @@ void Sprite::draw(Surface *surface, bool markDirty, int relX, int relY) const {
 		}
 
 		// Advance to next row
-		dst += surface->pitch;
+		dst += surface->getPitch();
 		src += _width;
 	}
 

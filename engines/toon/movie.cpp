@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/debug.h"
 #include "common/events.h"
@@ -107,23 +109,23 @@ void Movie::playVideo(bool isFirstIntroVideo) {
 				if (_decoder->isLowRes()) {
 					// handle manually 2x scaling here
 					Graphics::Surface* surf = _vm->_system->lockScreen();
-					for (int y = 0; y < frame->h / 2; y++) {
-						memcpy(surf->getBasePtr(0, y * 2 + 0), frame->getBasePtr(0, y), frame->pitch);
-						memcpy(surf->getBasePtr(0, y * 2 + 1), frame->getBasePtr(0, y), frame->pitch);
+					for (int y = 0; y < frame->getHeight() / 2; y++) {
+						memcpy(surf->getBasePtr(0, y * 2 + 0), frame->getBasePtr(0, y), frame->getPitch());
+						memcpy(surf->getBasePtr(0, y * 2 + 1), frame->getBasePtr(0, y), frame->getPitch());
 					}
 					_vm->_system->unlockScreen();
 				} else {
-					_vm->_system->copyRectToScreen(frame->getPixels(), frame->pitch, 0, 0, frame->w, frame->h);
+					_vm->_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), 0, 0, frame->getWidth(), frame->getHeight());
 
 					// WORKAROUND: There is an encoding glitch in the first intro video. This hides this using the adjacent pixels.
 					if (isFirstIntroVideo) {
 						int32 currentFrame = _decoder->getCurFrame();
 						if (currentFrame >= 956 && currentFrame <= 1038) {
 							debugC(1, kDebugMovie, "Triggered workaround for glitch in first intro video...");
-							_vm->_system->copyRectToScreen(frame->getBasePtr(frame->w-188, 123), frame->pitch, frame->w-188, 124, 188, 1);
-							_vm->_system->copyRectToScreen(frame->getBasePtr(frame->w-188, 126), frame->pitch, frame->w-188, 125, 188, 1);
-							_vm->_system->copyRectToScreen(frame->getBasePtr(0, 125), frame->pitch, 0, 126, 64, 1);
-							_vm->_system->copyRectToScreen(frame->getBasePtr(0, 128), frame->pitch, 0, 127, 64, 1);
+							_vm->_system->copyRectToScreen(frame->getBasePtr(frame->getWidth() - 188, 123), frame->getPitch(), frame->getWidth() - 188, 124, 188, 1);
+							_vm->_system->copyRectToScreen(frame->getBasePtr(frame->getWidth() - 188, 126), frame->getPitch(), frame->getWidth() - 188, 125, 188, 1);
+							_vm->_system->copyRectToScreen(frame->getBasePtr(0, 125), frame->getPitch(), 0, 126, 64, 1);
+							_vm->_system->copyRectToScreen(frame->getBasePtr(0, 128), frame->getPitch(), 0, 127, 64, 1);
 						}
 					}
 				}

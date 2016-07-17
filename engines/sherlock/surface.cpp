@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,8 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #include "sherlock/surface.h"
 #include "sherlock/sherlock.h"
 #include "sherlock/resources.h"
@@ -28,32 +30,26 @@
 
 namespace Sherlock {
 
-Surface::Surface(uint16 width, uint16 height) : Fonts(), _freePixels(true) {
+Surface::Surface(uint16 width, uint16 height) : Fonts() {
 	create(width, height);
 }
 
-Surface::Surface() : Fonts(), _freePixels(false) {
+Surface::Surface() : Fonts() {
 }
 
 Surface::~Surface() {
-	if (_freePixels)
-		_surface.free();
 }
 
 void Surface::create(uint16 width, uint16 height) {
-	if (_freePixels)
-		_surface.free();
-
 	if (_vm->getPlatform() == Common::kPlatform3DO) {
 		_surface.create(width, height, Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0));
 	} else {
 		_surface.create(width, height, Graphics::PixelFormat::createFormatCLUT8());
 	}
-	_freePixels = true;
 }
 
 Graphics::PixelFormat Surface::getPixelFormat() {
-	return _surface.format;
+	return _surface.getFormat();
 }
 
 void Surface::blitFrom(const Surface &src) {
@@ -69,15 +65,15 @@ void Surface::blitFrom(const Graphics::Surface &src) {
 }
 
 void Surface::blitFrom(const Surface &src, const Common::Point &pt) {
-	blitFrom(src, pt, Common::Rect(0, 0, src._surface.w, src._surface.h));
+	blitFrom(src, pt, Common::Rect(src._surface.getWidth(), src._surface.getHeight()));
 }
 
 void Surface::blitFrom(const ImageFrame &src, const Common::Point &pt) {
-	blitFrom(src._frame, pt, Common::Rect(0, 0, src._frame.w, src._frame.h));
+	blitFrom(src._frame, pt, Common::Rect(src._frame.getWidth(), src._frame.getHeight()));
 }
 
 void Surface::blitFrom(const Graphics::Surface &src, const Common::Point &pt) {
-	blitFrom(src, pt, Common::Rect(0, 0, src.w, src.h));
+	blitFrom(src, pt, Common::Rect(src.getWidth(), src.getHeight()));
 }
 
 void Surface::blitFrom(const Graphics::Surface &src, const Common::Point &pt, const Common::Rect &srcBounds) {
@@ -118,8 +114,8 @@ void Surface::transBlitFrom(const Graphics::Surface &src, const Common::Point &p
 		return;
 	}
 
-	int destWidth = src.w * SCALE_THRESHOLD / scaleVal;
-	int destHeight = src.h * SCALE_THRESHOLD / scaleVal;
+	int destWidth = src.getWidth() * SCALE_THRESHOLD / scaleVal;
+	int destHeight = src.getHeight() * SCALE_THRESHOLD / scaleVal;
 
 	// Loop through drawing output lines
 	for (int destY = pt.y, scaleYCtr = 0; destY < (pt.y + destHeight); ++destY, scaleYCtr += scaleVal) {
@@ -134,7 +130,7 @@ void Surface::transBlitFrom(const Graphics::Surface &src, const Common::Point &p
 			if (destX < 0 || destX >= this->w())
 				continue;
 
-			byte srcVal = srcLine[flipped ? src.w - scaleXCtr / SCALE_THRESHOLD - 1 : scaleXCtr / SCALE_THRESHOLD];
+			byte srcVal = srcLine[flipped ? src.getWidth() - scaleXCtr / SCALE_THRESHOLD - 1 : scaleXCtr / SCALE_THRESHOLD];
 			if (srcVal != TRANSPARENCY)
 				destLine[xCtr] = srcVal;
 		}
@@ -146,8 +142,8 @@ void Surface::transBlitFrom(const Graphics::Surface &src, const Common::Point &p
 
 void Surface::transBlitFromUnscaled(const Graphics::Surface &src, const Common::Point &pt,
 		bool flipped, int overrideColor) {
-	Common::Rect drawRect(0, 0, src.w, src.h);
-	Common::Rect destRect(pt.x, pt.y, pt.x + src.w, pt.y + src.h);
+	Common::Rect drawRect(src.getWidth(), src.getHeight());
+	Common::Rect destRect(pt.x, pt.y, pt.x + src.getWidth(), pt.y + src.getHeight());
 
 	// Clip the display area to on-screen
 	if (!clip(drawRect, destRect))
@@ -155,17 +151,17 @@ void Surface::transBlitFromUnscaled(const Graphics::Surface &src, const Common::
 		return;
 
 	if (flipped)
-		drawRect = Common::Rect(src.w - drawRect.right, drawRect.top,
-			src.w - drawRect.left, drawRect.bottom);
+		drawRect = Common::Rect(src.getWidth() - drawRect.right, drawRect.top,
+			src.getWidth() - drawRect.left, drawRect.bottom);
 
 	Common::Point destPt(destRect.left, destRect.top);
 	addDirtyRect(Common::Rect(destPt.x, destPt.y, destPt.x + drawRect.width(),
 		destPt.y + drawRect.height()));
 
-	switch (src.format.bytesPerPixel) {
+	switch (src.getFormat().bytesPerPixel) {
 	case 1:
 		// 8-bit palettized: Draw loop
-		assert(_surface.format.bytesPerPixel == 1); // Security check
+		assert(_surface.getFormat().bytesPerPixel == 1); // Security check
 		for (int yp = 0; yp < drawRect.height(); ++yp) {
 			const byte *srcP = (const byte *)src.getBasePtr(
 				flipped ? drawRect.right - 1 : drawRect.left, drawRect.top + yp);
@@ -181,7 +177,7 @@ void Surface::transBlitFromUnscaled(const Graphics::Surface &src, const Common::
 		break;
 	case 2:
 		// 3DO 15-bit RGB565: Draw loop
-		assert(_surface.format.bytesPerPixel == 2); // Security check
+		assert(_surface.getFormat().bytesPerPixel == 2); // Security check
 		for (int yp = 0; yp < drawRect.height(); ++yp) {
 			const uint16 *srcP = (const uint16 *)src.getBasePtr(
 				flipped ? drawRect.right - 1 : drawRect.left, drawRect.top + yp);
@@ -211,7 +207,7 @@ void Surface::fillRect(const Common::Rect &r, uint color) {
 }
 
 void Surface::fill(uint color) {
-	fillRect(Common::Rect(_surface.w, _surface.h), color);
+	fillRect(Common::Rect(_surface.getWidth(), _surface.getHeight()), color);
 }
 
 bool Surface::clip(Common::Rect &srcBounds, Common::Rect &destBounds) {
@@ -248,18 +244,7 @@ void Surface::clear() {
 }
 
 void Surface::free() {
-	if (_freePixels) {
-		_surface.free();
-		_freePixels = false;
-	}
-}
-
-void Surface::setPixels(byte *pixels, int width, int height, Graphics::PixelFormat pixelFormat) {
-	_surface.format = pixelFormat;
-	_surface.w = width;
-	_surface.h = height;
-	_surface.pitch = width * pixelFormat.bytesPerPixel;
-	_surface.setPixels(pixels);
+	_surface.free();
 }
 
 void Surface::writeString(const Common::String &str, const Common::Point &pt, uint overrideColor) {

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/util.h"
 #include "sherlock/objects.h"
@@ -382,8 +384,8 @@ bool BaseObject::checkEndOfSequence() {
 
 				if (!_countCAnimFrames) {
 					// Save details before shape is removed
-					_delta.x = _imageFrame->_frame.w;
-					_delta.y = _imageFrame->_frame.h;
+					_delta.x = _imageFrame->_frame.getWidth();
+					_delta.y = _imageFrame->_frame.getHeight();
 					_position += _imageFrame->_offset;
 
 					// Free the images
@@ -707,7 +709,7 @@ void Sprite::checkSprite() {
 			int xp = obj._position.x + obj._imageFrame->_offset.x;
 			int yp = obj._position.y + obj._imageFrame->_offset.y;
 			objBounds = Common::Rect(xp, yp,
-				xp + obj._imageFrame->_frame.w + 1, yp + obj._imageFrame->_frame.h + 1);
+				xp + obj._imageFrame->_frame.getWidth() + 1, yp + obj._imageFrame->_frame.getHeight() + 1);
 		}
 
 		if (objBounds.contains(pt)) {
@@ -844,7 +846,7 @@ void Sprite::checkSprite() {
 								objBounds.right + CLEAR_DIST_X;
 						}
 
-						walkPos.x += people[HOLMES]._imageFrame->_frame.w / 2;
+						walkPos.x += people[HOLMES]._imageFrame->_frame.getWidth() / 2;
 						people[HOLMES]._walkDest = walkPos;
 						people[HOLMES]._walkTo.push(walkPos);
 						people[HOLMES].setWalking();

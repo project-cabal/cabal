@@ -623,11 +623,11 @@ void OSystem_Android::grabOverlay(void *buf, int pitch) {
 
 	byte *dst = (byte *)buf;
 	const byte *src = (const byte *)surface->getPixels();
-	uint h = surface->h;
+	uint h = surface->getHeight();
 
 	do {
-		memcpy(dst, src, surface->w * surface->format.bytesPerPixel);
-		src += surface->pitch;
+		memcpy(dst, src, surface->getWidth() * surface->getFormat().bytesPerPixel);
+		src += surface->getPitch();
 		dst += pitch;
 	} while (--h);
 }

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This file is based on WME Lite.
@@ -137,16 +139,17 @@ bool BaseRenderOSystem::initRenderer(int width, int height, bool windowed) {
 
 	_renderSurface->create(g_system->getWidth(), g_system->getHeight(), g_system->getScreenFormat());
 	_blankSurface->create(g_system->getWidth(), g_system->getHeight(), g_system->getScreenFormat());
-	_blankSurface->fillRect(Common::Rect(0, 0, _blankSurface->h, _blankSurface->w), _blankSurface->format.ARGBToColor(255, 0, 0, 0));
+	// FIXME: These coordinates look inverted.
+	_blankSurface->fillRect(Common::Rect(_blankSurface->getHeight(), _blankSurface->getWidth()), _blankSurface->getFormat().ARGBToColor(255, 0, 0, 0));
 	_active = true;
 
-	_clearColor = _renderSurface->format.ARGBToColor(255, 0, 0, 0);
+	_clearColor = _renderSurface->getFormat().ARGBToColor(255, 0, 0, 0);
 
 	return STATUS_OK;
 }
 
 bool BaseRenderOSystem::indicatorFlip() {
-	g_system->copyRectToScreen((byte *)_renderSurface->getBasePtr(_indicatorX, _indicatorY), _renderSurface->pitch, _indicatorX, _indicatorY, _indicatorWidthDrawn, _indicatorHeight);
+	g_system->copyRectToScreen((byte *)_renderSurface->getBasePtr(_indicatorX, _indicatorY), _renderSurface->getPitch(), _indicatorX, _indicatorY, _indicatorWidthDrawn, _indicatorHeight);
 	g_system->updateScreen();
 	return STATUS_OK;
 }
@@ -192,9 +195,9 @@ bool BaseRenderOSystem::flip() {
 
 	if (_needsFlip || _disableDirtyRects || screenChanged) {
 		if (_disableDirtyRects || screenChanged) {
-			g_system->copyRectToScreen((byte *)_renderSurface->getPixels(), _renderSurface->pitch, 0, 0, _renderSurface->w, _renderSurface->h);
+			g_system->copyRectToScreen((byte *)_renderSurface->getPixels(), _renderSurface->getPitch(), 0, 0, _renderSurface->getWidth(), _renderSurface->getHeight());
 		}
-		//  g_system->copyRectToScreen((byte *)_renderSurface->getPixels(), _renderSurface->pitch, _dirtyRect->left, _dirtyRect->top, _dirtyRect->width(), _dirtyRect->height());
+		//  g_system->copyRectToScreen((byte *)_renderSurface->getPixels(), _renderSurface->getPitch(), _dirtyRect->left, _dirtyRect->top, _dirtyRect->width(), _dirtyRect->height());
 		delete _dirtyRect;
 		_dirtyRect = nullptr;
 		_needsFlip = false;
@@ -208,7 +211,7 @@ bool BaseRenderOSystem::flip() {
 
 //////////////////////////////////////////////////////////////////////////
 bool BaseRenderOSystem::fill(byte r, byte g, byte b, Common::Rect *rect) {
-	_clearColor = _renderSurface->format.ARGBToColor(0xFF, r, g, b);
+	_clearColor = _renderSurface->getFormat().ARGBToColor(0xFF, r, g, b);
 	if (!_disableDirtyRects) {
 		return STATUS_OK;
 	}
@@ -247,10 +250,10 @@ void BaseRenderOSystem::fadeToColor(byte r, byte g, byte b, byte a) {
 	modTargetRect(&fillRect);
 
 	//TODO: This is only here until I'm sure about the final pixelformat
-	uint32 col = _renderSurface->format.ARGBToColor(a, r, g, b);
+	uint32 col = _renderSurface->getFormat().ARGBToColor(a, r, g, b);
 
 	Graphics::Surface surf;
-	surf.create((uint16)fillRect.width(), (uint16)fillRect.height(), _renderSurface->format);
+	surf.create((uint16)fillRect.width(), (uint16)fillRect.height(), _renderSurface->getFormat());
 	Common::Rect sizeRect(fillRect);
 	sizeRect.translate(-fillRect.top, -fillRect.left);
 	surf.fillRect(fillRect, col);
@@ -265,7 +268,7 @@ void BaseRenderOSystem::fadeToColor(byte r, byte g, byte b, byte a) {
 }
 
 Graphics::PixelFormat BaseRenderOSystem::getPixelFormat() const {
-	return _renderSurface->format;
+	return _renderSurface->getFormat();
 }
 
 void BaseRenderOSystem::drawSurface(BaseSurfaceOSystem *owner, const Graphics::Surface *surf, Common::Rect *srcRect, Common::Rect *dstRect, Graphics::TransformStruct &transform) {
@@ -435,7 +438,7 @@ void BaseRenderOSystem::drawTickets() {
 		// Some tickets want redraw but don't actually clip the dirty area (typically the ones that shouldnt become clear-color)
 		ticket->_wantsDraw = false;
 	}
-	g_system->copyRectToScreen((byte *)_renderSurface->getBasePtr(_dirtyRect->left, _dirtyRect->top), _renderSurface->pitch, _dirtyRect->left, _dirtyRect->top, _dirtyRect->width(), _dirtyRect->height());
+	g_system->copyRectToScreen((byte *)_renderSurface->getBasePtr(_dirtyRect->left, _dirtyRect->top), _renderSurface->getPitch(), _dirtyRect->left, _dirtyRect->top, _dirtyRect->width(), _dirtyRect->height());
 
 	it = _renderQueue.begin();
 	// Clean out the old tickets
@@ -487,7 +490,7 @@ bool BaseRenderOSystem::drawLine(int x1, int y1, int x2, int y2, uint32 color) {
 	pointToScreen(&point2);
 
 	// TODO: This thing is mostly here until I'm sure about the final color-format.
-	uint32 colorVal = _renderSurface->format.ARGBToColor(a, r, g, b);
+	uint32 colorVal = _renderSurface->getFormat().ARGBToColor(a, r, g, b);
 	_renderSurface->drawLine(point1.x, point1.y, point2.x, point2.y, colorVal);
 	//SDL_RenderDrawLine(_renderer, point1.x, point1.y, point2.x, point2.y);
 	return STATUS_OK;
@@ -576,8 +579,9 @@ void BaseRenderOSystem::endSaveLoad() {
 	_skipThisFrame = true;
 	_lastFrameIter = _renderQueue.end();
 
-	_renderSurface->fillRect(Common::Rect(0, 0, _renderSurface->h, _renderSurface->w), _renderSurface->format.ARGBToColor(255, 0, 0, 0));
-	g_system->copyRectToScreen((byte *)_renderSurface->getPixels(), _renderSurface->pitch, 0, 0, _renderSurface->w, _renderSurface->h);
+	// FIXME: These coordinates look inverted.
+	_renderSurface->fillRect(Common::Rect(_renderSurface->getHeight(), _renderSurface->getWidth()), _renderSurface->getFormat().ARGBToColor(255, 0, 0, 0));
+	g_system->copyRectToScreen((byte *)_renderSurface->getPixels(), _renderSurface->getPitch(), 0, 0, _renderSurface->getWidth(), _renderSurface->getHeight());
 	g_system->updateScreen();
 }
 

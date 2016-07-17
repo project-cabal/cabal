@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/scalpel/scalpel_people.h"
 #include "sherlock/scalpel/scalpel_map.h"
@@ -215,7 +217,7 @@ void ScalpelPerson::setWalking() {
 		// clicked, but characters draw positions start at their left, move
 		// the destination half the character width to draw him centered
 		int temp;
-		if (_walkDest.x >= (temp = _imageFrame->_frame.w / 2))
+		if (_walkDest.x >= (temp = _imageFrame->_frame.getWidth() / 2))
 			_walkDest.x -= temp;
 
 		delta = Common::Point(

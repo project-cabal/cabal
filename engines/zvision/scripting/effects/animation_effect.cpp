@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -153,9 +155,9 @@ bool AnimationEffect::process(uint32 deltaTimeInMillis) {
 				// aa10 in Nemesis (Juperon, outside the asylum). We do allow scaling up only
 				// when a simple 2x filter is requested (e.g. the alchemists and cup sequence
 				// in Nemesis)
-				if (frame->w > dstw || frame->h > dsth || (frame->w == dstw / 2 && frame->h == dsth / 2)) {
+				if (frame->getWidth() > dstw || frame->getHeight() > dsth || (frame->getWidth() == dstw / 2 && frame->getHeight() == dsth / 2)) {
 					if (nod->_scaled)
-						if (nod->_scaled->w != dstw || nod->_scaled->h != dsth) {
+						if (nod->_scaled->getWidth() != dstw || nod->_scaled->getHeight() != dsth) {
 							nod->_scaled->free();
 							delete nod->_scaled;
 							nod->_scaled = NULL;
@@ -163,10 +165,10 @@ bool AnimationEffect::process(uint32 deltaTimeInMillis) {
 
 					if (!nod->_scaled) {
 						nod->_scaled = new Graphics::Surface;
-						nod->_scaled->create(dstw, dsth, frame->format);
+						nod->_scaled->create(dstw, dsth, frame->getFormat());
 					}
 
-					renderManager->scaleBuffer(frame->getPixels(), nod->_scaled->getPixels(), frame->w, frame->h, frame->format.bytesPerPixel, dstw, dsth);
+					renderManager->scaleBuffer(frame->getPixels(), nod->_scaled->getPixels(), frame->getWidth(), frame->getHeight(), frame->getFormat().bytesPerPixel, dstw, dsth);
 					frame = nod->_scaled;
 				}
 

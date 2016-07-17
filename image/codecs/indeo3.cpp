@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -115,8 +117,8 @@ void Indeo3Decoder::buildModPred() {
 }
 
 void Indeo3Decoder::allocFrames() {
-	int32 luma_width   = (_surface->w + 3) & (~3);
-	int32 luma_height  = (_surface->h + 3) & (~3);
+	int32 luma_width   = (_surface->getWidth() + 3) & (~3);
+	int32 luma_height  = (_surface->getHeight() + 3) & (~3);
 
 	int32 chroma_width  = ((luma_width  >> 2) + 3) & (~3);
 	int32 chroma_height = ((luma_height >> 2) + 3) & (~3);
@@ -283,8 +285,8 @@ const Graphics::Surface *Indeo3Decoder::decodeFrame(Common::SeekableReadStream &
 			chromaWidth + 1);
 
 	// Blit the frame onto the surface
-	uint32 scaleWidth  = _surface->w / fWidth;
-	uint32 scaleHeight = _surface->h / fHeight;
+	uint32 scaleWidth  = _surface->getWidth() / fWidth;
+	uint32 scaleHeight = _surface->getHeight() / fHeight;
 
 	if (scaleWidth == 1 && scaleHeight == 1) {
 		// Shortcut: Don't need to scale so we can decode straight to the surface
@@ -293,19 +295,19 @@ const Graphics::Surface *Indeo3Decoder::decodeFrame(Common::SeekableReadStream &
 	} else {
 		// Need to upscale, so decode to a temp surface first
 		Graphics::Surface tempSurface;
-		tempSurface.create(fWidth, fHeight, _surface->format);
+		tempSurface.create(fWidth, fHeight, _surface->getFormat());
 
 		YUVToRGBMan.convert410(&tempSurface, Graphics::YUVToRGBManager::kScaleITU, srcY, tempU, tempV,
 				fWidth, fHeight, fWidth, chromaWidth + 1);
 
 		// Upscale
-		for (int y = 0; y < _surface->h; y++) {
-			for (int x = 0; x < _surface->w; x++) {
-				if (_surface->format.bytesPerPixel == 1)
+		for (int y = 0; y < _surface->getHeight(); y++) {
+			for (int x = 0; x < _surface->getWidth(); x++) {
+				if (_surface->getFormat().bytesPerPixel == 1)
 					*((byte *)_surface->getBasePtr(x, y)) = *((byte *)tempSurface.getBasePtr(x / scaleWidth, y / scaleHeight));
-				else if (_surface->format.bytesPerPixel == 2)
+				else if (_surface->getFormat().bytesPerPixel == 2)
 					*((uint16 *)_surface->getBasePtr(x, y)) = *((uint16 *)tempSurface.getBasePtr(x / scaleWidth, y / scaleHeight));
-				else if (_surface->format.bytesPerPixel == 4)
+				else if (_surface->getFormat().bytesPerPixel == 4)
 					*((uint32 *)_surface->getBasePtr(x, y)) = *((uint32 *)tempSurface.getBasePtr(x / scaleWidth, y / scaleHeight));
  			}
 		}

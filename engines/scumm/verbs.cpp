@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/actor.h"
 #include "scumm/charset.h"
@@ -139,7 +141,7 @@ void ScummEngine_v0::verbDrawDemoString(int VerbDemoNumber) {
 	_string[2].charset = 1;
 	_string[2].ypos = _virtscr[kVerbVirtScreen].topline + (8 * VerbDemoNumber);
 	_string[2].xpos = 0;
-	_string[2].right = _virtscr[kVerbVirtScreen].w - 1;
+	_string[2].right = _virtscr[kVerbVirtScreen].getWidth() - 1;
 	_string[2].color = v0DemoStr[VerbDemoNumber].color;
 	drawString(2, (byte *)string);
 }
@@ -349,7 +351,7 @@ void ScummEngine_v2::checkV2MouseOver(Common::Point pos) {
 					if (dst[x] == _mouseOverBoxesV2[_mouseOverBoxV2].hicolor)
 						dst[x] = _mouseOverBoxesV2[_mouseOverBoxV2].color;
 				}
-				dst += vs->pitch;
+				dst += vs->getPitch();
 			}
 
 			markRectAsDirty(kVerbVirtScreen, rect);
@@ -366,7 +368,7 @@ void ScummEngine_v2::checkV2MouseOver(Common::Point pos) {
 					if (dst[x] == _mouseOverBoxesV2[new_box].color)
 						dst[x] = _mouseOverBoxesV2[new_box].hicolor;
 				}
-				dst += vs->pitch;
+				dst += vs->getPitch();
 			}
 
 			markRectAsDirty(kVerbVirtScreen, rect);
@@ -424,9 +426,9 @@ void ScummEngine_v2::redrawV2Inventory() {
 
 	// Clear on all invocations
 	inventoryBox.top = vs->topline + inventoryArea;
-	inventoryBox.bottom = vs->topline + vs->h;
+	inventoryBox.bottom = vs->topline + vs->getHeight();
 	inventoryBox.left = 0;
-	inventoryBox.right = vs->w;
+	inventoryBox.right = vs->getWidth();
 	restoreBackground(inventoryBox);
 
 	_string[1].charset = 1;

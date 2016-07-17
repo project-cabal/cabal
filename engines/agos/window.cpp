@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/textconsole.h"
@@ -126,14 +127,14 @@ void AGOSEngine_Feeble::colorWindow(WindowBlock *window) {
 
 	_videoLockOut |= 0x8000;
 
-	dst = getBackGround() + _backGroundBuf->pitch * window->y + window->x;
+	dst = getBackGround() + _backGroundBuf->getPitch() * window->y + window->x;
 
 	for (h = 0; h < window->height; h++) {
 		for (w = 0; w < window->width; w++) {
 			if (dst[w] == 113 || dst[w] == 116 || dst[w] == 252)
 				dst[w] = window->fillColor;
 		}
-		dst += _backGroundBuf->pitch;
+		dst += _backGroundBuf->getPitch();
 	}
 
 	_videoLockOut &= ~0x8000;
@@ -178,7 +179,7 @@ void AGOSEngine::colorBlock(WindowBlock *window, uint16 x, uint16 y, uint16 w, u
 
 	do {
 		memset(dst, color, w);
-		dst += screen->pitch;
+		dst += screen->getPitch();
 	} while (--h);
 
 	_system->unlockScreen();
@@ -235,8 +236,8 @@ void AGOSEngine::restoreBlock(uint16 x, uint16 y, uint16 w, uint16 h) {
 	dst = (byte *)screen->getPixels();
 	src = getBackGround();
 
-	dst += y * screen->pitch;
-	src += y * _backGroundBuf->pitch;
+	dst += y * screen->getPitch();
+	src += y * _backGroundBuf->getPitch();
 
 	uint8 paletteMod = 0;
 	if (getGameType() == GType_ELVIRA1 && !(getFeatures() & GF_DEMO) && y >= 133)
@@ -246,8 +247,8 @@ void AGOSEngine::restoreBlock(uint16 x, uint16 y, uint16 w, uint16 h) {
 		for (i = x; i < w; i++)
 			dst[i] = src[i] + paletteMod;
 		y++;
-		dst += screen->pitch;
-		src += _backGroundBuf->pitch;
+		dst += screen->getPitch();
+		src += _backGroundBuf->getPitch();
 	}
 
 	_system->unlockScreen();

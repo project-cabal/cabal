@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef TINSEL_H
 #define TINSEL_H
@@ -114,8 +116,8 @@ enum TinselKeyDirection {
 
 typedef bool (*KEYFPTR)(const Common::KeyState &);
 
-#define	SCREEN_WIDTH	(_vm->screen().w)	// PC screen dimensions
-#define	SCREEN_HEIGHT	(_vm->screen().h)
+#define	SCREEN_WIDTH	(_vm->screen().getWidth())	// PC screen dimensions
+#define	SCREEN_HEIGHT	(_vm->screen().getHeight())
 #define	SCRN_CENTER_X	((SCREEN_WIDTH  - 1) / 2)	// screen center x
 #define	SCRN_CENTER_Y	((SCREEN_HEIGHT - 1) / 2)	// screen center y
 #define UNUSED_LINES	48
@@ -235,7 +237,7 @@ public:
 		pt.x = CLIP<int16>(pt.x, 0, SCREEN_WIDTH - 1);
 		pt.y = CLIP<int16>(pt.y, 0, SCREEN_HEIGHT - 1);
 
-		int yOffset = TinselV2 ? (g_system->getHeight() - _screenSurface.h) / 2 : 0;
+		int yOffset = TinselV2 ? (g_system->getHeight() - _screenSurface.getHeight()) / 2 : 0;
 		g_system->warpMouse(pt.x, pt.y + yOffset);
 		_mousePos = pt;
 	}

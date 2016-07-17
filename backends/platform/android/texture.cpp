@@ -135,20 +135,16 @@ void GLESBaseTexture::setLinearFilter(bool value) {
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _glFilter));
 }
 
-void GLESBaseTexture::allocBuffer(GLuint w, GLuint h) {
-	_surface.w = w;
-	_surface.h = h;
-	_surface.format = _pixelFormat;
-
+void GLESBaseTexture::allocTexture(GLuint w, GLuint h) {
 	if (w == _texture_width && h == _texture_height)
 		return;
 
 	if (npot_supported) {
-		_texture_width = _surface.w;
-		_texture_height = _surface.h;
+		_texture_width = w;
+		_texture_height = h;
 	} else {
-		_texture_width = nextHigher2(_surface.w);
-		_texture_height = nextHigher2(_surface.h);
+		_texture_width = nextHigher2(w);
+		_texture_height = nextHigher2(h);
 	}
 
 	initSize();
@@ -157,8 +153,8 @@ void GLESBaseTexture::allocBuffer(GLuint w, GLuint h) {
 void GLESBaseTexture::drawTexture(GLshort x, GLshort y, GLshort w, GLshort h) {
 	GLCALL(glBindTexture(GL_TEXTURE_2D, _texture_name));
 
-	const GLfixed tex_width = xdiv(_surface.w, _texture_width);
-	const GLfixed tex_height = xdiv(_surface.h, _texture_height);
+	const GLfixed tex_width = xdiv(_surface.getWidth(), _texture_width);
+	const GLfixed tex_height = xdiv(_surface.getHeight(), _texture_height);
 	const GLfixed texcoords[] = {
 		0, 0,
 		tex_width, 0,
@@ -200,14 +196,9 @@ GLESTexture::~GLESTexture() {
 }
 
 void GLESTexture::allocBuffer(GLuint w, GLuint h) {
-	GLuint oldw = _surface.w;
-	GLuint oldh = _surface.h;
+	allocTexture(w, h);
 
-	GLESBaseTexture::allocBuffer(w, h);
-
-	_surface.pitch = w * _pixelFormat.bytesPerPixel;
-
-	if (_surface.w == oldw && _surface.h == oldh) {
+	if (_surface.getWidth() == w && _surface.getHeight() == h) {
 		fillBuffer(0);
 		return;
 	}
@@ -215,14 +206,14 @@ void GLESTexture::allocBuffer(GLuint w, GLuint h) {
 	delete[] _buf;
 	delete[] _pixels;
 
-	_pixels = new byte[w * h * _surface.format.bytesPerPixel];
+	_pixels = new byte[w * h * _pixelFormat.bytesPerPixel];
 	assert(_pixels);
 
-	_surface.setPixels(_pixels);
+	_surface.resetWithoutOwnership(w, h, w * _pixelFormat.bytesPerPixel, _pixels, _pixelFormat);
 
 	fillBuffer(0);
 
-	_buf = new byte[w * h * _surface.format.bytesPerPixel];
+	_buf = new byte[w * h * _pixelFormat.bytesPerPixel];
 	assert(_buf);
 }
 
@@ -231,11 +222,11 @@ void GLESTexture::updateBuffer(GLuint x, GLuint y, GLuint w, GLuint h,
 	setDirtyRect(Common::Rect(x, y, x + w, y + h));
 
 	const byte *src = (const byte *)buf;
-	byte *dst = _pixels + y * _surface.pitch + x * _surface.format.bytesPerPixel;
+	byte *dst = _pixels + y * _surface.getPitch() + x * _surface.getFormat().bytesPerPixel;
 
 	do {
-		memcpy(dst, src, w * _surface.format.bytesPerPixel);
-		dst += _surface.pitch;
+		memcpy(dst, src, w * _surface.getFormat().bytesPerPixel);
+		dst += _surface.getPitch();
 		src += pitch_buf;
 	} while (--h);
 }
@@ -246,12 +237,12 @@ void GLESTexture::fillBuffer(uint32 color) {
 	if (_pixelFormat.bytesPerPixel == 1 ||
 			(_pixelFormat.bytesPerPixel == 2 &&
 			((color & 0xff) == ((color >> 8) & 0xff))))
-		memset(_pixels, color & 0xff, _surface.pitch * _surface.h);
+		memset(_pixels, color & 0xff, _surface.getPitch() * _surface.getHeight());
 	else if (_pixelFormat.bytesPerPixel == 2)
-		Common::fill((uint16 *)_pixels, (uint16 *)(_pixels + _surface.pitch * _surface.h),
+		Common::fill((uint16 *)_pixels, (uint16 *)(_pixels + _surface.getPitch() * _surface.getHeight()),
 						(uint16)color);
 	else
-		Common::fill((uint32 *)_pixels, (uint32 *)(_pixels + _surface.pitch * _surface.h),
+		Common::fill((uint32 *)_pixels, (uint32 *)(_pixels + _surface.getPitch() * _surface.getHeight()),
 						color);
 
 	setDirty();
@@ -261,8 +252,8 @@ void GLESTexture::drawTexture(GLshort x, GLshort y, GLshort w, GLshort h) {
 	if (_all_dirty) {
 		_dirty_rect.top = 0;
 		_dirty_rect.left = 0;
-		_dirty_rect.bottom = _surface.h;
-		_dirty_rect.right = _surface.w;
+		_dirty_rect.bottom = _surface.getHeight();
+		_dirty_rect.right = _surface.getWidth();
 
 		_all_dirty = false;
 	}
@@ -273,20 +264,20 @@ void GLESTexture::drawTexture(GLshort x, GLshort y, GLshort w, GLshort h) {
 		int16 dwidth = _dirty_rect.width();
 		int16 dheight = _dirty_rect.height();
 
-		if (dwidth == _surface.w) {
-			_tex = _pixels + _dirty_rect.top * _surface.pitch;
+		if (dwidth == _surface.getWidth()) {
+			_tex = _pixels + _dirty_rect.top * _surface.getPitch();
 		} else {
 			_tex = _buf;
 
-			byte *src = _pixels + _dirty_rect.top * _surface.pitch +
-						_dirty_rect.left * _surface.format.bytesPerPixel;
+			byte *src = _pixels + _dirty_rect.top * _surface.getPitch() +
+						_dirty_rect.left * _surface.getFormat().bytesPerPixel;
 			byte *dst = _buf;
 
-			uint16 l = dwidth * _surface.format.bytesPerPixel;
+			uint16 l = dwidth * _surface.getFormat().bytesPerPixel;
 
 			for (uint16 i = 0; i < dheight; ++i) {
 				memcpy(dst, src, l);
-				src += _surface.pitch;
+				src += _surface.getPitch();
 				dst += l;
 			}
 		}
@@ -353,15 +344,9 @@ GLESFakePaletteTexture::~GLESFakePaletteTexture() {
 }
 
 void GLESFakePaletteTexture::allocBuffer(GLuint w, GLuint h) {
-	GLuint oldw = _surface.w;
-	GLuint oldh = _surface.h;
+	allocTexture(w, h);
 
-	GLESBaseTexture::allocBuffer(w, h);
-
-	_surface.format = Graphics::PixelFormat::createFormatCLUT8();
-	_surface.pitch = w;
-
-	if (_surface.w == oldw && _surface.h == oldh) {
+	if (_surface.getWidth() == w && _surface.getHeight() == h) {
 		fillBuffer(0);
 		return;
 	}
@@ -373,7 +358,7 @@ void GLESFakePaletteTexture::allocBuffer(GLuint w, GLuint h) {
 	assert(_pixels);
 
 	// fixup surface, for the outside this is a CLUT8 surface
-	_surface.setPixels(_pixels);
+	_surface.resetWithoutOwnership(w, h, w, _pixels, Graphics::PixelFormat::createFormatCLUT8());
 
 	fillBuffer(0);
 
@@ -383,7 +368,7 @@ void GLESFakePaletteTexture::allocBuffer(GLuint w, GLuint h) {
 
 void GLESFakePaletteTexture::fillBuffer(uint32 color) {
 	assert(_surface.getPixels());
-	memset(_surface.getPixels(), color & 0xff, _surface.pitch * _surface.h);
+	memset(_surface.getPixels(), color & 0xff, _surface.getPitch() * _surface.getHeight());
 	setDirty();
 }
 
@@ -393,11 +378,11 @@ void GLESFakePaletteTexture::updateBuffer(GLuint x, GLuint y, GLuint w,
 	setDirtyRect(Common::Rect(x, y, x + w, y + h));
 
 	const byte *src = (const byte *)buf;
-	byte *dst = _pixels + y * _surface.pitch + x;
+	byte *dst = _pixels + y * _surface.getPitch() + x;
 
 	do {
 		memcpy(dst, src, w);
-		dst += _surface.pitch;
+		dst += _surface.getPitch();
 		src += pitch_buf;
 	} while (--h);
 }
@@ -407,8 +392,8 @@ void GLESFakePaletteTexture::drawTexture(GLshort x, GLshort y, GLshort w,
 	if (_all_dirty) {
 		_dirty_rect.top = 0;
 		_dirty_rect.left = 0;
-		_dirty_rect.bottom = _surface.h;
-		_dirty_rect.right = _surface.w;
+		_dirty_rect.bottom = _surface.getHeight();
+		_dirty_rect.right = _surface.getWidth();
 
 		_all_dirty = false;
 	}
@@ -417,10 +402,10 @@ void GLESFakePaletteTexture::drawTexture(GLshort x, GLshort y, GLshort w,
 		int16 dwidth = _dirty_rect.width();
 		int16 dheight = _dirty_rect.height();
 
-		byte *src = _pixels + _dirty_rect.top * _surface.pitch +
+		byte *src = _pixels + _dirty_rect.top * _surface.getPitch() +
 					_dirty_rect.left;
 		uint16 *dst = _buf;
-		uint pitch_delta = _surface.pitch - dwidth;
+		uint pitch_delta = _surface.getPitch() - dwidth;
 
 		for (uint16 j = 0; j < dheight; ++j) {
 			for (uint16 i = 0; i < dwidth; ++i)

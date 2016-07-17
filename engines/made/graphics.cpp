@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "made/graphics.h"
 
@@ -73,8 +75,8 @@ void decompressImage(byte *source, Graphics::Surface &surface, uint16 cmdOffs, u
 		960, 961, 962, 963
 	};
 
-	uint16 width = surface.w;
-	uint16 height = surface.h;
+	uint16 width = surface.getWidth();
+	uint16 height = surface.getHeight();
 
 	byte *cmdBuffer = source + cmdOffs;
 	ValueReader maskReader(source + maskOffs, (maskFlags & 2) != 0);
@@ -187,9 +189,8 @@ void decompressImage(byte *source, Graphics::Surface &surface, uint16 cmdOffs, u
 }
 
 void decompressMovieImage(byte *source, Graphics::Surface &surface, uint16 cmdOffs, uint16 pixelOffs, uint16 maskOffs, uint16 lineSize) {
-
-	uint16 width = surface.w;
-	uint16 height = surface.h;
+	uint16 width = surface.getWidth();
+	uint16 height = surface.getHeight();
 	uint16 bx = 0, by = 0, bw = ((width + 3) / 4) * 4;
 
 	byte *cmdBuffer = source + cmdOffs;
@@ -268,8 +269,8 @@ void decompressMovieImage(byte *source, Graphics::Surface &surface, uint16 cmdOf
 
 				if (cmd != 3) {
 					uint16 blockPos = 0;
-					uint32 maxW = MIN(4, surface.w - bx);
-					uint32 maxH = (MIN(4, surface.h - by) + by) * width;
+					uint32 maxW = MIN(4, surface.getWidth() - bx);
+					uint32 maxH = (MIN(4, surface.getHeight() - by) + by) * width;
 					for (uint32 yc = by * width; yc < maxH; yc += width) {
 						for (uint32 xc = 0; xc < maxW; xc++) {
 							destPtr[(bx + xc) + yc] = block[xc + blockPos];

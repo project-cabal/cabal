@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/config-manager.h"
@@ -524,7 +526,7 @@ bool PrinceEngine::loadLocation(uint16 locationNr) {
 	// load location background, replace old one
 	Resource::loadResource(_roomBmp, "room", true);
 	if (_roomBmp->getSurface()) {
-		_sceneWidth = _roomBmp->getSurface()->w;
+		_sceneWidth = _roomBmp->getSurface()->getWidth();
 	}
 
 	loadZoom(_zoomBitmap, kZoomBitmapLen, "zoom");
@@ -645,23 +647,23 @@ void PrinceEngine::changeCursor(uint16 curId) {
 	CursorMan.replaceCursorPalette(_roomBmp->getPalette(), 0, 255);
 	CursorMan.replaceCursor(
 		curSurface->getBasePtr(0, 0),
-		curSurface->w, curSurface->h,
+		curSurface->getWidth(), curSurface->getHeight(),
 		0, 0,
 		255, false,
-		&curSurface->format
+		&curSurface->getFormat()
 	);
 	CursorMan.showMouse(true);
 }
 
 void PrinceEngine::makeInvCursor(int itemNr) {
 	const Graphics::Surface *cur1Surface = _cursor1->getSurface();
-	int cur1W = cur1Surface->w;
-	int cur1H = cur1Surface->h;
+	int cur1W = cur1Surface->getWidth();
+	int cur1H = cur1Surface->getHeight();
 	const Common::Rect cur1Rect(0, 0, cur1W, cur1H);
 
 	const Graphics::Surface *itemSurface = _allInvList[itemNr].getSurface();
-	int itemW = itemSurface->w;
-	int itemH = itemSurface->h;
+	int itemW = itemSurface->getWidth();
+	int itemH = itemSurface->getHeight();
 
 	int cur2W = cur1W + itemW / 2;
 	int cur2H = cur1H + itemH / 2;
@@ -700,9 +702,9 @@ void PrinceEngine::makeInvCursor(int itemNr) {
 					dst2++;
 				}
 			}
-			dst1 += _cursor2->pitch;
+			dst1 += _cursor2->getPitch();
 		}
-		src1 += itemSurface->pitch;
+		src1 += itemSurface->getPitch();
 	}
 }
 
@@ -996,8 +998,8 @@ bool PrinceEngine::loadAllInv() {
 		tempInvItem._surface = new Graphics::Surface();
 		tempInvItem._surface->create(width, height, Graphics::PixelFormat::createFormatCLUT8());
 
-		for (int h = 0; h < tempInvItem._surface->h; h++) {
-			invStream->read(tempInvItem._surface->getBasePtr(0, h), tempInvItem._surface->w);
+		for (int h = 0; h < tempInvItem._surface->getHeight(); h++) {
+			invStream->read(tempInvItem._surface->getBasePtr(0, h), tempInvItem._surface->getWidth());
 		}
 
 		_allInvList.push_back(tempInvItem);
@@ -1225,20 +1227,20 @@ int PrinceEngine::checkMob(Graphics::Surface *screen, Common::Array<Mob> &mobLis
 		uint16 textW = getTextWidth(mobName.c_str());
 
 		uint16 x = mousePos.x - textW / 2;
-		if (x > screen->w) {
+		if (x > screen->getWidth()) {
 			x = 0;
 		}
 
-		if (x + textW > screen->w) {
-			x = screen->w - textW;
+		if (x + textW > screen->getWidth()) {
+			x = screen->getWidth() - textW;
 		}
 
 		uint16 y = mousePos.y - _font->getFontHeight();
-		if (y > screen->h) {
+		if (y > screen->getHeight()) {
 			y = _font->getFontHeight() - 2;
 		}
 
-		_font->drawString(screen, mobName, x, y, screen->w, 216);
+		_font->drawString(screen, mobName, x, y, screen->getWidth(), 216);
 	}
 
 	return mobNumber;
@@ -1334,7 +1336,7 @@ void PrinceEngine::showTexts(Graphics::Surface *screen) {
 		}
 
 		Common::Array<Common::String> lines;
-		_font->wordWrapText(text._str, _graph->_frontScreen->w, lines);
+		_font->wordWrapText(text._str, _graph->_frontScreen->getWidth(), lines);
 
 		int wideLine = 0;
 		for (uint i = 0; i < lines.size(); i++) {
@@ -1363,7 +1365,7 @@ void PrinceEngine::showTexts(Graphics::Surface *screen) {
 			if (drawY < 0) {
 				drawY = 0;
 			}
-			_font->drawString(screen, lines[i], drawX, drawY, screen->w, text._color);
+			_font->drawString(screen, lines[i], drawX, drawY, screen->getWidth(), text._color);
 		}
 
 		text._time--;
@@ -1466,7 +1468,7 @@ void PrinceEngine::showMask(int maskNr, Graphics::Surface *originalRoomSurface) 
 }
 
 void PrinceEngine::showSprite(Graphics::Surface *spriteSurface, int destX, int destY, int destZ) {
-	if (spriteCheck(spriteSurface->w, spriteSurface->h, destX, destY)) {
+	if (spriteCheck(spriteSurface->getWidth(), spriteSurface->getHeight(), destX, destY)) {
 		destX -= _picWindowX;
 		destY -= _picWindowY;
 		DrawNode newDrawNode;
@@ -1484,7 +1486,7 @@ void PrinceEngine::showSprite(Graphics::Surface *spriteSurface, int destX, int d
 }
 
 void PrinceEngine::showSpriteShadow(Graphics::Surface *shadowSurface, int destX, int destY, int destZ) {
-	if (spriteCheck(shadowSurface->w, shadowSurface->h, destX, destY)) {
+	if (spriteCheck(shadowSurface->getWidth(), shadowSurface->getHeight(), destX, destY)) {
 		destX -= _picWindowX;
 		destY -= _picWindowY;
 		DrawNode newDrawNode;
@@ -1514,8 +1516,8 @@ void PrinceEngine::showAnim(Anim &anim) {
 	int specialZFlag = anim._nextAnim;
 	int z = anim._nextAnim;
 	Graphics::Surface *animSurface = anim._animData->getFrame(phaseFrameIndex);
-	int frameWidth = animSurface->w;
-	int frameHeight = animSurface->h;
+	int frameWidth = animSurface->getWidth();
+	int frameHeight = animSurface->getHeight();
 	int shadowZ = 0;
 
 	if (checkMaskFlag) {
@@ -1545,7 +1547,7 @@ void PrinceEngine::showAnim(Anim &anim) {
 		if (animSurface) {
 			DrawNode newDrawNode;
 			newDrawNode.posX = x;
-			newDrawNode.posY = y + animSurface->h - anim._shadowBack;
+			newDrawNode.posY = y + animSurface->getHeight() - anim._shadowBack;
 			newDrawNode.posZ = Hero::kHeroShadowZ;
 			newDrawNode.width = 0;
 			newDrawNode.height = 0;
@@ -1565,8 +1567,8 @@ void PrinceEngine::showAnim(Anim &anim) {
 		int shadowX = anim._shadowData->getBaseX() + anim._shadowData->getPhaseOffsetX(phase);
 		int shadowY = anim._shadowData->getBaseY() + anim._shadowData->getPhaseOffsetY(phase);
 		Graphics::Surface *shadowSurface = anim._shadowData->getFrame(shadowPhaseFrameIndex);
-		int shadowFrameWidth = shadowSurface->w;
-		int shadowFrameHeight = shadowSurface->h;
+		int shadowFrameWidth = shadowSurface->getWidth();
+		int shadowFrameHeight = shadowSurface->getHeight();
 
 		if (checkMaskFlag) {
 			checkMasks(shadowX, shadowY, shadowFrameWidth, shadowFrameHeight, shadowY + shadowFrameWidth - 1);
@@ -1737,9 +1739,8 @@ void PrinceEngine::initZoomIn(int slot) {
 		Graphics::Surface *zoomSource = object->getSurface();
 		if (zoomSource != nullptr) {
 			object->_flags |= 0x8000;
-			object->_zoomSurface = new Graphics::Surface();
-			object->_zoomSurface->create(zoomSource->w, zoomSource->h, Graphics::PixelFormat::createFormatCLUT8());
-			object->_zoomSurface->fillRect(Common::Rect(zoomSource->w, zoomSource->h), 0xFF);
+			object->_zoomSurface = new Graphics::Surface(zoomSource->getWidth(), zoomSource->getHeight(), Graphics::PixelFormat::createFormatCLUT8());
+			object->_zoomSurface->fillRect(Common::Rect(zoomSource->getWidth(), zoomSource->getHeight()), 0xFF);
 			object->_zoomTime = 20;
 		}
 	}
@@ -1767,11 +1768,11 @@ void PrinceEngine::doZoomIn(int slot) {
 			byte *src1 = (byte *)orgSurface->getBasePtr(0, 0);
 			byte *dst1 = (byte *)object->_zoomSurface->getBasePtr(0, 0);
 			int x = 0;
-			int surfaceHeight = orgSurface->h;
+			int surfaceHeight = orgSurface->getHeight();
 			for (int y = 0; y < surfaceHeight; y++) {
 				byte *src2 = src1;
 				byte *dst2 = dst1;
-				int w = orgSurface->w - x;
+				int w = orgSurface->getPitch() - x;
 				src2 += x;
 				dst2 += x;
 				while (w > 0) {
@@ -1781,13 +1782,13 @@ void PrinceEngine::doZoomIn(int slot) {
 						src2 += zoomInStep;
 						dst2 += zoomInStep;
 					} else if (y + 1 != surfaceHeight) {
-						*(dst1 + orgSurface->pitch + randVal - w) = *(src1 + orgSurface->pitch + randVal - w);
+						*(dst1 + orgSurface->getPitch() + randVal - w) = *(src1 + orgSurface->getPitch() + randVal - w);
 					}
 					w -= zoomInStep;
 				}
 				x = -1 * w;
-				src1 += orgSurface->pitch;
-				dst1 += orgSurface->pitch;
+				src1 += orgSurface->getPitch();
+				dst1 += orgSurface->getPitch();
 			}
 		}
 	}
@@ -1800,10 +1801,10 @@ void PrinceEngine::doZoomOut(int slot) {
 		if (orgSurface != nullptr) {
 			byte *dst1 = (byte *)object->_zoomSurface->getBasePtr(0, 0);
 			int x = 0;
-			int surfaceHeight = orgSurface->h;
+			int surfaceHeight = orgSurface->getHeight();
 			for (int y = 0; y < surfaceHeight; y++) {
 				byte *dst2 = dst1;
-				int w = orgSurface->w - x;
+				int w = orgSurface->getWidth() - x;
 				dst2 += x;
 				while (w > 0) {
 					int randVal = _randomSource.getRandomNumber(zoomInStep - 1);
@@ -1811,12 +1812,12 @@ void PrinceEngine::doZoomOut(int slot) {
 						*(dst2 + randVal) = 255;
 						dst2 += zoomInStep;
 					} else if (y + 1 != surfaceHeight) {
-						*(dst1 + orgSurface->pitch + randVal - w) = 255;
+						*(dst1 + orgSurface->getPitch() + randVal - w) = 255;
 					}
 					w -= zoomInStep;
 				}
 				x = -1 * w;
-				dst1 += orgSurface->pitch;
+				dst1 += orgSurface->getPitch();
 			}
 		}
 	}
@@ -1863,7 +1864,7 @@ void PrinceEngine::showObjects() {
 			}
 
 			if (objSurface != nullptr) {
-				if (spriteCheck(objSurface->w, objSurface->h, _objList[nr]->_x, _objList[nr]->_y)) {
+				if (spriteCheck(objSurface->getWidth(), objSurface->getHeight(), _objList[nr]->_x, _objList[nr]->_y)) {
 					int destX = _objList[nr]->_x - _picWindowX;
 					int destY = _objList[nr]->_y - _picWindowY;
 					DrawNode newDrawNode;
@@ -1889,7 +1890,7 @@ void PrinceEngine::showObjects() {
 				}
 
 				if ((_objList[nr]->_flags & 1)) {
-					checkMasks(_objList[nr]->_x, _objList[nr]->_y, objSurface->w, objSurface->h, _objList[nr]->_z);
+					checkMasks(_objList[nr]->_x, _objList[nr]->_y, objSurface->getWidth(), objSurface->getHeight(), _objList[nr]->_z);
 				}
 			}
 		}
@@ -1904,7 +1905,7 @@ void PrinceEngine::showParallax() {
 				int x = _pscrList[i]->_x - (_pscrList[i]->_step * _picWindowX / 4);
 				int y = _pscrList[i]->_y;
 				int z = PScr::kPScrZ;
-				if (spriteCheck(pscrSurface->w, pscrSurface->h, x, y)) {
+				if (spriteCheck(pscrSurface->getWidth(), pscrSurface->getHeight(), x, y)) {
 					showSprite(pscrSurface, x, y, z);
 				}
 			}
@@ -1948,7 +1949,7 @@ void PrinceEngine::drawScreen() {
 		}
 		Graphics::Surface visiblePart;
 		if (roomSurface) {
-			visiblePart = roomSurface->getSubArea(Common::Rect(_picWindowX, 0, roomSurface->w, roomSurface->h));
+			visiblePart = roomSurface->getSubArea(Common::Rect(_picWindowX, 0, roomSurface->getWidth(), roomSurface->getHeight()));
 			_graph->draw(_graph->_frontScreen, &visiblePart);
 		}
 
@@ -2317,8 +2318,8 @@ void PrinceEngine::drawInvItems() {
 				Graphics::Surface *itemSurface = nullptr;
 				if (itemNr != 68) {
 					itemSurface = _allInvList[itemNr].getSurface();
-					if (itemSurface->h < _maxInvH) {
-						drawY += (_maxInvH - itemSurface->h) / 2;
+					if (itemSurface->getHeight() < _maxInvH) {
+						drawY += (_maxInvH - itemSurface->getHeight()) / 2;
 					}
 				} else {
 					// candle item:
@@ -2332,8 +2333,8 @@ void PrinceEngine::drawInvItems() {
 					itemSurface = _allInvList[itemNr].getSurface();
 					drawY += _allInvList[itemNr]._y + (_maxInvH - 76) / 2 - 200;
 				}
-				if (itemSurface->w < _maxInvW) {
-					drawX += (_maxInvW - itemSurface->w) / 2;
+				if (itemSurface->getWidth() < _maxInvW) {
+					drawX += (_maxInvW - itemSurface->getWidth()) / 2;
 				}
 				if (!_mst_shadow) {
 					_graph->drawTransparentSurface(_graph->_screenForInventory, drawX, drawY, itemSurface);
@@ -2771,7 +2772,7 @@ void PrinceEngine::checkInvOptions() {
 			};
 			uint16 textW = getTextWidth(invText.c_str());
 			uint16 textX = _optionsX + _invOptionsWidth / 2 - textW / 2;
-			_font->drawString(_graph->_screenForInventory, invText, textX, textY, _graph->_screenForInventory->w, optionsColor);
+			_font->drawString(_graph->_screenForInventory, invText, textX, textY, _graph->_screenForInventory->getWidth(), optionsColor);
 			textY += _invOptionsStep;
 		}
 	}
@@ -2927,7 +2928,7 @@ void PrinceEngine::dialogRun() {
 					correctStringDEU((char *)dialogText);
 				}
 				Common::Array<Common::String> lines;
-				_font->wordWrapText((const char *)dialogText, _graph->_frontScreen->w, lines);
+				_font->wordWrapText((const char *)dialogText, _graph->_frontScreen->getWidth(), lines);
 
 				Common::Rect dialogOption(dialogTextX, dialogTextY - dialogSkipUp / 2, dialogX + _dialogWidth - dialogSkipLeft, dialogTextY + lines.size() * _font->getFontHeight() + dialogSkipUp / 2 - 1);
 				if (dialogOption.contains(mousePos)) {
@@ -2937,7 +2938,7 @@ void PrinceEngine::dialogRun() {
 				}
 
 				for (uint j = 0; j < lines.size(); j++) {
-					_font->drawString(_graph->_frontScreen, lines[j], dialogTextX, dialogTextY, _graph->_frontScreen->w, actualColor);
+					_font->drawString(_graph->_frontScreen, lines[j], dialogTextX, dialogTextY, _graph->_frontScreen->getWidth(), actualColor);
 					dialogTextY += _font->getFontHeight();
 				}
 				dialogTextY += _dialogLineSpace;
@@ -3154,7 +3155,7 @@ void PrinceEngine::showPower() {
 			for (int x = 0; x < kPowerBarWidth; x++, dst2++) {
 				*dst2 = kPowerBarBackgroundColor;
 			}
-			dst += _graph->_frontScreen->pitch;
+			dst += _graph->_frontScreen->getPitch();
 		}
 
 		if (power) {
@@ -3168,7 +3169,7 @@ void PrinceEngine::showPower() {
 						*dst2 = kPowerBarGreenColor2;
 					}
 				}
-				dst += _graph->_frontScreen->pitch;
+				dst += _graph->_frontScreen->getPitch();
 			}
 		}
 
@@ -3195,7 +3196,7 @@ void PrinceEngine::scrollCredits() {
 				}
 				if (!line.empty()) {
 					int drawX = (kNormalWidth - getTextWidth(line.c_str())) / 2;
-					_font->drawString(_graph->_frontScreen, line, drawX, drawY, _graph->_frontScreen->w, 217);
+					_font->drawString(_graph->_frontScreen, line, drawX, drawY, _graph->_frontScreen->getWidth(), 217);
 				}
 
 				char letter1;

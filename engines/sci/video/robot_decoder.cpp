@@ -178,14 +178,14 @@ void RobotDecoder::readNextPacket() {
 
 	// FIXME: A frame's height + position can go off limits... why? With the
 	// following, we cut the contents to fit the frame
-	uint16 scaledHeight = CLIP<uint16>(decompressedSize / frameWidth, 0, surface->h - frameY);
+	uint16 scaledHeight = CLIP<uint16>(decompressedSize / frameWidth, 0, surface->getHeight() - frameY);
 
 	// FIXME: Same goes for the frame's width + position. In this case, we
 	// modify the position to fit the contents on screen.
-	if (frameWidth + frameX > surface->w)
-		frameX = surface->w - frameWidth;
+	if (frameWidth + frameX > surface->getWidth())
+		frameX = surface->getWidth() - frameWidth;
 
-	assert(frameWidth + frameX <= surface->w && scaledHeight + frameY <= surface->h);
+	assert(frameWidth + frameX <= surface->getWidth() && scaledHeight + frameY <= surface->getHeight());
 
 	DecompressorLZS lzs;
 	byte *decompressedFrame = new byte[decompressedSize];
@@ -219,15 +219,15 @@ void RobotDecoder::readNextPacket() {
 	byte *outFrame = (byte *)surface->getPixels();
 
 	// Black out the surface
-	memset(outFrame, 0, surface->w * surface->h);
+	memset(outFrame, 0, surface->getWidth() * surface->getHeight());
 
 	// Move to the correct y coordinate
-	outFrame += surface->w * frameY;
+	outFrame += surface->getWidth() * frameY;
 
 	for (uint16 y = 0; y < scaledHeight; y++) {
 		memcpy(outFrame + frameX, inFrame, frameWidth);
 		inFrame += frameWidth;
-		outFrame += surface->w;
+		outFrame += surface->getWidth();
 	}
 
 	delete[] decompressedFrame;
@@ -335,15 +335,15 @@ RobotDecoder::RobotVideoTrack::~RobotVideoTrack() {
 }
 
 uint16 RobotDecoder::RobotVideoTrack::getWidth() const {
-	return _surface->w;
+	return _surface->getWidth();
 }
 
 uint16 RobotDecoder::RobotVideoTrack::getHeight() const {
-	return _surface->h;
+	return _surface->getHeight();
 }
 
 Graphics::PixelFormat RobotDecoder::RobotVideoTrack::getPixelFormat() const {
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 void RobotDecoder::RobotVideoTrack::readPaletteChunk(Common::SeekableSubReadStreamEndian *stream, uint16 chunkSize) {

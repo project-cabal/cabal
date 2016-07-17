@@ -122,7 +122,7 @@ const Graphics::Surface *AVIFrames::getFrame(int frameIndex) {
 		return 0;
 
 	Graphics::Surface *copy;
-	if (frame->format == g_system->getScreenFormat()) {
+	if (frame->getFormat() == g_system->getScreenFormat()) {
 		copy = new Graphics::Surface();
 		copy->copyFrom(*frame);
 	} else {

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/config-manager.h"
 #include "common/debug.h"
@@ -415,7 +417,7 @@ void Scene::init(int id, const Common::Point &pos) {
 	if (nowPlaying != _vm->res->dseg.get_byte(dsAddr_currentMusic))
 		_vm->music->load(_vm->res->dseg.get_byte(dsAddr_currentMusic));
 
-	_vm->_system->copyRectToScreen(background.getPixels(), background.pitch, 0, 0, background.w, background.h);
+	_vm->_system->copyRectToScreen(background.getPixels(), background.getPitch(), 0, 0, background.getWidth(), background.getHeight());
 	setPalette(0);
 }
 
@@ -543,7 +545,7 @@ bool Scene::processEvent(const Common::Event &event) {
 
 struct ZOrderCmp {
 	inline bool operator()(const Surface *a, const Surface *b) const {
-		return a->y + a->h < b->y + b->h;
+		return a->y + a->getHeight() < b->y + b->getHeight();
 	}
 };
 
@@ -642,7 +644,7 @@ bool Scene::render(bool tickGame, bool tickMark, uint32 messageDelta) {
 		}
 
 		if (background.getPixels() && debugFeatures.feature[DebugFeatures::kShowBack]) {
-			_vm->_system->copyRectToScreen(background.getPixels(), background.pitch, 0, 0, background.w, background.h);
+			_vm->_system->copyRectToScreen(background.getPixels(), background.getPitch(), 0, 0, background.getWidth(), background.getHeight());
 		} else
 			_vm->_system->fillScreen(0);
 
@@ -703,8 +705,8 @@ bool Scene::render(bool tickGame, bool tickMark, uint32 messageDelta) {
 			if (obj != NULL) {
 				obj->rect.left = s->x;
 				obj->rect.top = s->y;
-				obj->rect.right = s->w + s->x;
-				obj->rect.bottom = s->h + s->y;
+				obj->rect.right = s->getWidth() + s->x;
+				obj->rect.bottom = s->getHeight() + s->y;
 				obj->rect.save();
 				//obj->dump();
 			}
@@ -718,7 +720,7 @@ bool Scene::render(bool tickGame, bool tickMark, uint32 messageDelta) {
 
 		for (zOrderIter = zOrder.begin(); zOrderIter != zOrder.end(); ++zOrderIter) {
 			Surface *s = *zOrderIter;
-			if (s->y + s->h > horizon)
+			if (s->y + s->getHeight() > horizon)
 				break;
 			s->render(surface);
 		}
@@ -999,7 +1001,7 @@ bool Scene::processEventQueue() {
 				if (s == NULL)
 					s = animation[messageSlot].currentFrame(0);
 				if (s != NULL) {
-					p.x = s->x + s->w / 2;
+					p.x = s->x + s->getWidth() / 2;
 					p.y = s->y;
 				} else
 					warning("no animation in slot %u", messageSlot);

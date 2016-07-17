@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/actor.h"
 #include "scumm/charset.h"
@@ -1730,7 +1732,7 @@ void ScummEngine_v5::o5_roomOps() {
 			if (_game.platform == Common::kPlatformFMTowns) {
 				switch (a) {
 				case 8:
-					towns_drawStripToScreen(&_virtscr[kMainVirtScreen], 0, _virtscr[kMainVirtScreen].topline, 0, 0, _virtscr[kMainVirtScreen].w, _virtscr[kMainVirtScreen].topline + _virtscr[kMainVirtScreen].h);
+					towns_drawStripToScreen(&_virtscr[kMainVirtScreen], 0, _virtscr[kMainVirtScreen].topline, 0, 0, _virtscr[kMainVirtScreen].getWidth(), _virtscr[kMainVirtScreen].topline + _virtscr[kMainVirtScreen].getHeight());
 					_townsScreen->update();
 					return;
 				case 9:
@@ -1759,7 +1761,7 @@ void ScummEngine_v5::o5_roomOps() {
 					_townsPaletteFlags &= ~2;
 					return;
 				case 18: // clear kMainVirtScreen layer 2 buffer
-					_textSurface.fillRect(Common::Rect(0, _virtscr[kMainVirtScreen].topline * _textSurfaceMultiplier, _textSurface.pitch, (_virtscr[kMainVirtScreen].topline + _virtscr[kMainVirtScreen].h) * _textSurfaceMultiplier), 0);
+					_textSurface.fillRect(Common::Rect(0, _virtscr[kMainVirtScreen].topline * _textSurfaceMultiplier, _textSurface.getPitch(), (_virtscr[kMainVirtScreen].topline + _virtscr[kMainVirtScreen].getHeight()) * _textSurfaceMultiplier), 0);
 				case 19: // enable palette operations (palManipulate(), cyclePalette() etc.)
 					_townsPaletteFlags |= 1;
 					return;

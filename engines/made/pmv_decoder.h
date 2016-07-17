@@ -57,8 +57,8 @@ private:
 		PMVVideoTrack(uint width, uint height, uint frameDelay, uint frameCount, const byte *palette);
 		~PMVVideoTrack();
 
-		uint16 getWidth() const { return _surface->w; }
-		uint16 getHeight() const { return _surface->h; }
+		uint16 getWidth() const { return _surface->getWidth(); }
+		uint16 getHeight() const { return _surface->getHeight(); }
 		Graphics::PixelFormat getPixelFormat() const { return Graphics::PixelFormat::createFormatCLUT8(); }
 		int getCurFrame() const { return _curFrame; }
 		int getFrameCount() const { return _frameCount; }

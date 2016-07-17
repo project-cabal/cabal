@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,8 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #ifndef IMAGE_CODECS_MSVIDEO1_H
 #define IMAGE_CODECS_MSVIDEO1_H
 
@@ -38,7 +40,7 @@ public:
 	~MSVideo1Decoder();
 
 	const Graphics::Surface *decodeFrame(Common::SeekableReadStream &stream);
-	Graphics::PixelFormat getPixelFormat() const { return _surface->format; }
+	Graphics::PixelFormat getPixelFormat() const { return _surface->getFormat(); }
 
 private:
 	byte _bitsPerPixel;

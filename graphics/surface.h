@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,16 +20,18 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #ifndef GRAPHICS_SURFACE_H
 #define GRAPHICS_SURFACE_H
 
+#include "common/ptr.h"
 #include "common/scummsys.h"
+#include "graphics/pixelformat.h"
 
 namespace Common {
 struct Rect;
 }
-
-#include "graphics/pixelformat.h"
 
 namespace Graphics {
 
@@ -38,46 +40,53 @@ namespace Graphics {
  * operations, font rendering, etc.
  */
 struct Surface {
-	/*
-	 * IMPORTANT implementation specific detail:
-	 *
-	 * ARM code relies on the layout of the first 3 of these fields. Do not
-	 * change them.
-	 */
-
-	/**
-	 * The width of the surface.
-	 */
-	uint16 w;
-
-	/**
-	 * The height of the surface.
-	 */
-	uint16 h;
-
-	/**
-	 * The number of bytes a pixel line has.
-	 *
-	 * Note that this might not equal w * bytesPerPixel.
-	 */
-	uint16 pitch;
-
-protected:
-	/**
-	 * The surface's pixel data.
-	 */
-	void *pixels;
-
 public:
-	/**
-	 * The pixel format of the surface.
-	 */
-	PixelFormat format;
-
 	/**
 	 * Construct a simple Surface object.
 	 */
-	Surface() : w(0), h(0), pitch(0), pixels(0), format() {
+	Surface() : _width(0), _height(0), _pitch(0), _pixels(0) {
+	}
+
+	/**
+	 * Construct a Surface from another, taking a reference to its underlying surface pointer
+	 * and increasing the reference count.
+	 */
+	Surface(const Surface &surface) : _width(surface._width), _height(surface._height),
+		_pitch(surface._pitch), _pixels(surface._pixels), _format(surface._format), _ref(surface._ref) {}
+
+	/**
+	 * Construct a Surface with a given width, height, and format. Calls create() internally.
+	 */
+	Surface(uint16 width, uint16 height, PixelFormat format) : _width(0), _height(0), _pitch(0), _pixels(0) {
+		create(width, height, format);
+	}
+
+	/**
+	 * Destroy the surface, resetting the underlying reference
+	 */
+	~Surface() {
+		free();
+	}
+
+	/**
+	 * Get the width of the surface
+	 */
+	inline uint16 getWidth() const {
+		return _width;
+	}
+
+	/**
+	 * Get the height of the surface
+	 */
+	inline uint16 getHeight() const {
+		return _height;
+	}
+
+	/**
+	 * Get the pitch of the surface
+	 */
+	inline uint16 getPitch() const {
+		return _pitch;
 	}
 
 	/**
@@ -86,7 +95,7 @@ public:
 	 * @return Pointer to the pixel data.
 	 */
 	inline const void *getPixels() const {
-		return pixels;
+		return _pixels;
 	}
 
 	/**
@@ -95,17 +104,15 @@ public:
 	 * @return Pointer to the pixel data.
 	 */
 	inline void *getPixels() {
-		return pixels;
+		return _pixels;
 	}
 
 	/**
-	 * Sets the pixel data.
-	 *
-	 * Note that this is a simply a setter. Be careful what you are doing!
-	 *
-	 * @param newPixels The new pixel data.
+	 * Return the pixel format of the surface
 	 */
-	void setPixels(void *newPixels) { pixels = newPixels; }
+	inline const PixelFormat &getFormat() const {
+		return _format;
+	}
 
 	/**
 	 * Return a pointer to the pixel at the specified point.
@@ -115,7 +122,7 @@ public:
 	 * @return Pointer to the pixel.
 	 */
 	inline const void *getBasePtr(int x, int y) const {
-		return (const byte *)(pixels) + y * pitch + x * format.bytesPerPixel;
+		return _pixels + y * _pitch + x * _format.bytesPerPixel;
 	}
 
 	/**
@@ -126,14 +133,11 @@ public:
 	 * @return Pointer to the pixel.
 	 */
 	inline void *getBasePtr(int x, int y) {
-		return static_cast<byte *>(pixels) + y * pitch + x * format.bytesPerPixel;
+		return _pixels + y * _pitch + x * _format.bytesPerPixel;
 	}
 
 	/**
 	 * Allocate memory for the pixel data of the surface.
-	 *
-	 * Note that you are responsible for calling free yourself.
-	 * @see free
 	 *
 	 * @param width Width of the surface object.
 	 * @param height Height of the surface object.
@@ -142,20 +146,42 @@ public:
 	void create(uint16 width, uint16 height, const PixelFormat &format);
 
 	/**
+	 * Allocate memory for the pixel data of the surface, but use a different
+	 * width/height for allocation.
+	 */
+	void create(uint16 width, uint16 height, uint16 allocWidth, uint16 allocHeight, const PixelFormat &format);
+
+	/**
 	 * Release the memory used by the pixels memory of this surface. This is the
 	 * counterpart to create().
-	 *
-	 * Note that you should only use this, when you created the Surface data via
-	 * create! Otherwise this function has undefined behavior.
-	 * @see create
 	 */
 	void free();
 
 	/**
-	 * Set up the Surface with user specified data.
+	 * Set up the Surface with user-specified data.
 	 *
-	 * Note that this simply sets the 'internal' attributes of the Surface. It
-	 * will not take care of freeing old data via free or similar!
+	 * @param width Width of the pixel data.
+	 * @param height Height of the pixel data.
+	 * @param pitch The pitch of the pixel data.
+	 * @param pixels The pixel data itself.
+	 * @param format The pixel format of the pixel data.
+	 * @param deleter The object that will be called to delete pixels.
+	 */
+	template<typename D>
+	void reset(uint16 width, uint16 height, uint16 pitch, byte *pixels, const PixelFormat &format, D deleter) {
+		free();
+		_width = width;
+		_height = height;
+		_pitch = pitch;
+		_format = format;
+		_pixels = pixels;
+		_ref.reset(pixels, deleter);
+	}
+
+	/**
+	 * Set up the Surface with user-specified data.
+	 *
+	 * Note that @param pixels will be freed with delete[].
 	 *
 	 * @param width Width of the pixel data.
 	 * @param height Height of the pixel data.
@@ -163,16 +189,27 @@ public:
 	 * @param pixels The pixel data itself.
 	 * @param format The pixel format of the pixel data.
 	 */
-	void init(uint16 width, uint16 height, uint16 pitch, void *pixels, const PixelFormat &format);
+	inline void reset(uint16 width, uint16 height, uint16 pitch, byte *pixels, const PixelFormat &format) {
+		reset(width, height, pitch, pixels, format, Common::SharedPtrArrayDeleter<byte>());
+	}
+
+	/**
+	 * Set up the Surface with user-specified data, but do not take ownership.
+	 *
+	 * @param width Width of the pixel data.
+	 * @param height Height of the pixel data.
+	 * @param pitch The pitch of the pixel data.
+	 * @param pixels The pixel data itself.
+	 * @param format The pixel format of the pixel data.
+	 */
+	inline void resetWithoutOwnership(uint16 width, uint16 height, uint16 pitch, byte *pixels, const PixelFormat &format) {
+		reset(width, height, pitch, pixels, format, Common::SharedPtrIgnoreDeleter<byte>());
+	}
 
 	/**
 	 * Copy the data from another Surface.
 	 *
-	 * Note that this calls free on the current surface, to assure it being
-	 * clean. So be sure the current data was created via create, otherwise
-	 * the results are undefined.
-	 * @see create
-	 * @see free
+	 * This is *not* the same as the copy constructor.
 	 *
 	 * @param surf Surface to copy from.
 	 */
@@ -221,6 +258,7 @@ public:
 	 * @param height    The height of the destination rectangle
 	 */
 	void copyRectToSurface(const void *buffer, int srcPitch, int destX, int destY, int width, int height);
+
 	/**
 	 * Copies a bitmap to the Surface internal buffer. The pixel format
 	 * of buffer must match the pixel format of the Surface.
@@ -230,7 +268,7 @@ public:
 	 * @param destY         The y coordinate of the destination rectangle
 	 * @param subRect       The subRect of surface to be blitted
 	 */
-	void copyRectToSurface(const Graphics::Surface &srcSurface, int destX, int destY, const Common::Rect subRect);
+	void copyRectToSurface(const Surface &srcSurface, int destX, int destY, const Common::Rect subRect);
 
 	/**
 	 * Convert the data to another pixel format.
@@ -256,7 +294,7 @@ public:
 	 * @param dstFormat The desired format
 	 * @param palette   The palette (in RGB888), if the source format has a Bpp of 1
 	 */
-	Graphics::Surface *convertTo(const PixelFormat &dstFormat, const byte *palette = 0) const;
+	Surface *convertTo(const PixelFormat &dstFormat, const byte *palette = 0) const;
 
 	/**
 	 * Draw a line.
@@ -325,22 +363,47 @@ public:
 
 	// See comment in graphics/surface.cpp about it
 	void move(int dx, int dy, int height);
-};
 
-/**
- * A deleter for Surface objects which can be used with SharedPtr.
- *
- * This deleter assures Surface::free is called on deletion.
- */
-struct SharedPtrSurfaceDeleter {
-	void operator()(Surface *ptr) {
-		if (ptr) {
-			ptr->free();
-		}
-		delete ptr;
-	}
-};
+private:
+	/*
+	 * IMPORTANT implementation specific detail:
+	 *
+	 * ARM code relies on the layout of the first 3 of these fields. Do not
+	 * change them.
+	 */
 
+	/**
+	 * The width of the surface.
+	 */
+	uint16 _width;
+
+	/**
+	 * The height of the surface.
+	 */
+	uint16 _height;
+
+	/**
+	 * The number of bytes a pixel line has.
+	 *
+	 * Note that this might not equal w * bytesPerPixel.
+	 */
+	uint16 _pitch;
+
+	/**
+	 * The surface's pixel data.
+	 */
+	byte *_pixels;
+
+	/**
+	 * The pixel format of the surface.
+	 */
+	PixelFormat _format;
+
+	/**
+	 * The underlying reference to the surface pointer
+	 */
+	Common::SharedPtr<byte> _ref;
+};
 
 } // End of namespace Graphics
 

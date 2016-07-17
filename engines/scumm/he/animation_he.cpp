@@ -93,7 +93,7 @@ void MoviePlayer::copyFrameToBuffer(byte *dst, int dstType, uint x, uint y, uint
 		_vm->setPaletteFromPtr(_video->getPalette(), 256);
 
 	if (_vm->_game.features & GF_16BIT_COLOR) {
-		if (surface->format.bytesPerPixel == 1) {
+		if (surface->getFormat().bytesPerPixel == 1) {
 			dst += y * pitch + x * 2;
 			do {
 				for (uint i = 0; i < w; i++) {
@@ -129,7 +129,7 @@ void MoviePlayer::copyFrameToBuffer(byte *dst, int dstType, uint x, uint y, uint
 					}
 				}
 				dst += pitch;
-				src += surface->pitch;
+				src += surface->getPitch();
 			} while (--h);
 		}
 	} else {
@@ -155,12 +155,12 @@ void MoviePlayer::handleNextFrame() {
 		assert(dst);
 		copyFrameToBuffer(dst, kDstResource, 0, 0, _vm->_screenWidth * _vm->_bytesPerPixel);
 	} else if (_flags & 1) {
-		copyFrameToBuffer(pvs->getBackPixels(0, 0), kDstScreen, 0, 0, pvs->pitch);
+		copyFrameToBuffer(pvs->getBackPixels(0, 0), kDstScreen, 0, 0, pvs->getPitch());
 
 		Common::Rect imageRect(_video->getWidth(), _video->getHeight());
 		_vm->restoreBackgroundHE(imageRect);
 	} else {
-		copyFrameToBuffer(pvs->getPixels(0, 0), kDstScreen, 0, 0, pvs->pitch);
+		copyFrameToBuffer(pvs->getPixels(0, 0), kDstScreen, 0, 0, pvs->getPitch());
 
 		Common::Rect imageRect(_video->getWidth(), _video->getHeight());
 		_vm->markRectAsDirty(kMainVirtScreen, imageRect);

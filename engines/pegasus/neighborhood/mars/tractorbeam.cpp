@@ -1,27 +1,29 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
- *
- * Additional copyright for this file:
- * Copyright (C) 1995-1997 Presto Studios, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Additional copyright for this file:
+// Copyright (C) 1995-1997 Presto Studios, Inc.
 
 #include "pegasus/pegasus.h"
 #include "pegasus/neighborhood/mars/constants.h"
@@ -51,15 +53,15 @@ static const int kAVert = -2 * kMaxLevel;
 static const int kBVert = 3 * kMaxLevel * kHalfHeight;
 
 #define READ_PIXEL(ptr) \
-	if (screen->format.bytesPerPixel == 2) \
+	if (screen->getFormat().bytesPerPixel == 2) \
 		color = READ_UINT16(ptr); \
 	else \
 		color = READ_UINT32(ptr); \
-	screen->format.colorToRGB(color, r, g, b)
+	screen->getFormat().colorToRGB(color, r, g, b)
 
 #define WRITE_PIXEL(ptr) \
-	color = screen->format.RGBToColor(r, g, b); \
-	if (screen->format.bytesPerPixel == 2) \
+	color = screen->getFormat().RGBToColor(r, g, b); \
+	if (screen->getFormat().bytesPerPixel == 2) \
 		WRITE_UINT16(ptr, color); \
 	else \
 		WRITE_UINT32(ptr, color)
@@ -94,9 +96,9 @@ void TractorBeam::draw(const Common::Rect &) {
 		int d3Horiz = 6 * A;
 
 		byte *pTopLeft = rowPtrTop;
-		byte *pTopRight = rowPtrTop + (kHalfWidth * 2 - 1) * screen->format.bytesPerPixel;
+		byte *pTopRight = rowPtrTop + (kHalfWidth * 2 - 1) * screen->getFormat().bytesPerPixel;
 		byte *pBottomLeft = rowPtrBottom;
-		byte *pBottomRight = rowPtrBottom + (kHalfWidth * 2 - 1) * screen->format.bytesPerPixel;
+		byte *pBottomRight = rowPtrBottom + (kHalfWidth * 2 - 1) * screen->getFormat().bytesPerPixel;
 
 		for (int x = kHalfWidth; x > 0; x--) {
 			byte r, g, b;
@@ -107,10 +109,10 @@ void TractorBeam::draw(const Common::Rect &) {
 			DO_BLEND(pBottomLeft);
 			DO_BLEND(pBottomRight);
 
-			pTopLeft += screen->format.bytesPerPixel;
-			pBottomLeft += screen->format.bytesPerPixel;
-			pTopRight -= screen->format.bytesPerPixel;
-			pBottomRight -= screen->format.bytesPerPixel;
+			pTopLeft += screen->getFormat().bytesPerPixel;
+			pBottomLeft += screen->getFormat().bytesPerPixel;
+			pTopRight -= screen->getFormat().bytesPerPixel;
+			pBottomRight -= screen->getFormat().bytesPerPixel;
 
 			while (dHoriz > kW3Div2Horiz) {
 				blendHoriz++;
@@ -122,8 +124,8 @@ void TractorBeam::draw(const Common::Rect &) {
 			d2Horiz += d3Horiz;
 		}
 
-		rowPtrTop += screen->pitch;
-		rowPtrBottom -= screen->pitch;
+		rowPtrTop += screen->getPitch();
+		rowPtrBottom -= screen->getPitch();
 
 		while (dVert > kW3Div2Vert) {
 			blendVert++;

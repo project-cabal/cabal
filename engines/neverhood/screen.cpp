@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "graphics/palette.h"
 #include "neverhood/screen.h"
@@ -55,7 +57,7 @@ void Screen::update() {
 
 	if (_fullRefresh) {
 		// NOTE When playing a fullscreen/doubled Smacker video usually a full screen refresh is needed
-		_vm->_system->copyRectToScreen((const byte*)_backScreen->getPixels(), _backScreen->pitch, 0, 0, 640, 480);
+		_vm->_system->copyRectToScreen((const byte*)_backScreen->getPixels(), _backScreen->getPitch(), 0, 0, 640, 480);
 		_fullRefresh = false;
 		return;
 	}
@@ -100,7 +102,7 @@ void Screen::update() {
 
 	for (RectangleList::iterator ri = updateRects->begin(); ri != updateRects->end(); ++ri) {
 		Common::Rect &r = *ri;
-		_vm->_system->copyRectToScreen((const byte*)_backScreen->getBasePtr(r.left, r.top), _backScreen->pitch, r.left, r.top, r.width(), r.height());
+		_vm->_system->copyRectToScreen((const byte*)_backScreen->getBasePtr(r.left, r.top), _backScreen->getPitch(), r.left, r.top, r.width(), r.height());
 	}
 
 	delete updateRects;
@@ -175,7 +177,7 @@ void Screen::updatePalette() {
 }
 
 void Screen::clear() {
-	memset(_backScreen->getPixels(), 0, _backScreen->pitch * _backScreen->h);
+	memset(_backScreen->getPixels(), 0, _backScreen->getPitch() * _backScreen->getHeight());
 	_fullRefresh = true;
 	clearRenderQueue();
 }
@@ -261,15 +263,15 @@ void Screen::drawDoubleSurface2(const Graphics::Surface *surface, NDrawRect &dra
 	const byte *source = (const byte*)surface->getPixels();
 	byte *dest = (byte*)_backScreen->getBasePtr(drawRect.x, drawRect.y);
 
-	for (int16 yc = 0; yc < surface->h; yc++) {
+	for (int16 yc = 0; yc < surface->getHeight(); yc++) {
 		byte *row = dest;
-		for (int16 xc = 0; xc < surface->w; xc++) {
+		for (int16 xc = 0; xc < surface->getWidth(); xc++) {
 			*row++ = *source;
 			*row++ = *source++;
 		}
-		memcpy(dest + _backScreen->pitch, dest, surface->w * 2);
-		dest += _backScreen->pitch;
-		dest += _backScreen->pitch;
+		memcpy(dest + _backScreen->getPitch(), dest, surface->getWidth() * 2);
+		dest += _backScreen->getPitch();
+		dest += _backScreen->getPitch();
 	}
 
 	_fullRefresh = true; // See Screen::update
@@ -396,23 +398,23 @@ void Screen::blitRenderItem(const RenderItem &renderItem, const Common::Rect &cl
 			for (int xc = 0; xc < width; xc++)
 				if (source[xc] != 0)
 					dest[xc] = shadowSource[xc];
-			source += surface->pitch;
-			shadowSource += shadowSurface->pitch;
-			dest += _backScreen->pitch;
+			source += surface->getPitch();
+			shadowSource += shadowSurface->getPitch();
+			dest += _backScreen->getPitch();
 		}
 	} else if (!renderItem._transparent) {
 		while (height--) {
 			memcpy(dest, source, width);
-			source += surface->pitch;
-			dest += _backScreen->pitch;
+			source += surface->getPitch();
+			dest += _backScreen->getPitch();
 		}
 	} else {
 		while (height--) {
 			for (int xc = 0; xc < width; xc++)
 				if (source[xc] != 0)
 					dest[xc] = source[xc];
-			source += surface->pitch;
-			dest += _backScreen->pitch;
+			source += surface->getPitch();
+			dest += _backScreen->getPitch();
 		}
 	}
 

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This file is based on WME Lite.
@@ -93,7 +95,7 @@ byte BaseImage::getAlphaAt(int x, int y) const {
 	}
 	uint32 color = *(const uint32 *)_surface->getBasePtr(x, y);
 	byte r, g, b, a;
-	_surface->format.colorToARGB(color, a, r, g, b);
+	_surface->getFormat().colorToARGB(color, a, r, g, b);
 	return a;
 }
 
@@ -136,7 +138,7 @@ bool BaseImage::writeBMPToStream(Common::WriteStream *stream) const {
 
 	/* Since we don't care during reads, we don't care during writes: */
 	/* uint32 fileSize = */
-	stream->writeUint32LE(54 + _surface->h * _surface->pitch);
+	stream->writeUint32LE(54 + _surface->getHeight() * _surface->getPitch());
 	/* uint16 res1 = */
 	stream->writeUint16LE(0);
 	/* uint16 res2 = */
@@ -147,8 +149,8 @@ bool BaseImage::writeBMPToStream(Common::WriteStream *stream) const {
 	const uint32 infoSize = 40; /* Windows v3 BMP */
 	stream->writeUint32LE(infoSize);
 
-	uint32 width = _surface->w;
-	int32 height = _surface->h;
+	uint32 width = _surface->getWidth();
+	int32 height = _surface->getHeight();
 	stream->writeUint32LE(width);
 	stream->writeUint32LE((uint32)height);
 
@@ -169,7 +171,7 @@ bool BaseImage::writeBMPToStream(Common::WriteStream *stream) const {
 	stream->writeUint32LE(compression);
 
 	/* uint32 imageSize = */
-	stream->writeUint32LE(_surface->h * _surface->pitch);
+	stream->writeUint32LE(_surface->getHeight() * _surface->getPitch());
 	/* uint32 pixelsPerMeterX = */
 	stream->writeUint32LE(0);
 	/* uint32 pixelsPerMeterY = */
@@ -196,7 +198,7 @@ bool BaseImage::writeBMPToStream(Common::WriteStream *stream) const {
 		for (uint32 j = 0; j < width; j++) {
 			byte b, g, r;
 			uint32 color = *(uint32 *)surface->getBasePtr(j, i);
-			surface->format.colorToRGB(color, r, g, b);
+			surface->getFormat().colorToRGB(color, r, g, b);
 			stream->writeByte(b);
 			stream->writeByte(g);
 			stream->writeByte(r);

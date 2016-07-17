@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/algorithm.h"
 #include "common/events.h"
@@ -538,9 +540,9 @@ void GfxFrameout::showVideo() {
 			if (frame) {
 				// We need to clip here
 				//  At least Phantasmagoria shows a 640x390 video on a 630x450 screen during the intro
-				outputWidth = frame->w > screenWidth ? screenWidth : frame->w;
-				outputHeight = frame->h > screenHeight ? screenHeight : frame->h;
-				g_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, outputWidth, outputHeight);
+				outputWidth = frame->getWidth() > screenWidth ? screenWidth : frame->getWidth();
+				outputHeight = frame->getHeight() > screenHeight ? screenHeight : frame->getHeight();
+				g_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, outputWidth, outputHeight);
 
 				if (videoDecoder->hasDirtyPalette())
 					g_system->getPaletteManager()->setPalette(videoDecoder->getPalette(), 0, 256);

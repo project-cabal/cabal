@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "image/pict.h"
 #include "image/codecs/codec.h"
@@ -364,24 +366,24 @@ void PICTDecoder::unpackBitsRect(Common::SeekableReadStream &stream, bool withPa
 	case 1:
 		// Just copy to the image
 		_outputSurface->create(width, height, Graphics::PixelFormat::createFormatCLUT8());
-		memcpy(_outputSurface->getPixels(), buffer, _outputSurface->w * _outputSurface->h);
+		memcpy(_outputSurface->getPixels(), buffer, _outputSurface->getWidth() * _outputSurface->getHeight());
 		break;
 	case 2:
 		// We have a 16-bit surface
 		_outputSurface->create(width, height, Graphics::PixelFormat(2, 5, 5, 5, 0, 10, 5, 0, 0));
-		for (uint16 y = 0; y < _outputSurface->h; y++)
-			for (uint16 x = 0; x < _outputSurface->w; x++)
-				WRITE_UINT16(_outputSurface->getBasePtr(x, y), READ_UINT16(buffer + (y * _outputSurface->w + x) * 2));
+		for (uint16 y = 0; y < _outputSurface->getHeight(); y++)
+			for (uint16 x = 0; x < _outputSurface->getWidth(); x++)
+				WRITE_UINT16(_outputSurface->getBasePtr(x, y), READ_UINT16(buffer + (y * _outputSurface->getWidth() + x) * 2));
 		break;
 	case 3:
 		// We have a planar 24-bit surface
 		_outputSurface->create(width, height, Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
-		for (uint16 y = 0; y < _outputSurface->h; y++) {
-			for (uint16 x = 0; x < _outputSurface->w; x++) {
-				byte r = *(buffer + y * _outputSurface->w * 3 + x);
-				byte g = *(buffer + y * _outputSurface->w * 3 + _outputSurface->w + x);
-				byte b = *(buffer + y * _outputSurface->w * 3 + _outputSurface->w * 2 + x);
-				*((uint32 *)_outputSurface->getBasePtr(x, y)) = _outputSurface->format.RGBToColor(r, g, b);
+		for (uint16 y = 0; y < _outputSurface->getHeight(); y++) {
+			for (uint16 x = 0; x < _outputSurface->getWidth(); x++) {
+				byte r = *(buffer + y * _outputSurface->getWidth() * 3 + x);
+				byte g = *(buffer + y * _outputSurface->getWidth() * 3 + _outputSurface->getWidth() + x);
+				byte b = *(buffer + y * _outputSurface->getWidth() * 3 + _outputSurface->getWidth() * 2 + x);
+				*((uint32 *)_outputSurface->getBasePtr(x, y)) = _outputSurface->getFormat().RGBToColor(r, g, b);
 			}
 		}
 		break;
@@ -391,13 +393,13 @@ void PICTDecoder::unpackBitsRect(Common::SeekableReadStream &stream, bool withPa
 		// Mac OS X does not ignore it, but then displays it incorrectly. Photoshop
 		// does ignore it and displays it correctly.
 		_outputSurface->create(width, height, Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
-		for (uint16 y = 0; y < _outputSurface->h; y++) {
-			for (uint16 x = 0; x < _outputSurface->w; x++) {
+		for (uint16 y = 0; y < _outputSurface->getHeight(); y++) {
+			for (uint16 x = 0; x < _outputSurface->getWidth(); x++) {
 				byte a = 0xFF;
-				byte r = *(buffer + y * _outputSurface->w * 4 + _outputSurface->w + x);
-				byte g = *(buffer + y * _outputSurface->w * 4 + _outputSurface->w * 2 + x);
-				byte b = *(buffer + y * _outputSurface->w * 4 + _outputSurface->w * 3 + x);
-				*((uint32 *)_outputSurface->getBasePtr(x, y)) = _outputSurface->format.ARGBToColor(a, r, g, b);
+				byte r = *(buffer + y * _outputSurface->getWidth() * 4 + _outputSurface->getWidth() + x);
+				byte g = *(buffer + y * _outputSurface->getWidth() * 4 + _outputSurface->getWidth() * 2 + x);
+				byte b = *(buffer + y * _outputSurface->getWidth() * 4 + _outputSurface->getWidth() * 3 + x);
+				*((uint32 *)_outputSurface->getBasePtr(x, y)) = _outputSurface->getFormat().ARGBToColor(a, r, g, b);
 			}
 		}
 		break;
@@ -571,13 +573,11 @@ void PICTDecoder::decodeCompressedQuickTime(Common::SeekableReadStream &stream) 
 	if (!surface)
 		error("PICTDecoder::decodeCompressedQuickTime(): Could not decode data");
 
-	if (!_outputSurface) {
-		_outputSurface = new Graphics::Surface();
-		_outputSurface->create(_imageRect.width(), _imageRect.height(), surface->format);
-	}
+	if (!_outputSurface)
+		_outputSurface = new Graphics::Surface(_imageRect.width(), _imageRect.height(), surface->getFormat());
 
-	for (uint16 y = 0; y < surface->h; y++)
-		memcpy(_outputSurface->getBasePtr(0 + xOffset, y + yOffset), surface->getBasePtr(0, y), surface->w * surface->format.bytesPerPixel);
+	for (uint16 y = 0; y < surface->getHeight(); y++)
+		memcpy(_outputSurface->getBasePtr(0 + xOffset, y + yOffset), surface->getBasePtr(0, y), surface->getWidth() * surface->getFormat().bytesPerPixel);
 
 	stream.seek(startPos + dataSize);
 	delete codec;

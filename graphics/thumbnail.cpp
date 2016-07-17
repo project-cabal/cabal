@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "graphics/thumbnail.h"
 #include "graphics/scaler.h"
@@ -171,27 +173,19 @@ Graphics::Surface *loadThumbnail(Common::SeekableReadStream &in) {
 		return 0;
 	}
 
-	Graphics::Surface *const to = new Graphics::Surface();
-	to->create(header.width, header.height, header.format);
+	Graphics::Surface *const to = new Graphics::Surface(header.width, header.height, header.format);
 
-	for (int y = 0; y < to->h; ++y) {
-		switch (header.format.bytesPerPixel) {
-		case 2: {
+	for (int y = 0; y < to->getHeight(); ++y) {
+		if (header.format.bytesPerPixel == 2) {
 			uint16 *pixels = (uint16 *)to->getBasePtr(0, y);
-			for (uint x = 0; x < to->w; ++x) {
+			for (uint x = 0; x < to->getWidth(); ++x) {
 				*pixels++ = in.readUint16BE();
 			}
-			} break;
-
-		case 4: {
+		} else {
 			uint32 *pixels = (uint32 *)to->getBasePtr(0, y);
-			for (uint x = 0; x < to->w; ++x) {
+			for (uint x = 0; x < to->getWidth(); ++x) {
 				*pixels++ = in.readUint32BE();
 			}
-			} break;
-
-		default:
-			assert(0);
 		}
 	}
 	return to;
@@ -205,24 +199,21 @@ bool saveThumbnail(Common::WriteStream &out) {
 		return false;
 	}
 
-	bool success = saveThumbnail(out, thumb);
-	thumb.free();
-
-	return success;
+	return saveThumbnail(out, thumb);
 }
 
 bool saveThumbnail(Common::WriteStream &out, const Graphics::Surface &thumb) {
-	if (thumb.format.bytesPerPixel != 2 && thumb.format.bytesPerPixel != 4) {
-		warning("trying to save thumbnail with bpp %u", thumb.format.bytesPerPixel);
+	if (thumb.getFormat().bytesPerPixel != 2 && thumb.getFormat().bytesPerPixel != 4) {
+		warning("trying to save thumbnail with bpp %u", thumb.getFormat().bytesPerPixel);
 		return false;
 	}
 
 	ThumbnailHeader header;
 	header.type = MKTAG('T','H','M','B');
-	header.size = ThumbnailHeaderSize + thumb.w*thumb.h*thumb.format.bytesPerPixel;
+	header.size = ThumbnailHeaderSize + thumb.getWidth() * thumb.getHeight() * thumb.getFormat().bytesPerPixel;
 	header.version = THMB_VERSION;
-	header.width = thumb.w;
-	header.height = thumb.h;
+	header.width = thumb.getWidth();
+	header.height = thumb.getHeight();
 
 	out.writeUint32BE(header.type);
 	out.writeUint32BE(header.size);
@@ -231,35 +222,28 @@ bool saveThumbnail(Common::WriteStream &out, const Graphics::Surface &thumb) {
 	out.writeUint16BE(header.height);
 
 	// Serialize the PixelFormat
-	out.writeByte(thumb.format.bytesPerPixel);
-	out.writeByte(thumb.format.rLoss);
-	out.writeByte(thumb.format.gLoss);
-	out.writeByte(thumb.format.bLoss);
-	out.writeByte(thumb.format.aLoss);
-	out.writeByte(thumb.format.rShift);
-	out.writeByte(thumb.format.gShift);
-	out.writeByte(thumb.format.bShift);
-	out.writeByte(thumb.format.aShift);
+	out.writeByte(thumb.getFormat().bytesPerPixel);
+	out.writeByte(thumb.getFormat().rLoss);
+	out.writeByte(thumb.getFormat().gLoss);
+	out.writeByte(thumb.getFormat().bLoss);
+	out.writeByte(thumb.getFormat().aLoss);
+	out.writeByte(thumb.getFormat().rShift);
+	out.writeByte(thumb.getFormat().gShift);
+	out.writeByte(thumb.getFormat().bShift);
+	out.writeByte(thumb.getFormat().aShift);
 
 	// Serialize the pixel data
-	for (uint y = 0; y < thumb.h; ++y) {
-		switch (thumb.format.bytesPerPixel) {
-		case 2: {
+	for (uint y = 0; y < thumb.getHeight(); ++y) {
+		if (thumb.getFormat().bytesPerPixel == 2) {
 			const uint16 *pixels = (const uint16 *)thumb.getBasePtr(0, y);
-			for (uint x = 0; x < thumb.w; ++x) {
+			for (uint x = 0; x < thumb.getWidth(); ++x) {
 				out.writeUint16BE(*pixels++);
 			}
-			} break;
-
-		case 4: {
+		} else {
 			const uint32 *pixels = (const uint32 *)thumb.getBasePtr(0, y);
-			for (uint x = 0; x < thumb.w; ++x) {
+			for (uint x = 0; x < thumb.getWidth(); ++x) {
 				out.writeUint32BE(*pixels++);
 			}
-			} break;
-
-		default:
-			assert(0);
 		}
 	}
 
@@ -292,11 +276,10 @@ int *scaleLine(int size, int srcSize) {
 }
 
 Graphics::Surface *scale(const Graphics::Surface &srcImage, int xSize, int ySize) {
-	Graphics::Surface *s = new Graphics::Surface();
-	s->create(xSize, ySize, srcImage.format);
+	Graphics::Surface *s = new Graphics::Surface(xSize, ySize, srcImage.getFormat());
 
-	int *horizUsage = scaleLine(xSize, srcImage.w);
-	int *vertUsage = scaleLine(ySize, srcImage.h);
+	int *horizUsage = scaleLine(xSize, srcImage.getWidth());
+	int *vertUsage = scaleLine(ySize, srcImage.getHeight());
 
 	// Loop to create scaled version
 	for (int yp = 0; yp < ySize; ++yp) {
@@ -304,8 +287,8 @@ Graphics::Surface *scale(const Graphics::Surface &srcImage, int xSize, int ySize
 		byte *destP = (byte *)s->getBasePtr(0, yp);
 
 		for (int xp = 0; xp < xSize; ++xp) {
-			const byte *tempSrcP = srcP + (horizUsage[xp] * srcImage.format.bytesPerPixel);
-			for (int byteCtr = 0; byteCtr < srcImage.format.bytesPerPixel; ++byteCtr) {
+			const byte *tempSrcP = srcP + (horizUsage[xp] * srcImage.getFormat().bytesPerPixel);
+			for (int byteCtr = 0; byteCtr < srcImage.getFormat().bytesPerPixel; ++byteCtr) {
 				*destP++ = *tempSrcP++;
 			}
 		}

@@ -127,15 +127,15 @@ void ROQPlayer::buildShowBuf() {
 	if (_alpha)
 		_fg->copyFrom(*_bg);
 
-	for (int line = 0; line < _bg->h; line++) {
+	for (int line = 0; line < _bg->getHeight(); line++) {
 		uint32 *out = _alpha ? (uint32 *)_fg->getBasePtr(0, line) : (uint32 *)_bg->getBasePtr(0, line);
 		uint32 *in = (uint32 *)_currBuf->getBasePtr(0, line / _scaleY);
 
-		for (int x = 0; x < _bg->w; x++) {
+		for (int x = 0; x < _bg->getWidth(); x++) {
 			// Copy a pixel, checking the alpha channel first
 			if (_alpha && !(*in & 0xFF))
 				out++;
-			else if (_fg->h == 480 && *in == _vm->_pixelFormat.RGBToColor(255, 255, 255))
+			else if (_fg->getHeight() == 480 && *in == _vm->_pixelFormat.RGBToColor(255, 255, 255))
 				// Handle transparency in Gamepad videos
 				// TODO: For now, we detect these videos by checking for full screen
 				out++;
@@ -180,7 +180,7 @@ bool ROQPlayer::playFrameInternal() {
 	if (_dirty) {
 		// Update the screen
 		void *src = (_alpha) ? _fg->getPixels() : _bg->getPixels();
-		_syst->copyRectToScreen(src, _bg->pitch, 0, (_syst->getHeight() - _bg->h) / 2, _bg->w, _bg->h);
+		_syst->copyRectToScreen(src, _bg->getPitch(), 0, (_syst->getHeight() - _bg->getHeight()) / 2, _bg->getWidth(), _bg->getHeight());
 		_syst->updateScreen();
 
 		// For overlay videos, set the background buffer when the video ends
@@ -299,7 +299,7 @@ bool ROQPlayer::processBlockInfo(ROQBlockHeader &blockHeader) {
 	}
 
 	// If the size of the image has changed, resize the buffers
-	if ((width != _currBuf->w) || (height != _currBuf->h)) {
+	if ((width != _currBuf->getWidth()) || (height != _currBuf->getHeight())) {
 		// Calculate the maximum scale that fits the screen
 		_scaleX = MIN(_syst->getWidth() / width, 2);
 		_scaleY = MIN(_syst->getHeight() / height, 2);
@@ -314,9 +314,9 @@ bool ROQPlayer::processBlockInfo(ROQBlockHeader &blockHeader) {
 	}
 
 	// Switch from/to fullscreen, if needed
-	if (_bg->h != 480 && height == 480)
+	if (_bg->getHeight() != 480 && height == 480)
 		_vm->_graphicsMan->switchToFullScreen(true);
-	else if (_bg->h == 480 && height != 480)
+	else if (_bg->getHeight() == 480 && height != 480)
 		_vm->_graphicsMan->switchToFullScreen(false);
 
 	// Clear the buffers with black
@@ -390,8 +390,8 @@ bool ROQPlayer::processBlockQuadVector(ROQBlockHeader &blockHeader) {
 	_codingTypeCount = 0;
 
 	// Traverse the image in 16x16 macroblocks
-	for (int macroY = 0; macroY < _currBuf->h; macroY += 16) {
-		for (int macroX = 0; macroX < _currBuf->w; macroX += 16) {
+	for (int macroY = 0; macroY < _currBuf->getHeight(); macroY += 16) {
+		for (int macroX = 0; macroX < _currBuf->getWidth(); macroX += 16) {
 			// Traverse the macroblock in 8x8 blocks
 			for (int blockY = 0; blockY < 16; blockY += 8) {
 				for (int blockX = 0; blockX < 16; blockX += 8) {
@@ -605,7 +605,7 @@ void ROQPlayer::paint2(byte i, int destx, int desty) {
 
 	uint32 *block = _codebook2 + i * 4;
 	uint32 *ptr = (uint32 *)_currBuf->getBasePtr(destx, desty);
-	uint32 pitch = _currBuf->pitch / 4;
+	uint32 pitch = _currBuf->getPitch() / 4;
 
 	ptr[0] = block[0];
 	ptr[1] = block[1];
@@ -640,7 +640,7 @@ void ROQPlayer::paint8(byte i, int destx, int desty) {
 			for (int y2 = 0; y2 < 2; y2++) {
 				for (int x2 = 0; x2 < 2; x2++) {
 					uint32 *ptr = (uint32 *)_currBuf->getBasePtr(destx + x4 * 4 + x2 * 2, desty + y4 * 4 + y2 * 2);
-					uint32 pitch = _currBuf->pitch / 4;
+					uint32 pitch = _currBuf->getPitch() / 4;
 					uint32 color = *block2++;
 					ptr[0] = ptr[1] = ptr[pitch] = ptr[pitch + 1] = color;
 				}
@@ -659,11 +659,11 @@ void ROQPlayer::copy(byte size, int destx, int desty, int offx, int offy) {
 
 	for (int i = 0; i < size; i++) {
 		// Copy the current line
-		memcpy(dst, src, size * _currBuf->format.bytesPerPixel);
+		memcpy(dst, src, size * _currBuf->getFormat().bytesPerPixel);
 
 		// Move to the beginning of the next line
-		dst += _currBuf->pitch;
-		src += _prevBuf->pitch;
+		dst += _currBuf->getPitch();
+		src += _prevBuf->getPitch();
 	}
 }
 

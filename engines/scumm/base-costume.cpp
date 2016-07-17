@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/base-costume.h"
 #include "scumm/costume.h"
@@ -30,17 +31,18 @@ byte BaseCostumeRenderer::drawCostume(const VirtScreen &vs, int numStrips, const
 	int i;
 	byte result = 0;
 
-	_out = vs;
-	if (drawToBackBuf)
-		_out.setPixels(vs.getBackPixels(0, 0));
-	else
-		_out.setPixels(vs.getPixels(0, 0));
+	uint16 width = vs.getPitch() / _vm->_bytesPerPixel;
 
 	_actorX += _vm->_virtscr[kMainVirtScreen].xstart & 7;
-	_out.w = _out.pitch / _vm->_bytesPerPixel;
+
+	// FIXME: vs should *not* be const if we're drawing to it
+	byte *dst = const_cast<byte *>(drawToBackBuf ? vs.getBackPixels(0, 0) : vs.getPixels(0, 0));
+
 	// We do not use getBasePtr here because the offset to pixels never used
 	// _vm->_bytesPerPixel, but it seems unclear why.
-	_out.setPixels((byte *)_out.getPixels() - (_vm->_virtscr[kMainVirtScreen].xstart & 7));
+	dst -= _vm->_virtscr[kMainVirtScreen].xstart & 7;
+
+	_out.resetWithoutOwnership(width, vs.getHeight(), vs.getPitch(), dst, vs.getFormat());
 
 	_numStrips = numStrips;
 

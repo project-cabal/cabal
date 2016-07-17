@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifdef ENABLE_HE
 
@@ -189,20 +191,20 @@ void floodFill(FloodFillParameters *ffp, ScummEngine_v90he *vm) {
 	r.right = r.bottom = -12345;
 
 	FloodFillState *ffs = new FloodFillState;
-	ffs->fillLineTableCount = vs->h * 2;
+	ffs->fillLineTableCount = vs->getHeight() * 2;
 	ffs->fillLineTable = new FloodFillLine[ffs->fillLineTableCount];
 	ffs->color2 = color;
 	ffs->dst = dst;
-	ffs->dst_w = vs->w;
-	ffs->dst_h = vs->h;
+	ffs->dst_w = vs->getWidth();
+	ffs->dst_h = vs->getHeight();
 	ffs->srcBox = ffp->box;
 	ffs->fillLineTableCur = &ffs->fillLineTable[0];
 	ffs->fillLineTableEnd = &ffs->fillLineTable[ffs->fillLineTableCount];
 
-	if (ffp->x < 0 || ffp->y < 0 || ffp->x >= vs->w || ffp->y >= vs->h) {
+	if (ffp->x < 0 || ffp->y < 0 || ffp->x >= vs->getWidth() || ffp->y >= vs->getHeight()) {
 		ffs->color1 = color;
 	} else {
-		ffs->color1 = *(dst + ffp->y * vs->w + ffp->x);
+		ffs->color1 = *(dst + ffp->y * vs->getWidth() + ffp->x);
 	}
 
 	debug(5, "floodFill() x=%d y=%d color1=%d ffp->flags=0x%X", ffp->x, ffp->y, ffs->color1, ffp->flags);

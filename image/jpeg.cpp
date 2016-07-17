@@ -65,7 +65,7 @@ const Graphics::Surface *JPEGDecoder::decodeFrame(Common::SeekableReadStream &st
 }
 
 Graphics::PixelFormat JPEGDecoder::getPixelFormat() const {
-	return _surface.format;
+	return _surface.getFormat();
 }
 
 #ifdef USE_JPEG
@@ -225,7 +225,7 @@ bool JPEGDecoder::loadStream(Common::SeekableReadStream &stream) {
 	// Allocate buffer for one scanline
 	assert(cinfo.output_components == 3);
 	JDIMENSION pitch = cinfo.output_width * cinfo.output_components;
-	assert(_surface.pitch >= pitch);
+	assert(_surface.getPitch() >= pitch);
 	JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, pitch, 1);
 
 	// Go through the image data scanline by scanline

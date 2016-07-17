@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/tattoo/tattoo_scene.h"
 #include "sherlock/tattoo/tattoo_people.h"
@@ -292,7 +294,7 @@ void TattooScene::checkBgShapes() {
 			_activeCAnim._zPlacement = BEHIND;
 			break;
 		case 1:
-			_activeCAnim._zPlacement = ((_activeCAnim._position.y + _activeCAnim._imageFrame._frame.h - 1)) ?
+			_activeCAnim._zPlacement = ((_activeCAnim._position.y + _activeCAnim._imageFrame._frame.getHeight() - 1)) ?
 				NORMAL_FORWARD : NORMAL_BEHIND;
 			break;
 		case 2:

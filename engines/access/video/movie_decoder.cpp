@@ -391,7 +391,7 @@ bool AccessVIDMovieDecoder::StreamVideoTrack::endOfTrack() const {
 }
 
 Graphics::PixelFormat AccessVIDMovieDecoder::StreamVideoTrack::getPixelFormat() const {
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 void AccessVIDMovieDecoder::StreamVideoTrack::decodeFrame(Common::SeekableReadStream *stream, byte chunkId) {

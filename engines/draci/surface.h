@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef DRACI_SURFACE_H
 #define DRACI_SURFACE_H
@@ -46,7 +48,7 @@ public:
 	void fill(uint color);
 	uint putAboveY(int y, int height) const;
 	uint centerOnX(int x, int width) const;
-	Common::Rect getDimensions() const { return Common::Rect(w, h); }
+	Common::Rect getDimensions() const { return Common::Rect(getWidth(), getHeight()); }
 
 private:
 	/** The current transparent color of the surface. See getTransparentColor() and

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifdef ENABLE_HE
 
@@ -1155,7 +1157,7 @@ void Sprite::setRedrawFlags(bool checkZOrder) {
 				rp = MAX((int32)0, rp);
 				rp = MIN(rp, _vm->_gdi->_numStrips);
 				for (; lp < rp; lp++) {
-					if (vs->tdirty[lp] < vs->h && spi->bbox.bottom >= vs->tdirty[lp] && spi->bbox.top <= vs->bdirty[lp]) {
+					if (vs->tdirty[lp] < vs->getHeight() && spi->bbox.bottom >= vs->tdirty[lp] && spi->bbox.top <= vs->bdirty[lp]) {
 						spi->flags |= kSFNeedRedraw;
 						break;
 					}

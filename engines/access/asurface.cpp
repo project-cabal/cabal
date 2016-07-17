@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/algorithm.h"
 #include "common/endian.h"
@@ -66,13 +68,13 @@ SpriteFrame::SpriteFrame(AccessEngine *vm, Common::SeekableReadStream *stream, i
 
 	// Empty surface
 	byte *data = (byte *)getPixels();
-	Common::fill(data, data + w * h, TRANSPARENCY);
+	Common::fill(data, data + getWidth() * getHeight(), TRANSPARENCY);
 
 	// Decode the data
-	for (int y = 0; y < h; ++y) {
+	for (int y = 0; y < getHeight(); ++y) {
 		int offset = stream->readByte();
 		int len = stream->readByte();
-		assert((offset + len) <= w);
+		assert((offset + len) <= getWidth());
 
 		byte *destP = (byte *)getBasePtr(offset, y);
 		stream->read(destP, len);
@@ -132,7 +134,7 @@ void ASurface::create(uint16 width, uint16 height) {
 
 void ASurface::clearBuffer() {
 	byte *pSrc = (byte *)getPixels();
-	Common::fill(pSrc, pSrc + w * h, 0);
+	Common::fill(pSrc, pSrc + getWidth() * getHeight(), 0);
 }
 
 bool ASurface::clip(Common::Rect &r) {
@@ -183,7 +185,7 @@ bool ASurface::clip(Common::Rect &r) {
 
 void ASurface::plotImage(SpriteResource *sprite, int frameNum, const Common::Point &pt) {
 	SpriteFrame *frame = sprite->getFrame(frameNum);
-	Common::Rect r(pt.x, pt.y, pt.x + frame->w, pt.y + frame->h);
+	Common::Rect r(pt.x, pt.y, pt.x + frame->getWidth(), pt.y + frame->getHeight());
 
 	if (!clip(r)) {
 		_lastBoundsX = r.left;
@@ -197,13 +199,13 @@ void ASurface::plotImage(SpriteResource *sprite, int frameNum, const Common::Poi
 
 void ASurface::transBlitFrom(ASurface *src, const Common::Point &destPos) {
 	if (getPixels() == nullptr)
-		create(w, h);
+		create(getWidth(), getHeight());
 
-	for (int yp = 0; yp < src->h; ++yp) {
+	for (int yp = 0; yp < getHeight(); ++yp) {
 		const byte *srcP = (const byte *)src->getBasePtr(0, yp);
 		byte *destP = (byte *)getBasePtr(destPos.x, destPos.y + yp);
 
-		for (int xp = 0; xp < this->w; ++xp, ++srcP, ++destP) {
+		for (int xp = 0; xp < getWidth(); ++xp, ++srcP, ++destP) {
 			if (*srcP != TRANSPARENCY)
 				*destP = *srcP;
 		}
@@ -212,11 +214,11 @@ void ASurface::transBlitFrom(ASurface *src, const Common::Point &destPos) {
 
 void ASurface::transBlitFrom(ASurface *src, const Common::Rect &bounds) {
 	const int SCALE_LIMIT = 0x100;
-	int scaleX = SCALE_LIMIT * bounds.width() / src->w;
-	int scaleY = SCALE_LIMIT * bounds.height() / src->h;
+	int scaleX = SCALE_LIMIT * bounds.width() / src->getWidth();
+	int scaleY = SCALE_LIMIT * bounds.height() / src->getHeight();
 	int scaleXCtr = 0, scaleYCtr = 0;
 
-	for (int yCtr = 0, destY = bounds.top; yCtr < src->h; ++yCtr) {
+	for (int yCtr = 0, destY = bounds.top; yCtr < src->getHeight(); ++yCtr) {
 		// Handle skipping lines if Y scaling
 		scaleYCtr += scaleY;
 		if (scaleYCtr < SCALE_LIMIT)
@@ -224,7 +226,7 @@ void ASurface::transBlitFrom(ASurface *src, const Common::Rect &bounds) {
 		scaleYCtr -= SCALE_LIMIT;
 
 		// Handle off-screen lines
-		if (destY >= this->h)
+		if (destY >= getHeight())
 			break;
 
 		if (destY >= 0) {
@@ -234,7 +236,7 @@ void ASurface::transBlitFrom(ASurface *src, const Common::Rect &bounds) {
 			scaleXCtr = 0;
 			int x = bounds.left;
 
-			for (int xCtr = 0; xCtr < src->w; ++xCtr, ++pSrc) {
+			for (int xCtr = 0; xCtr < src->getWidth(); ++xCtr, ++pSrc) {
 				// Handle horizontal scaling
 				scaleXCtr += scaleX;
 				if (scaleXCtr < SCALE_LIMIT)
@@ -242,7 +244,7 @@ void ASurface::transBlitFrom(ASurface *src, const Common::Rect &bounds) {
 				scaleXCtr -= SCALE_LIMIT;
 
 				// Only handle on-screen pixels
-				if (x >= this->w)
+				if (x >= getWidth())
 					break;
 				if (x >= 0 && *pSrc != 0)
 					*pDest = *pSrc;
@@ -261,11 +263,11 @@ void ASurface::transBlitFrom(ASurface &src) {
 }
 
 void ASurface::blitFrom(const Graphics::Surface &src) {
-	assert(w >= src.w && h >= src.h);
-	for (int y = 0; y < src.h; ++y) {
+	assert(getWidth() >= src.getWidth() && getHeight() >= src.getHeight());
+	for (int y = 0; y < src.getHeight(); ++y) {
 		const byte *srcP = (const byte *)src.getBasePtr(0, y);
 		byte *destP = (byte *)getBasePtr(0, y);
-		Common::copy(srcP, srcP + src.w, destP);
+		Common::copy(srcP, srcP + src.getWidth(), destP);
 	}
 }
 
@@ -274,11 +276,11 @@ void ASurface::copyBuffer(Graphics::Surface *src) {
 }
 
 void ASurface::plotF(SpriteFrame *frame, const Common::Point &pt) {
-	sPlotF(frame, Common::Rect(pt.x, pt.y, pt.x + frame->w, pt.y + frame->h));
+	sPlotF(frame, Common::Rect(pt.x, pt.y, pt.x + frame->getWidth(), pt.y + frame->getHeight()));
 }
 
 void ASurface::plotB(SpriteFrame *frame, const Common::Point &pt) {
-	sPlotB(frame, Common::Rect(pt.x, pt.y, pt.x + frame->w, pt.y + frame->h));
+	sPlotB(frame, Common::Rect(pt.x, pt.y, pt.x + frame->getWidth(), pt.y + frame->getHeight()));
 }
 
 void ASurface::sPlotF(SpriteFrame *frame, const Common::Rect &bounds) {
@@ -298,14 +300,14 @@ void ASurface::copyBlock(ASurface *src, const Common::Rect &bounds) {
 
 void ASurface::copyTo(ASurface *dest) { 
 	if (dest->empty())
-		dest->create(this->w, this->h);
+		dest->create(getWidth(), getHeight());
 
 	dest->blitFrom(*this); 
 }
 
 void ASurface::saveBlock(const Common::Rect &bounds) {
 	_savedBounds = bounds;
-	_savedBounds.clip(Common::Rect(0, 0, this->w, this->h));
+	_savedBounds.clip(Common::Rect(getWidth(), getHeight()));
 
 	_savedBlock.free();
 	_savedBlock.create(bounds.width(), bounds.height(),
@@ -316,7 +318,7 @@ void ASurface::saveBlock(const Common::Rect &bounds) {
 void ASurface::restoreBlock() {
 	if (!_savedBounds.isEmpty()) {
 		copyRectToSurface(_savedBlock, _savedBounds.left, _savedBounds.top,
-			Common::Rect(0, 0, _savedBlock.w, _savedBlock.h));
+			Common::Rect(_savedBlock.getWidth(), _savedBlock.getHeight()));
 
 		_savedBlock.free();
 		_savedBounds = Common::Rect(0, 0, 0, 0);
@@ -343,34 +345,34 @@ void ASurface::drawBox() {
 }
 
 void ASurface::flipHorizontal(ASurface &dest) {
-	dest.create(this->w, this->h);
-	for (int y = 0; y < h; ++y) {
-		const byte *pSrc = (const byte *)getBasePtr(this->w - 1, y);
+	dest.create(getWidth(), getHeight());
+	for (int y = 0; y < getHeight(); ++y) {
+		const byte *pSrc = (const byte *)getBasePtr(getWidth() - 1, y);
 		byte *pDest = (byte *)dest.getBasePtr(0, y);
 
-		for (int x = 0; x < w; ++x, --pSrc, ++pDest)
+		for (int x = 0; x < getWidth(); ++x, --pSrc, ++pDest)
 			*pDest = *pSrc;
 	}
 }
 
 void ASurface::moveBufferLeft() {
 	byte *p = (byte *)getPixels();
-	Common::copy(p + TILE_WIDTH, p + (w * h), p);
+	Common::copy(p + TILE_WIDTH, p + (getWidth() * getHeight()), p);
 }
 
 void ASurface::moveBufferRight() {
 	byte *p = (byte *)getPixels();
-	Common::copy_backward(p, p + (pitch * h) - TILE_WIDTH, p + (pitch * h));
+	Common::copy_backward(p, p + (getPitch() * getHeight()) - TILE_WIDTH, p + (getPitch() * getHeight()));
 }
 
 void ASurface::moveBufferUp() {
 	byte *p = (byte *)getPixels();
-	Common::copy(p + (pitch * TILE_HEIGHT), p + (pitch * h), p);
+	Common::copy(p + (getPitch() * TILE_HEIGHT), p + (getPitch() * getHeight()), p);
 }
 
 void ASurface::moveBufferDown() {
 	byte *p = (byte *)getPixels();
-	Common::copy_backward(p, p + (pitch * (h - TILE_HEIGHT)), p + (pitch * h));
+	Common::copy_backward(p, p + (getPitch() * (getHeight() - TILE_HEIGHT)), p + (getPitch() * getHeight()));
 }
 
 } // End of namespace Access

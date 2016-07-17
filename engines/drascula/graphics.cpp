@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "drascula/drascula.h"
 #include "graphics/surface.h"
@@ -133,7 +135,7 @@ void DrasculaEngine::showFrame(Common::SeekableReadStream *stream, bool firstFra
 	byte *prevFrame = (byte *)malloc(64000);
 	Graphics::Surface *screenSurf = _system->lockScreen();
 	byte *screenBuffer = (byte *)screenSurf->getPixels();
-	uint16 screenPitch = screenSurf->pitch;
+	uint16 screenPitch = screenSurf->getPitch();
 	for (int y = 0; y < 200; y++) {
 		memcpy(prevFrame+y*320, screenBuffer+y*screenPitch, 320);
 	}
@@ -450,7 +452,7 @@ void DrasculaEngine::screenSaver() {
 
 		Graphics::Surface *screenSurf = _system->lockScreen();
 		byte *screenBuffer = (byte *)screenSurf->getPixels();
-		uint16 screenPitch = screenSurf->pitch;
+		uint16 screenPitch = screenSurf->getPitch();
 		for (int i = 0; i < 200; i++) {
 			for (int j = 0; j < 320; j++) {
 				x1_ = j + tempRow[i];
@@ -539,7 +541,7 @@ int DrasculaEngine::playFrameSSN(Common::SeekableReadStream *stream) {
 
 			Graphics::Surface *screenSurf = _system->lockScreen();
 			byte *screenBuffer = (byte *)screenSurf->getPixels();
-			uint16 screenPitch = screenSurf->pitch;
+			uint16 screenPitch = screenSurf->getPitch();
 			if (FrameSSN)
 				mixVideo(screenBuffer, screenSurface, screenPitch);
 			else
@@ -558,7 +560,7 @@ int DrasculaEngine::playFrameSSN(Common::SeekableReadStream *stream) {
 				waitFrameSSN();
 				Graphics::Surface *screenSurf = _system->lockScreen();
 				byte *screenBuffer = (byte *)screenSurf->getPixels();
-				uint16 screenPitch = screenSurf->pitch;
+				uint16 screenPitch = screenSurf->getPitch();
 				if (FrameSSN)
 					mixVideo(screenBuffer, screenSurface, screenPitch);
 				else

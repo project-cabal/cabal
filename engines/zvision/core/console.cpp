@@ -307,12 +307,12 @@ bool Console::cmdDumpImage(int argc, const char **argv) {
 	// Write BMP header
 	out.writeByte('B');
 	out.writeByte('M');
-	out.writeUint32LE(surface.h * surface.pitch + 54);
+	out.writeUint32LE(surface.getHeight() * surface.getPitch() + 54);
 	out.writeUint32LE(0);
 	out.writeUint32LE(54);
 	out.writeUint32LE(40);
-	out.writeUint32LE(surface.w);
-	out.writeUint32LE(surface.h);
+	out.writeUint32LE(surface.getWidth());
+	out.writeUint32LE(surface.getHeight());
 	out.writeUint16LE(1);
 	out.writeUint16LE(16);
 	out.writeUint32LE(0);
@@ -323,7 +323,7 @@ bool Console::cmdDumpImage(int argc, const char **argv) {
 	out.writeUint32LE(0);
 
 	// Write pixel data to BMP
-	out.write(surface.getPixels(), surface.pitch * surface.h);
+	out.write(surface.getPixels(), surface.getPitch() * surface.getHeight());
 
 	out.flush();
 	out.close();

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/substream.h"
 #include "access/files.h"
@@ -147,20 +149,26 @@ void FileManager::handleScreen(Graphics::Surface *dest, Resource *res) {
 	res->_size -= res->_stream->pos();
 	handleFile(res);
 
-	if (dest != _vm->_screen)
-		dest->w = _vm->_screen->w;
+	Graphics::Surface tempScreen;
+	if (dest != _vm->_screen) {
+		// HACK: This is such an unbelievable hack. See e53417f. I can't
+		// make heads or tails of exactly what the crap is going on. For now,
+		// load tempScreen with the screen with the wrong width and same buffer.
+		tempScreen.resetWithoutOwnership(_vm->_screen->getWidth(), dest->getHeight(), dest->getPitch(), static_cast<byte *>(dest->getPixels()), dest->getFormat());
+		dest = &tempScreen;
+	}
 
-	if (dest->w == dest->pitch) {
-		res->_stream->read((byte *)dest->getPixels(), dest->w * dest->h);
+	if (dest->getWidth() == dest->getPitch()) {
+		res->_stream->read((byte *)dest->getPixels(), dest->getWidth() * dest->getHeight());
 	} else {
-		for (int y = 0; y < dest->h; ++y) {
+		for (int y = 0; y < dest->getHeight(); ++y) {
 			byte *pDest = (byte *)dest->getBasePtr(0, y);
-			res->_stream->read(pDest, dest->w);
+			res->_stream->read(pDest, dest->getWidth());
 		}
 	}
 
 	if (dest == _vm->_screen)
-		_vm->_screen->addDirtyRect(Common::Rect(0, 0, dest->w, dest->h));
+		_vm->_screen->addDirtyRect(Common::Rect(dest->getWidth(), dest->getHeight()));
 }
 
 void FileManager::loadScreen(int fileNum, int subfile) {

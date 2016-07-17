@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/algorithm.h"
 #include "access/bubble_box.h"
@@ -64,7 +66,7 @@ void BubbleBox::clearBubbles() {
 		_vm->_screen->_screenYOff = 0;
 		Common::Rect r = _bubbles[i];
 		r.left -= 2;
-		r.right = MIN(r.right, (int16)_vm->_screen->w);
+		r.right = MIN(r.right, (int16)_vm->_screen->getWidth());
 
 		_vm->_screen->copyBlock(&_vm->_buffer1, r);
 	}
@@ -142,8 +144,8 @@ void BubbleBox::calcBubble(const Common::String &msg) {
 	if (height >= 0)
 		bounds.setHeight(bounds.height() + 13 - (height % 13));
 
-	if (bounds.bottom > screen.h)
-		bounds.translate(0, screen.h - bounds.bottom);
+	if (bounds.bottom > screen.getHeight())
+		bounds.translate(0, screen.getHeight() - bounds.bottom);
 
 	// Add the new bounds to the bubbles list
 	_bubbles.push_back(bounds);

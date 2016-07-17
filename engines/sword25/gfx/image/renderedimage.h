@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on Broken Sword 2.5 engine
@@ -45,7 +47,7 @@ namespace Sword25 {
 
 class RenderedImage : public Image {
 private:
-	RenderedImage(const RenderedImage &) : _doCleanup(false) {}
+	RenderedImage(const RenderedImage &) {}
 	RenderedImage &operator=(const RenderedImage &) { return *this; }
 public:
 	RenderedImage(const Common::String &filename, bool &result);
@@ -59,15 +61,15 @@ public:
 	                  after the call, do not call methods on the object and destroy the object immediately.
 	*/
 	RenderedImage(uint width, uint height, bool &result);
-	RenderedImage();
+	RenderedImage(const Graphics::Surface &surface);
 
 	virtual ~RenderedImage();
 
 	virtual int getWidth() const {
-		return _surface.w;
+		return _surface.getWidth();
 	}
 	virtual int getHeight() const {
-		return _surface.h;
+		return _surface.getHeight();
 	}
 	virtual GraphicEngine::COLOR_FORMATS getColorFormat() const {
 		return GraphicEngine::CF_ARGB32;
@@ -83,7 +85,6 @@ public:
 					  RectangleList *updateRects = 0);
 	virtual bool fill(const Common::Rect *pFillRect, uint color);
 	virtual bool setContent(const byte *pixeldata, uint size, uint offset = 0, uint stride = 0);
-	void replaceContent(byte *pixeldata, int width, int height);
 	virtual uint getPixel(int x, int y);
 
 	virtual bool isBlitSource() const {
@@ -113,7 +114,6 @@ public:
 
 private:
 	Graphics::TransparentSurface _surface;
-	bool _doCleanup;
 	bool _isTransparent;
 
 	Graphics::Surface *_backSurface;

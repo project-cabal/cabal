@@ -280,16 +280,12 @@ BinkDecoder::BinkVideoTrack::BinkVideoTrack(uint32 width, uint32 height, const G
 		_surfaceWidth++;
 	}
 
-	_surface.create(_surfaceWidth, _surfaceHeight, format);
-	// Since we over-allocate to make surfaces even-sized
-	// we need to set the actual VIDEO size back into the
-	// surface.
-	_surface.h = height;
-	_surface.w = width;
+	// Over-allocate the surface to make them even-sized
+	_surface.create(width, height, _surfaceWidth, _surfaceHeight, format);
 
 	// Give the planes a bit extra space
-	width  = _surface.w + 32;
-	height = _surface.h + 32;
+	width = _surface.getWidth() + 32;
+	height = _surface.getHeight() + 32;
 
 	_curPlanes[0] = new byte[ width       *  height      ]; // Y
 	_curPlanes[1] = new byte[(width >> 1) * (height >> 1)]; // U, 1/4 resolution
@@ -368,10 +364,10 @@ void BinkDecoder::BinkVideoTrack::decodePacket(VideoFrame &frame) {
 }
 
 void BinkDecoder::BinkVideoTrack::decodePlane(VideoFrame &video, int planeIdx, bool isChroma) {
-	uint32 blockWidth  = isChroma ? ((_surface.w  + 15) >> 4) : ((_surface.w  + 7) >> 3);
-	uint32 blockHeight = isChroma ? ((_surface.h + 15) >> 4) : ((_surface.h + 7) >> 3);
-	uint32 width       = isChroma ?  (_surface.w        >> 1) :   _surface.w;
-	uint32 height      = isChroma ?  (_surface.h       >> 1) :   _surface.h;
+	uint32 blockWidth = isChroma ? ((_surface.getWidth() + 15) >> 4) : ((_surface.getWidth() + 7) >> 3);
+	uint32 blockHeight = isChroma ? ((_surface.getHeight() + 15) >> 4) : ((_surface.getHeight() + 7) >> 3);
+	uint32 width = isChroma ? (_surface.getWidth() >> 1) : _surface.getWidth();
+	uint32 height = isChroma ? (_surface.getHeight() >> 1) : _surface.getHeight();
 
 	DecodeContext ctx;
 
@@ -557,8 +553,8 @@ void BinkDecoder::BinkVideoTrack::mergeHuffmanSymbols(VideoFrame &video, byte *d
 }
 
 void BinkDecoder::BinkVideoTrack::initBundles() {
-	uint32 bw     = (_surface.w  + 7) >> 3;
-	uint32 bh     = (_surface.h + 7) >> 3;
+	uint32 bw = (_surface.getWidth() + 7) >> 3;
+	uint32 bh = (_surface.getHeight() + 7) >> 3;
 	uint32 blocks = bw * bh;
 
 	for (int i = 0; i < kSourceMAX; i++) {
@@ -566,8 +562,8 @@ void BinkDecoder::BinkVideoTrack::initBundles() {
 		_bundles[i].dataEnd = _bundles[i].data + blocks * 64;
 	}
 
-	uint32 cbw[2] = { (uint32)((_surface.w + 7) >> 3), (uint32)((_surface.w  + 15) >> 4) };
-	uint32 cw [2] = { (uint32)( _surface.w          ), (uint32)( _surface.w        >> 1) };
+	uint32 cbw[2] = { (uint32)((_surface.getWidth() + 7) >> 3), (uint32)((_surface.getWidth() + 15) >> 4) };
+	uint32 cw [2] = { (uint32)_surface.getWidth(), (uint32)(_surface.getWidth() >> 1) };
 
 	// Calculate the lengths of an element count in bits
 	for (int i = 0; i < 2; i++) {

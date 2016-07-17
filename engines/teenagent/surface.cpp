@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "teenagent/surface.h"
 #include "teenagent/pack.h"
@@ -63,29 +65,29 @@ void Surface::load(Common::SeekableReadStream &stream, Type type) {
 	debugC(0, kDebugSurface, "creating surface %ux%u -> %u,%u", w_, h_, x, y);
 	create(w_, h_, Graphics::PixelFormat::createFormatCLUT8());
 
-	stream.read(pixels, w_ * h_);
+	stream.read(getPixels(), w_ * h_);
 }
 
 Common::Rect Surface::render(Graphics::Surface *surface, int dx, int dy, bool mirror, Common::Rect srcRect, uint zoom) const {
 	if (srcRect.isEmpty()) {
-		srcRect = Common::Rect(0, 0, w, h);
+		srcRect = Common::Rect(getWidth(), getHeight());
 	}
 	Common::Rect dstRect(x + dx, y + dy, x + dx + zoom * srcRect.width() / 256, y + dy + zoom * srcRect.height() / 256);
 	if (dstRect.left < 0) {
 		srcRect.left = -dstRect.left;
 		dstRect.left = 0;
 	}
-	if (dstRect.right > surface->w) {
-		srcRect.right -= dstRect.right - surface->w;
-		dstRect.right = surface->w;
+	if (dstRect.right > surface->getWidth()) {
+		srcRect.right -= dstRect.right - surface->getWidth();
+		dstRect.right = surface->getWidth();
 	}
 	if (dstRect.top < 0) {
 		srcRect.top -= dstRect.top;
 		dstRect.top = 0;
 	}
-	if (dstRect.bottom > surface->h) {
-		srcRect.bottom -= dstRect.bottom - surface->h;
-		dstRect.bottom = surface->h;
+	if (dstRect.bottom > surface->getHeight()) {
+		srcRect.bottom -= dstRect.bottom - surface->getHeight();
+		dstRect.bottom = surface->getHeight();
 	}
 	if (srcRect.isEmpty() || dstRect.isEmpty())
 		return Common::Rect();
@@ -97,26 +99,26 @@ Common::Rect Surface::render(Graphics::Surface *surface, int dx, int dy, bool mi
 		for (int i = srcRect.top; i < srcRect.bottom; ++i) {
 			byte *dst = dstBase;
 			for (int j = srcRect.left; j < srcRect.right; ++j) {
-				byte p = src[(mirror ? w - j - 1 : j)];
+				byte p = src[(mirror ? getWidth() - j - 1 : j)];
 				if (p != 0xff)
 					*dst++ = p;
 				else
 					++dst;
 			}
-			dstBase += surface->pitch;
-			src += pitch;
+			dstBase += surface->getPitch();
+			src += getPitch();
 		}
 	} else {
 		byte *dst = (byte *)surface->getBasePtr(dstRect.left, dstRect.top);
 		for (int i = 0; i < dstRect.height(); ++i) {
 			for (int j = 0; j < dstRect.width(); ++j) {
 				int px = j * 256 / zoom;
-				const byte *src = (const byte *)getBasePtr(srcRect.left + (mirror ? w - px - 1 : px), srcRect.top + i * 256 / zoom);
+				const byte *src = (const byte *)getBasePtr(srcRect.left + (mirror ? getWidth() - px - 1 : px), srcRect.top + i * 256 / zoom);
 				byte p = *src;
 				if (p != 0xff)
 					dst[j] = p;
 			}
-			dst += surface->pitch;
+			dst += surface->getPitch();
 		}
 	}
 	return dstRect;

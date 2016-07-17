@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/util.h"
 #include "common/system.h"
@@ -482,8 +484,8 @@ void VectorRendererSpec<PixelType>::
 fillSurface() {
 	byte *ptr = (byte *)_activeSurface->getPixels();
 
-	int h = _activeSurface->h;
-	int pitch = _activeSurface->pitch;
+	int h = _activeSurface->getHeight();
+	int pitch = _activeSurface->getPitch();
 
 	if (Base::_fillMode == kFillBackground) {
 		colorFill<PixelType>((PixelType *)ptr, (PixelType *)(ptr + pitch * h), _bgColor);
@@ -493,7 +495,7 @@ fillSurface() {
 		precalcGradient(h);
 
 		for (int i = 0; i < h; i++) {
-			gradientFill((PixelType *)ptr, _activeSurface->w, 0, i);
+			gradientFill((PixelType *)ptr, _activeSurface->getWidth(), 0, i);
 
 			ptr += pitch;
 		}
@@ -506,7 +508,7 @@ copyFrame(OSystem *sys, const Common::Rect &r) {
 
 	sys->copyRectToOverlay(
 		_activeSurface->getBasePtr(r.left, r.top),
-		_activeSurface->pitch,
+		_activeSurface->getPitch(),
 	    r.left, r.top, r.width(), r.height()
 	);
 }
@@ -514,13 +516,13 @@ copyFrame(OSystem *sys, const Common::Rect &r) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 blitSurface(const Graphics::Surface *source, const Common::Rect &r) {
-	assert(source->w == _activeSurface->w && source->h == _activeSurface->h);
+	assert(source->getWidth() == _activeSurface->getWidth() && source->getHeight() == _activeSurface->getHeight());
 
 	byte *dst_ptr = (byte *)_activeSurface->getBasePtr(r.left, r.top);
 	const byte *src_ptr = (const byte *)source->getBasePtr(r.left, r.top);
 
-	const int dst_pitch = _activeSurface->pitch;
-	const int src_pitch = source->pitch;
+	const int dst_pitch = _activeSurface->getPitch();
+	const int src_pitch = source->getPitch();
 
 	int h = r.height();
 	const int w = r.width() * sizeof(PixelType);
@@ -538,8 +540,8 @@ blitSubSurface(const Graphics::Surface *source, const Common::Rect &r) {
 	byte *dst_ptr = (byte *)_activeSurface->getBasePtr(r.left, r.top);
 	const byte *src_ptr = (const byte *)source->getPixels();
 
-	const int dst_pitch = _activeSurface->pitch;
-	const int src_pitch = source->pitch;
+	const int dst_pitch = _activeSurface->getPitch();
+	const int src_pitch = source->getPitch();
 
 	int h = r.height();
 	const int w = r.width() * sizeof(PixelType);
@@ -557,22 +559,22 @@ blitAlphaBitmap(const Graphics::Surface *source, const Common::Rect &r) {
 	int16 x = r.left;
 	int16 y = r.top;
 
-	if (r.width() > source->w)
-		x = x + (r.width() >> 1) - (source->w >> 1);
+	if (r.width() > source->getWidth())
+		x = x + (r.width() >> 1) - (source->getWidth() >> 1);
 
-	if (r.height() > source->h)
-		y = y + (r.height() >> 1) - (source->h >> 1);
+	if (r.height() > source->getHeight())
+		y = y + (r.height() >> 1) - (source->getHeight() >> 1);
 
 	PixelType *dst_ptr = (PixelType *)_activeSurface->getBasePtr(x, y);
 	const PixelType *src_ptr = (const PixelType *)source->getPixels();
 
-	int dst_pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
-	int src_pitch = source->pitch / source->format.bytesPerPixel;
+	int dst_pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
+	int src_pitch = source->getPitch() / source->getFormat().bytesPerPixel;
 
-	int w, h = source->h;
+	int w, h = source->getHeight();
 
 	while (h--) {
-		w = source->w;
+		w = source->getWidth();
 
 		while (w--) {
 			if (*src_ptr != _bitmapAlphaColor)
@@ -582,15 +584,15 @@ blitAlphaBitmap(const Graphics::Surface *source, const Common::Rect &r) {
 			src_ptr++;
 		}
 
-		dst_ptr = dst_ptr - source->w + dst_pitch;
-		src_ptr = src_ptr - source->w + src_pitch;
+		dst_ptr = dst_ptr - source->getWidth() + dst_pitch;
+		src_ptr = src_ptr - source->getWidth() + src_pitch;
 	}
 }
 
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 applyScreenShading(GUI::ThemeEngine::ShadingStyle shadingStyle) {
-	int pixels = _activeSurface->w * _activeSurface->h;
+	int pixels = _activeSurface->getWidth() * _activeSurface->getHeight();
 	PixelType *ptr = (PixelType *)_activeSurface->getPixels();
 	uint8 r, g, b;
 	uint lum;
@@ -750,7 +752,7 @@ drawString(const Graphics::Font *font, const Common::String &text, const Common:
 	// Better safe than sorry. We intersect with the actual surface boundaries
 	// to avoid any ugly clipping in _activeSurface->getSubArea which messes
 	// up the calculation of the x and y coordinates where to draw the string.
-	drawArea = drawArea.findIntersectingRect(Common::Rect(0, 0, _activeSurface->w, _activeSurface->h));
+	drawArea = drawArea.findIntersectingRect(Common::Rect(_activeSurface->getWidth(), _activeSurface->getHeight()));
 
 	if (!drawArea.isEmpty()) {
 		Surface textAreaSurface = _activeSurface->getSubArea(drawArea);
@@ -762,10 +764,10 @@ drawString(const Graphics::Font *font, const Common::String &text, const Common:
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawLine(int x1, int y1, int x2, int y2) {
-	x1 = CLIP(x1, 0, (int)Base::_activeSurface->w);
-	x2 = CLIP(x2, 0, (int)Base::_activeSurface->w);
-	y1 = CLIP(y1, 0, (int)Base::_activeSurface->h);
-	y2 = CLIP(y2, 0, (int)Base::_activeSurface->h);
+	x1 = CLIP(x1, 0, (int)Base::_activeSurface->getWidth());
+	x2 = CLIP(x2, 0, (int)Base::_activeSurface->getWidth());
+	y1 = CLIP(y1, 0, (int)Base::_activeSurface->getHeight());
+	y2 = CLIP(y2, 0, (int)Base::_activeSurface->getHeight());
 
 	// we draw from top to bottom
 	if (y2 < y1) {
@@ -784,7 +786,7 @@ drawLine(int x1, int y1, int x2, int y2) {
 		return;
 
 	PixelType *ptr = (PixelType *)_activeSurface->getBasePtr(x1, y1);
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int st = Base::_strokeWidth >> 1;
 
 	if (dy == 0) { // horizontal lines
@@ -821,13 +823,13 @@ drawLine(int x1, int y1, int x2, int y2) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawCircle(int x, int y, int r) {
-	if (x + r > Base::_activeSurface->w || y + r > Base::_activeSurface->h ||
+	if (x + r > Base::_activeSurface->getWidth() || y + r > Base::_activeSurface->getHeight() ||
 		x - r < 0 || y - r < 0 || x == 0 || y == 0 || r <= 0)
 		return;
 
 	if (Base::_fillMode != kFillDisabled && Base::_shadowOffset
-		&& x + r + Base::_shadowOffset < Base::_activeSurface->w
-		&& y + r + Base::_shadowOffset < Base::_activeSurface->h) {
+		&& x + r + Base::_shadowOffset < Base::_activeSurface->getWidth()
+		&& y + r + Base::_shadowOffset < Base::_activeSurface->getHeight()) {
 		drawCircleAlg(x + Base::_shadowOffset + 1, y + Base::_shadowOffset + 1, r, 0, kFillForeground);
 	}
 
@@ -860,13 +862,13 @@ drawCircle(int x, int y, int r) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawSquare(int x, int y, int w, int h) {
-	if (x + w > Base::_activeSurface->w || y + h > Base::_activeSurface->h ||
+	if (x + w > Base::_activeSurface->getWidth() || y + h > Base::_activeSurface->getHeight() ||
 		w <= 0 || h <= 0 || x < 0 || y < 0)
 		return;
 
 	if (Base::_fillMode != kFillDisabled && Base::_shadowOffset
-		&& x + w + Base::_shadowOffset < Base::_activeSurface->w
-		&& y + h + Base::_shadowOffset < Base::_activeSurface->h) {
+		&& x + w + Base::_shadowOffset < Base::_activeSurface->getWidth()
+		&& y + h + Base::_shadowOffset < Base::_activeSurface->getHeight()) {
 		drawSquareShadow(x, y, w, h, Base::_shadowOffset);
 	}
 
@@ -897,7 +899,7 @@ drawSquare(int x, int y, int w, int h) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawRoundedSquare(int x, int y, int r, int w, int h) {
-	if (x + w > Base::_activeSurface->w || y + h > Base::_activeSurface->h ||
+	if (x + w > Base::_activeSurface->getWidth() || y + h > Base::_activeSurface->getHeight() ||
 		w <= 0 || h <= 0 || x < 0 || y < 0 || r <= 0)
 		return;
 
@@ -908,8 +910,8 @@ drawRoundedSquare(int x, int y, int r, int w, int h) {
 		return;
 
 	if (Base::_fillMode != kFillDisabled && Base::_shadowOffset
-		&& x + w + Base::_shadowOffset + 1 < Base::_activeSurface->w
-		&& y + h + Base::_shadowOffset + 1 < Base::_activeSurface->h
+		&& x + w + Base::_shadowOffset + 1 < Base::_activeSurface->getWidth()
+		&& y + h + Base::_shadowOffset + 1 < Base::_activeSurface->getHeight()
 		&& h > (Base::_shadowOffset + 1) * 2) {
 		drawRoundedSquareShadow(x, y, r, w, h, Base::_shadowOffset);
 	}
@@ -920,7 +922,7 @@ drawRoundedSquare(int x, int y, int r, int w, int h) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawTab(int x, int y, int r, int w, int h) {
-	if (x + w > Base::_activeSurface->w || y + h > Base::_activeSurface->h ||
+	if (x + w > Base::_activeSurface->getWidth() || y + h > Base::_activeSurface->getHeight() ||
 		w <= 0 || h <= 0 || x < 0 || y < 0 || r > w || r > h)
 		return;
 
@@ -957,7 +959,7 @@ template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawTriangle(int x, int y, int w, int h, TriangleOrientation orient) {
 
-	if (x + w > Base::_activeSurface->w || y + h > Base::_activeSurface->h)
+	if (x + w > Base::_activeSurface->getWidth() || y + h > Base::_activeSurface->getHeight())
 		return;
 
 	PixelType color = 0;
@@ -1036,7 +1038,7 @@ void VectorRendererSpec<PixelType>::
 drawTabAlg(int x1, int y1, int w, int h, int r, PixelType color, VectorRenderer::FillMode fill_m, int baseLeft, int baseRight) {
 	int f, ddF_x, ddF_y;
 	int x, y, px, py;
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int sw  = 0, sp = 0, hp = 0;
 
 	PixelType *ptr_tl = (PixelType *)Base::_activeSurface->getBasePtr(x1 + r, y1 + r);
@@ -1133,11 +1135,11 @@ template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawTabShadow(int x1, int y1, int w, int h, int r) {
 	int offset = 3;
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 
 	// "Harder" shadows when having lower BPP, since we will have artifacts (greenish tint on the modern theme)
 	uint8 expFactor = 3;
-	uint16 alpha = (_activeSurface->format.bytesPerPixel > 2) ? 4 : 8;
+	uint16 alpha = (_activeSurface->getFormat().bytesPerPixel > 2) ? 4 : 8;
 
 	int xstart = x1;
 	int ystart = y1;
@@ -1194,7 +1196,7 @@ drawTabShadow(int x1, int y1, int w, int h, int r) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawBevelTabAlg(int x, int y, int w, int h, int bevel, PixelType top_color, PixelType bottom_color, int baseLeft, int baseRight) {
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int i, j;
 
 	PixelType *ptr_left = (PixelType *)_activeSurface->getBasePtr(x, y);
@@ -1239,7 +1241,7 @@ template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawSquareAlg(int x, int y, int w, int h, PixelType color, VectorRenderer::FillMode fill_m) {
 	PixelType *ptr = (PixelType *)_activeSurface->getBasePtr(x, y);
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int max_h = h;
 
 	if (fill_m != kFillDisabled) {
@@ -1271,7 +1273,7 @@ drawSquareAlg(int x, int y, int w, int h, PixelType color, VectorRenderer::FillM
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawBevelSquareAlg(int x, int y, int w, int h, int bevel, PixelType top_color, PixelType bottom_color, bool fill) {
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int i, j;
 	PixelType *ptr_left;
 
@@ -1289,8 +1291,8 @@ drawBevelSquareAlg(int x, int y, int w, int h, int bevel, PixelType top_color, P
 	x = MAX(x - bevel, 0);
 	y = MAX(y - bevel, 0);
 
-	w = MIN(w + (bevel * 2), (int)_activeSurface->w);
-	h = MIN(h + (bevel * 2), (int)_activeSurface->h);
+	w = MIN(w + (bevel * 2), (int)_activeSurface->getWidth());
+	h = MIN(h + (bevel * 2), (int)_activeSurface->getHeight());
 
 	ptr_left = (PixelType *)_activeSurface->getBasePtr(x, y);
 	i = bevel;
@@ -1328,7 +1330,7 @@ template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawLineAlg(int x1, int y1, int x2, int y2, int dx, int dy, PixelType color) {
 	PixelType *ptr = (PixelType *)_activeSurface->getBasePtr(x1, y1);
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int xdir = (x2 > x1) ? 1 : -1;
 
 	*ptr = (PixelType)color;
@@ -1393,7 +1395,7 @@ drawLineAlg(int x1, int y1, int x2, int y2, int dx, int dy, PixelType color) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawTriangleVertAlg(int x1, int y1, int w, int h, bool inverted, PixelType color, VectorRenderer::FillMode fill_m) {
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int gradient_h = 0;
 	if (!inverted) {
 		pitch = -pitch;
@@ -1564,7 +1566,7 @@ drawTriangleVertAlg(int x1, int y1, int w, int h, bool inverted, PixelType color
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawTriangleFast(int x1, int y1, int size, bool inverted, PixelType color, VectorRenderer::FillMode fill_m) {
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 
 	if (!inverted) {
 		pitch = -pitch;
@@ -1625,7 +1627,7 @@ void VectorRendererSpec<PixelType>::
 drawBorderRoundedSquareAlg(int x1, int y1, int r, int w, int h, PixelType color, VectorRenderer::FillMode fill_m, uint8 alpha_t, uint8 alpha_r, uint8 alpha_b, uint8 alpha_l) {
 	int f, ddF_x, ddF_y;
 	int x, y, px, py;
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int sw = 0, sp = 0, hp = h * pitch;
 
 	PixelType *ptr_tl = (PixelType *)Base::_activeSurface->getBasePtr(x1 + r, y1 + r);
@@ -1687,7 +1689,7 @@ void VectorRendererSpec<PixelType>::
 drawInteriorRoundedSquareAlg(int x1, int y1, int r, int w, int h, PixelType color, VectorRenderer::FillMode fill_m) {
 	int f, ddF_x, ddF_y;
 	int x, y, px, py;
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 
 	PixelType *ptr_tl = (PixelType *)Base::_activeSurface->getBasePtr(x1 + r, y1 + r);
 	PixelType *ptr_tr = (PixelType *)Base::_activeSurface->getBasePtr(x1 + w - r, y1 + r);
@@ -1786,7 +1788,7 @@ void VectorRendererSpec<PixelType>::
 drawCircleAlg(int x1, int y1, int r, PixelType color, VectorRenderer::FillMode fill_m) {
 	int f, ddF_x, ddF_y;
 	int x, y, px, py, sw = 0;
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	PixelType *ptr = (PixelType *)Base::_activeSurface->getBasePtr(x1, y1);
 
 	if (fill_m == kFillDisabled) {
@@ -1836,7 +1838,7 @@ template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawSquareShadow(int x, int y, int w, int h, int offset) {
 	PixelType *ptr = (PixelType *)_activeSurface->getBasePtr(x + w - 1, y + offset);
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 	int i, j;
 
 	i = h - offset;
@@ -1871,11 +1873,11 @@ drawSquareShadow(int x, int y, int w, int h, int offset) {
 template<typename PixelType>
 void VectorRendererSpec<PixelType>::
 drawRoundedSquareShadow(int x1, int y1, int r, int w, int h, int offset) {
-	int pitch = _activeSurface->pitch / _activeSurface->format.bytesPerPixel;
+	int pitch = _activeSurface->getPitch() / _activeSurface->getFormat().bytesPerPixel;
 
 	// "Harder" shadows when having lower BPP, since we will have artifacts (greenish tint on the modern theme)
 	uint8 expFactor = 3;
-	uint16 alpha = (_activeSurface->format.bytesPerPixel > 2) ? 4 : 8;
+	uint16 alpha = (_activeSurface->getFormat().bytesPerPixel > 2) ? 4 : 8;
 
 	// These constants ensure a border of 2px on the left and of each rounded square
 	int xstart = (x1 > 2) ? x1 - 2 : x1;
@@ -1959,7 +1961,7 @@ void VectorRendererAA<PixelType>::
 drawLineAlg(int x1, int y1, int x2, int y2, int dx, int dy, PixelType color) {
 
 	PixelType *ptr = (PixelType *)Base::_activeSurface->getBasePtr(x1, y1);
-	int pitch = Base::_activeSurface->pitch / Base::_activeSurface->format.bytesPerPixel;
+	int pitch = Base::_activeSurface->getPitch() / Base::_activeSurface->getFormat().bytesPerPixel;
 	int xdir = (x2 > x1) ? 1 : -1;
 	uint16 error_tmp, error_acc, gradient;
 	uint8 alpha;
@@ -2010,7 +2012,7 @@ template<typename PixelType>
 void VectorRendererAA<PixelType>::
 drawTabAlg(int x1, int y1, int w, int h, int r, PixelType color, VectorRenderer::FillMode fill_m, int baseLeft, int baseRight) {
 	int x, y, px, py;
-	int pitch = Base::_activeSurface->pitch / Base::_activeSurface->format.bytesPerPixel;
+	int pitch = Base::_activeSurface->getPitch() / Base::_activeSurface->getFormat().bytesPerPixel;
 	int sw = 0, sp = 0, hp = 0;
 
 	frac_t T = 0, oldT;
@@ -2134,7 +2136,7 @@ template<typename PixelType>
 void VectorRendererAA<PixelType>::
 drawBorderRoundedSquareAlg(int x1, int y1, int r, int w, int h, PixelType color, VectorRenderer::FillMode fill_m, uint8 alpha_t, uint8 alpha_r, uint8 alpha_b, uint8 alpha_l) {
 	int x, y;
-	const int pitch = Base::_activeSurface->pitch / Base::_activeSurface->format.bytesPerPixel;
+	const int pitch = Base::_activeSurface->getPitch() / Base::_activeSurface->getFormat().bytesPerPixel;
 	int px, py;
 
 	uint32 rsq = r*r;
@@ -2218,7 +2220,7 @@ template<typename PixelType>
 void VectorRendererAA<PixelType>::
 drawInteriorRoundedSquareAlg(int x1, int y1, int r, int w, int h, PixelType color, VectorRenderer::FillMode fill_m) {
 	int x, y;
-	const int pitch = Base::_activeSurface->pitch / Base::_activeSurface->format.bytesPerPixel;
+	const int pitch = Base::_activeSurface->getPitch() / Base::_activeSurface->getFormat().bytesPerPixel;
 	int px, py;
 
 	uint32 rsq = r*r;
@@ -2349,7 +2351,7 @@ template<typename PixelType>
 void VectorRendererAA<PixelType>::
 drawCircleAlg(int x1, int y1, int r, PixelType color, VectorRenderer::FillMode fill_m) {
 	int x, y, sw = 0;
-	const int pitch = Base::_activeSurface->pitch / Base::_activeSurface->format.bytesPerPixel;
+	const int pitch = Base::_activeSurface->getPitch() / Base::_activeSurface->getFormat().bytesPerPixel;
 	int px, py;
 
 	uint32 rsq = r*r;

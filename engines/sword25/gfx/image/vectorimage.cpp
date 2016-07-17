@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on Broken Sword 2.5 engine
@@ -215,7 +217,7 @@ Common::Rect CalculateBoundingBox(const VectorImageElement &vectorImageElement) 
 // Construction
 // -----------------------------------------------------------------------------
 
-VectorImage::VectorImage(const byte *pFileData, uint fileSize, bool &success, const Common::String &fname) : _pixelData(0), _fname(fname) {
+VectorImage::VectorImage(const byte *pFileData, uint fileSize, bool &success, const Common::String &fname) : _fname(fname) {
 	success = false;
 
 	// Create bitstream object
@@ -310,8 +312,6 @@ VectorImage::~VectorImage() {
 		for (int i = _elements[j].getPathCount() - 1; i >= 0; i--)
 			if (_elements[j].getPathInfo(i).getVec())
 				free(_elements[j].getPathInfo(i).getVec());
-
-	free(_pixelData);
 }
 
 
@@ -632,12 +632,8 @@ bool VectorImage::blit(int posX, int posY,
 		oldWidth = width;
 	}
 
-	RenderedImage *rend = new RenderedImage();
-
-	rend->replaceContent(_pixelData, width, height);
-	rend->blit(posX, posY, flipping, pPartRect, color, width, height, updateRects);
-
-	delete rend;
+	RenderedImage rend(_surface);
+	rend.blit(posX, posY, flipping, pPartRect, color, width, height, updateRects);
 
 	return true;
 }

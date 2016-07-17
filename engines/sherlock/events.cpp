@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/events.h"
@@ -97,26 +99,26 @@ void Events::setCursor(const Graphics::Surface &src, int hotspotX, int hotspotY)
 	
 	if (!IS_3DO) {
 		// PC 8-bit palettized
-		CursorMan.replaceCursor(src.getPixels(), src.w, src.h, hotspotX, hotspotY, 0xff);
+		CursorMan.replaceCursor(src.getPixels(), src.getWidth(), src.getHeight(), hotspotX, hotspotY, 0xff);
 	} else if (!_vm->_isScreenDoubled) {
-		CursorMan.replaceCursor(src.getPixels(), src.w, src.h, hotspotX, hotspotY, 0x0000, false, &src.format);
+		CursorMan.replaceCursor(src.getPixels(), src.getWidth(), src.getHeight(), hotspotX, hotspotY, 0x0000, false, &src.getFormat());
 	} else {
 		Graphics::Surface tempSurface;
-		tempSurface.create(2 * src.w, 2 * src.h, src.format);
+		tempSurface.create(2 * src.getWidth(), 2 * src.getHeight(), src.getFormat());
 
-		for (int y = 0; y < src.h; y++) {
+		for (int y = 0; y < src.getHeight(); y++) {
 			const uint16 *srcP = (const uint16 *)src.getBasePtr(0, y);
 			uint16 *destP = (uint16 *)tempSurface.getBasePtr(0, 2 * y);
-			for (int x = 0; x < src.w; ++x, ++srcP, destP += 2) {
+			for (int x = 0; x < src.getWidth(); ++x, ++srcP, destP += 2) {
 				*destP = *srcP;
 				*(destP + 1) = *srcP;
-				*(destP + 2 * src.w) = *srcP;
-				*(destP + 2 * src.w + 1) = *srcP;
+				*(destP + 2 * src.getWidth()) = *srcP;
+				*(destP + 2 * src.getWidth() + 1) = *srcP;
 			}
 		}
 
 		// 3DO RGB565
-		CursorMan.replaceCursor(tempSurface.getPixels(), tempSurface.w, tempSurface.h, 2 * hotspotX, 2 * hotspotY, 0x0000, false, &src.format);
+		CursorMan.replaceCursor(tempSurface.getPixels(), tempSurface.getWidth(), tempSurface.getHeight(), 2 * hotspotX, 2 * hotspotY, 0x0000, false, &src.getFormat());
 
 		tempSurface.free();
 	}
@@ -133,11 +135,11 @@ void Events::setCursor(CursorId cursorId, const Common::Point &cursorPos, const 
 	// the cursor should be horizontally centered
 	Common::Point cursorPt = cursorPos;
 	if (cursorPos.x == -100)
-		cursorPt.x = (surface.w - cursorImg.w) / 2;
+		cursorPt.x = (surface.getWidth() - cursorImg.getWidth()) / 2;
 
 	// Figure total bounds needed for cursor image and passed image
-	Common::Rect bounds(surface.w, surface.h);
-	bounds.extend(Common::Rect(cursorPt.x, cursorPt.y, cursorPt.x + cursorImg.w, cursorPt.y + cursorImg.h));
+	Common::Rect bounds(surface.getWidth(), surface.getHeight());
+	bounds.extend(Common::Rect(cursorPt.x, cursorPt.y, cursorPt.x + cursorImg.getWidth(), cursorPt.y + cursorImg.getHeight()));
 	Common::Rect r = bounds;
 	r.moveTo(0, 0);
 

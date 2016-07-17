@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mohawk/myst.h"
 #include "mohawk/myst_graphics.h"
@@ -119,10 +121,10 @@ void MystGraphics::copyImageSectionToScreen(uint16 image, Common::Rect src, Comm
 	Graphics::Surface *surface = findImage(image)->getSurface();
 
 	// Make sure the image is bottom aligned in the dest rect
-	dest.top = dest.bottom - MIN<int>(surface->h, dest.height());
+	dest.top = dest.bottom - MIN<int>(surface->getHeight(), dest.height());
 
 	// Convert from bitmap coordinates to surface coordinates
-	uint16 top = surface->h - (src.top + MIN<int>(surface->h, dest.height()));
+	uint16 top = surface->getHeight() - (src.top + MIN<int>(surface->getHeight(), dest.height()));
 
 	// Do not draw the top pixels if the image is too tall
 	if (dest.height() > _viewport.height())
@@ -134,14 +136,14 @@ void MystGraphics::copyImageSectionToScreen(uint16 image, Common::Rect src, Comm
 	dest.right = CLIP<int>(dest.right, 0, _vm->_system->getWidth());
 	dest.bottom = CLIP<int>(dest.bottom, 0, _vm->_system->getHeight());
 
-	uint16 width = MIN<int>(surface->w, dest.width());
-	uint16 height = MIN<int>(surface->h, dest.height());
+	uint16 width = MIN<int>(surface->getWidth(), dest.width());
+	uint16 height = MIN<int>(surface->getHeight(), dest.height());
 
 	// Clamp Width and Height to within src surface dimensions
-	if (src.left + width > surface->w)
-		width = surface->w - src.left;
-	if (src.top + height > surface->h)
-		height = surface->h - src.top;
+	if (src.left + width > surface->getWidth())
+		width = surface->getWidth() - src.left;
+	if (src.top + height > surface->getHeight())
+		height = surface->getHeight() - src.top;
 
 	debug(3, "MystGraphics::copyImageSectionToScreen()");
 	debug(3, "\tImage: %d", image);
@@ -154,7 +156,7 @@ void MystGraphics::copyImageSectionToScreen(uint16 image, Common::Rect src, Comm
 
 	simulatePreviousDrawDelay(dest);
 
-	_vm->_system->copyRectToScreen(surface->getBasePtr(src.left, top), surface->pitch, dest.left, dest.top, width, height);
+	_vm->_system->copyRectToScreen(surface->getBasePtr(src.left, top), surface->getPitch(), dest.left, dest.top, width, height);
 }
 
 void MystGraphics::copyImageSectionToBackBuffer(uint16 image, Common::Rect src, Common::Rect dest) {
@@ -162,10 +164,10 @@ void MystGraphics::copyImageSectionToBackBuffer(uint16 image, Common::Rect src, 
 	Graphics::Surface *surface = mhkSurface->getSurface();
 
 	// Make sure the image is bottom aligned in the dest rect
-	dest.top = dest.bottom - MIN<int>(surface->h, dest.height());
+	dest.top = dest.bottom - MIN<int>(surface->getHeight(), dest.height());
 
 	// Convert from bitmap coordinates to surface coordinates
-	uint16 top = surface->h - (src.top + MIN<int>(surface->h, dest.height()));
+	uint16 top = surface->getHeight() - (src.top + MIN<int>(surface->getHeight(), dest.height()));
 
 	// Do not draw the top pixels if the image is too tall
 	if (dest.height() > _viewport.height()) {
@@ -178,14 +180,14 @@ void MystGraphics::copyImageSectionToBackBuffer(uint16 image, Common::Rect src, 
 	dest.right = CLIP<int>(dest.right, 0, _vm->_system->getWidth());
 	dest.bottom = CLIP<int>(dest.bottom, 0, _vm->_system->getHeight());
 
-	uint16 width = MIN<int>(surface->w, dest.width());
-	uint16 height = MIN<int>(surface->h, dest.height());
+	uint16 width = MIN<int>(surface->getWidth(), dest.width());
+	uint16 height = MIN<int>(surface->getHeight(), dest.height());
 
 	// Clamp Width and Height to within src surface dimensions
-	if (src.left + width > surface->w)
-		width = surface->w - src.left;
-	if (src.top + height > surface->h)
-		height = surface->h - src.top;
+	if (src.left + width > surface->getWidth())
+		width = surface->getWidth() - src.left;
+	if (src.top + height > surface->getHeight())
+		height = surface->getHeight() - src.top;
 
 	debug(3, "MystGraphics::copyImageSectionToBackBuffer()");
 	debug(3, "\tImage: %d", image);
@@ -197,7 +199,7 @@ void MystGraphics::copyImageSectionToBackBuffer(uint16 image, Common::Rect src, 
 	debug(3, "\theight: %d", height);
 
 	for (uint16 i = 0; i < height; i++)
-		memcpy(_backBuffer->getBasePtr(dest.left, i + dest.top), surface->getBasePtr(src.left, top + i), width * surface->format.bytesPerPixel);
+		memcpy(_backBuffer->getBasePtr(dest.left, i + dest.top), surface->getBasePtr(src.left, top + i), width * surface->getFormat().bytesPerPixel);
 
 	if (!(_vm->getFeatures() & GF_ME)) {
 		// Make sure the palette is set
@@ -220,7 +222,7 @@ void MystGraphics::copyBackBufferToScreen(Common::Rect r) {
 
 	simulatePreviousDrawDelay(r);
 
-	_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(r.left, r.top), _backBuffer->pitch, r.left, r.top, r.width(), r.height());
+	_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(r.left, r.top), _backBuffer->getPitch(), r.left, r.top, r.width(), r.height());
 }
 
 void MystGraphics::runTransition(TransitionType type, Common::Rect rect, uint16 steps, uint16 delay) {
@@ -468,7 +470,7 @@ void MystGraphics::transitionSlideToLeft(Common::Rect rect, uint16 steps, uint16
 
 		simulatePreviousDrawDelay(dstRect);
 		_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(dstRect.left, dstRect.top),
-				_backBuffer->pitch, srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
+				_backBuffer->getPitch(), srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
 		_vm->_system->updateScreen();
 	}
 
@@ -493,7 +495,7 @@ void MystGraphics::transitionSlideToRight(Common::Rect rect, uint16 steps, uint1
 
 		simulatePreviousDrawDelay(dstRect);
 		_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(dstRect.left, dstRect.top),
-				_backBuffer->pitch, srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
+				_backBuffer->getPitch(), srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
 		_vm->_system->updateScreen();
 	}
 
@@ -518,7 +520,7 @@ void MystGraphics::transitionSlideToTop(Common::Rect rect, uint16 steps, uint16 
 
 		simulatePreviousDrawDelay(dstRect);
 		_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(dstRect.left, dstRect.top),
-				_backBuffer->pitch, srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
+				_backBuffer->getPitch(), srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
 		_vm->_system->updateScreen();
 	}
 
@@ -544,7 +546,7 @@ void MystGraphics::transitionSlideToBottom(Common::Rect rect, uint16 steps, uint
 
 		simulatePreviousDrawDelay(dstRect);
 		_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(dstRect.left, dstRect.top),
-				_backBuffer->pitch, srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
+				_backBuffer->getPitch(), srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
 		_vm->_system->updateScreen();
 	}
 
@@ -568,7 +570,7 @@ void MystGraphics::transitionPartialToRight(Common::Rect rect, uint32 width, uin
 
 		simulatePreviousDrawDelay(dstRect);
 		_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(dstRect.left, dstRect.top),
-				_backBuffer->pitch, srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
+				_backBuffer->getPitch(), srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
 		_vm->_system->updateScreen();
 	}
 
@@ -589,7 +591,7 @@ void MystGraphics::transitionPartialToLeft(Common::Rect rect, uint32 width, uint
 
 		simulatePreviousDrawDelay(dstRect);
 		_vm->_system->copyRectToScreen(_backBuffer->getBasePtr(dstRect.left, dstRect.top),
-				_backBuffer->pitch, srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
+				_backBuffer->getPitch(), srcRect.left, srcRect.top, srcRect.width(), srcRect.height());
 		_vm->_system->updateScreen();
 	}
 

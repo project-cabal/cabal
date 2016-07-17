@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Graphics maniuplation routines - private header file
 
@@ -102,13 +104,11 @@ struct Surface : Graphics::Surface {
 	void blit(const Common::Rect &destRect, const byte *sourceBuffer);
 
 	void getRect(Common::Rect &rect) {
-		rect.left = rect.top = 0;
-		rect.right = w;
-		rect.bottom = h;
+		rect = Common::Rect(getWidth(), getHeight());
 	}
 
 	void drawRect(const Common::Rect &destRect, int color) {
-		Common::Rect rect(w , h);
+		Common::Rect rect(getWidth() , getHeight());
 		rect.clip(destRect);
 
 		if (rect.isValidRect()) {
@@ -205,15 +205,15 @@ public:
 	}
 
 	uint16 getBackBufferWidth() {
-		return _backBuffer.w;
+		return _backBuffer.getWidth();
 	}
 
 	uint16 getBackBufferHeight() {
-		return _backBuffer.h;
+		return _backBuffer.getHeight();
 	}
 
 	uint16 getBackBufferPitch() {
-		return _backBuffer.pitch;
+		return _backBuffer.getPitch();
 	}
 
 	void getBackBufferRect(Common::Rect &rect) {

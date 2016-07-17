@@ -233,7 +233,7 @@ void MoviePlayer::closeTextObject(uint32 index, Graphics::Surface *screen, uint1
 }
 
 #define PUT_PIXEL(c) \
-	switch (screen->format.bytesPerPixel) { \
+	switch (screen->getFormat().bytesPerPixel) { \
 	case 1: \
 		*dst = (c); \
 		break; \
@@ -275,7 +275,7 @@ void MoviePlayer::drawTextObject(uint32 index, Graphics::Surface *screen, uint16
 					PUT_PIXEL(white);
 				}
 
-				dst += screen->format.bytesPerPixel;
+				dst += screen->getFormat().bytesPerPixel;
 			}
 
 			src += width;
@@ -334,7 +334,7 @@ bool MoviePlayer::playVideo() {
 				if (_decoderType == kVideoDecoderPSX)
 					drawFramePSX(frame);
 				else
-					_vm->_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, frame->w, frame->h);
+					_vm->_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, frame->getWidth(), frame->getHeight());
 			}
 
 			if (_decoder->hasDirtyPalette()) {
@@ -367,7 +367,7 @@ bool MoviePlayer::playVideo() {
 			}
 
 			Graphics::Surface *screen = _vm->_system->lockScreen();
-			performPostProcessing(screen, screen->pitch);
+			performPostProcessing(screen, screen->getPitch());
 			_vm->_system->unlockScreen();
 			_vm->_system->updateScreen();
 		}
@@ -395,15 +395,15 @@ void MoviePlayer::drawFramePSX(const Graphics::Surface *frame) {
 	// The PSX videos have half resolution
 
 	Graphics::Surface scaledFrame;
-	scaledFrame.create(frame->w, frame->h * 2, frame->format);
+	scaledFrame.create(frame->getWidth(), frame->getHeight() * 2, frame->getFormat());
 
-	for (int y = 0; y < scaledFrame.h; y++)
-		memcpy(scaledFrame.getBasePtr(0, y), frame->getBasePtr(0, y / 2), scaledFrame.w * scaledFrame.format.bytesPerPixel);
+	for (int y = 0; y < scaledFrame.getHeight(); y++)
+		memcpy(scaledFrame.getBasePtr(0, y), frame->getBasePtr(0, y / 2), scaledFrame.getWidth() * scaledFrame.getFormat().bytesPerPixel);
 
-	uint16 x = (g_system->getWidth() - scaledFrame.w) / 2;
-	uint16 y = (g_system->getHeight() - scaledFrame.h) / 2;
+	uint16 x = (g_system->getWidth() - scaledFrame.getWidth()) / 2;
+	uint16 y = (g_system->getHeight() - scaledFrame.getHeight()) / 2;
 
-	_vm->_system->copyRectToScreen(scaledFrame.getPixels(), scaledFrame.pitch, x, y, scaledFrame.w, scaledFrame.h);
+	_vm->_system->copyRectToScreen(scaledFrame.getPixels(), scaledFrame.getPitch(), x, y, scaledFrame.getWidth(), scaledFrame.getHeight());
 
 	scaledFrame.free();
 }

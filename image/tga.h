@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /* Based on code from eos https://github.com/DrMcCoy/xoreos/
  * relicensed under GPLv2+ with permission from DrMcCoy and clone2727
@@ -85,6 +87,7 @@ private:
 	// Origin may be at the top, or bottom
 	bool _originTop;
 
+	uint16 _width, _height;
 	Graphics::PixelFormat _format;
 	Graphics::Surface _surface;
 	// Loading helpers

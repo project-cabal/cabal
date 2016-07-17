@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/config-manager.h"
 #include "common/events.h"
@@ -127,7 +129,7 @@ Common::Rect Testsuite::writeOnScreen(const Common::String &textToDisplay, const
 	Graphics::Surface *screen = g_system->lockScreen();
 
 	int height = font.getFontHeight();
-	int width = screen->w;
+	int width = screen->getWidth();
 
 	Common::Rect rect(pt.x, pt.y, pt.x + width, pt.y + height);
 
@@ -138,7 +140,7 @@ Common::Rect Testsuite::writeOnScreen(const Common::String &textToDisplay, const
 	}
 
 	screen->fillRect(rect, fillColor);
-	font.drawString(screen, textToDisplay, rect.left, rect.top, screen->w, textColor, Graphics::kTextAlignCenter);
+	font.drawString(screen, textToDisplay, rect.left, rect.top, screen->getWidth(), textColor, Graphics::kTextAlignCenter);
 
 	g_system->unlockScreen();
 	g_system->updateScreen();

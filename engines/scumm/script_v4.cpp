@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/scumm_v4.h"
 #include "scumm/object.h"
@@ -122,7 +124,7 @@ void ScummEngine_v4::o4_oldRoomEffect() {
 
 		if (_game.platform == Common::kPlatformFMTowns && _game.version == 3) {
 			if (a == 4) {
-				_textSurface.fillRect(Common::Rect(0, 0, _textSurface.w * _textSurfaceMultiplier, _textSurface.h * _textSurfaceMultiplier), 0);
+				_textSurface.fillRect(Common::Rect(_textSurface.getWidth() * _textSurfaceMultiplier, _textSurface.getHeight() * _textSurfaceMultiplier), 0);
 #ifndef DISABLE_TOWNS_DUAL_LAYER_MODE
 				if (_townsScreen)
 					_townsScreen->clearLayer(1);

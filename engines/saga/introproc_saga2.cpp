@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifdef ENABLE_SAGA2
 
@@ -102,7 +104,7 @@ void Scene::playMovie(const char *filename) {
 		if (smkDecoder->needsUpdate()) {
 			const Graphics::Surface *frame = smkDecoder->decodeNextFrame();
 			if (frame) {
-				_vm->_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, frame->w, frame->h);
+				_vm->_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, frame->getWidth(), frame->getHeight());
 
 				if (smkDecoder->hasDirtyPalette())
 					_vm->_system->getPaletteManager()->setPalette(smkDecoder->getPalette(), 0, 256);

@@ -48,8 +48,8 @@ void ScummEngine::towns_drawStripToScreen(VirtScreen *vs, int dstX, int dstY, in
 
 	int dp1 = _townsScreen->getLayerPitch(0) - width * _townsScreen->getLayerBpp(0);
 	int dp2 = _townsScreen->getLayerPitch(1) - width * m * _townsScreen->getLayerBpp(1);
-	int sp1 = vs->pitch - (width * vs->format.bytesPerPixel);
-	int sp2 = _textSurface.pitch - width * m;
+	int sp1 = vs->getPitch() - (width * vs->getFormat().bytesPerPixel);
+	int sp2 = _textSurface.getPitch() - width * m;
 
 	if (vs->number == kMainVirtScreen || _game.id == GID_INDY3 || _game.id == GID_ZAK) {
 		for (int h = 0; h < height; ++h) {
@@ -63,13 +63,13 @@ void ScummEngine::towns_drawStripToScreen(VirtScreen *vs, int dstX, int dstY, in
 				dst1 += dp1;
 			} else {
 				memcpy(dst1, src1, width);
-				src1 += vs->pitch;
+				src1 += vs->getPitch();
 				dst1 += _townsScreen->getLayerPitch(0);
 			}
 
 			for (int sH = 0; sH < m; ++sH) {
 				memcpy(dst2, src2, width * m);
-				src2 += _textSurface.pitch;
+				src2 += _textSurface.getPitch();
 				dst2 += _townsScreen->getLayerPitch(1);
 			}
 		}

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Video script opcodes for Simon1/Simon2
 
@@ -1182,8 +1184,8 @@ void AGOSEngine::vc32_saveScreen() {
 		byte *src = (byte *)screen->getPixels();
 		for (int i = 0; i < _screenHeight; i++) {
 			memcpy(dst, src, _screenWidth);
-			dst += _backGroundBuf->pitch;
-			src += screen->pitch;
+			dst += _backGroundBuf->getPitch();
+			src += screen->getPitch();
 		}
 		_system->unlockScreen();
 	} else {
@@ -1197,7 +1199,7 @@ void AGOSEngine::vc32_saveScreen() {
 		uint16 srcWidth = _videoWindows[4 * 4 + 2] * 16;
 		for (; height > 0; height--) {
 			memcpy(dst, src, width);
-			dst += _backGroundBuf->pitch;
+			dst += _backGroundBuf->getPitch();
 			src += srcWidth;
 		}
 	}
@@ -1229,7 +1231,7 @@ void AGOSEngine::clearVideoBackGround(uint16 num, uint16 color) {
 
 	for (uint h = 0; h < vlut[3]; h++) {
 		memset(dst, color, vlut[2] * 16);
-		dst += _backGroundBuf->pitch;
+		dst += _backGroundBuf->getPitch();
 	}
 }
 
@@ -1250,7 +1252,7 @@ void AGOSEngine::clearVideoWindow(uint16 num, uint16 color) {
 		byte *dst = (byte *)screen->getPixels();
 		for (int i = 0; i < _screenHeight; i++) {
 			memset(dst, color, _screenWidth);
-			dst += screen->pitch;
+			dst += screen->getPitch();
 		}
 		 _system->unlockScreen();
 	} else {

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,7 +20,9 @@
  *
  */
 
- // Based off ffmpeg's RPZA decoder
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Based off ffmpeg's RPZA decoder
 
 #include "image/codecs/rpza.h"
 
@@ -330,17 +332,13 @@ const Graphics::Surface *RPZADecoder::decodeFrame(Common::SeekableReadStream &st
 		_surface = new Graphics::Surface();
 
 		// Allocate enough space in the surface for the blocks
-		_surface->create(_blockWidth * 4, _blockHeight * 4, getPixelFormat());
-
-		// Adjust width/height to be the right ones
-		_surface->w = _width;
-		_surface->h = _height;
+		_surface->create(_width, _height, _blockWidth * 4, _blockHeight * 4, getPixelFormat());
 	}
 
 	if (_colorMap)
-		decodeFrameTmpl<byte, BlockDecoderDither>(stream, (byte *)_surface->getPixels(), _surface->pitch, _blockWidth, _blockHeight, _colorMap);
+		decodeFrameTmpl<byte, BlockDecoderDither>(stream, (byte *)_surface->getPixels(), _surface->getPitch(), _blockWidth, _blockHeight, _colorMap);
 	else
-		decodeFrameTmpl<uint16, BlockDecoderRaw>(stream, (uint16 *)_surface->getPixels(), _surface->pitch / 2, _blockWidth, _blockHeight, _colorMap);
+		decodeFrameTmpl<uint16, BlockDecoderRaw>(stream, (uint16 *)_surface->getPixels(), _surface->getPitch() / 2, _blockWidth, _blockHeight, _colorMap);
 
 	return _surface;
 }

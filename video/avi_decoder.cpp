@@ -787,9 +787,9 @@ void AVIDecoder::checkTruemotion1() {
 	}
 
 	// Fill in the width/height based on the frame's width/height
-	_header.width = frame->w;
-	_header.height = frame->h;
-	track->forceDimensions(frame->w, frame->h);
+	_header.width = frame->getWidth();
+	_header.height = frame->getHeight();
+	track->forceDimensions(frame->getWidth(), frame->getHeight());
 
 	// Rewind us back to the beginning
 	rewind();

@@ -40,6 +40,7 @@
 
 #include "audio/audiostream.h"
 #include "audio/decoders/pcm.h"
+#include "common/rect.h"
 #include "common/stream.h"
 #include "common/system.h"
 #include "common/textconsole.h"
@@ -279,8 +280,7 @@ OggDecoder::TheoraVideoTrack::TheoraVideoTrack(const Graphics::PixelFormat &form
 	_surface.create(theoraInfo.frame_width, theoraInfo.frame_height, format);
 
 	// Set up a display surface
-	_displaySurface.init(theoraInfo.pic_width, theoraInfo.pic_height, _surface.pitch,
-	                    _surface.getBasePtr(theoraInfo.pic_x, theoraInfo.pic_y), format);
+	_displaySurface = _surface.getSubArea(Common::Rect(theoraInfo.pic_x, theoraInfo.pic_y, theoraInfo.pic_x + theoraInfo.pic_width, theoraInfo.pic_y + theoraInfo.pic_height));
 
 	// Set the frame rate
 	_frameRate = Common::Rational(theoraInfo.fps_numerator, theoraInfo.fps_denominator);
@@ -294,7 +294,7 @@ OggDecoder::TheoraVideoTrack::~TheoraVideoTrack() {
 	th_decode_free(_theoraDecode);
 
 	_surface.free();
-	_displaySurface.setPixels(0);
+	_displaySurface.free();
 }
 
 bool OggDecoder::TheoraVideoTrack::decodePacket(ogg_packet &oggPacket) {

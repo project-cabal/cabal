@@ -1311,7 +1311,7 @@ Graphics::Surface *SurfaceSdlGraphicsManager::lockScreen() {
 	if (SDL_LockSurface(_screen) == -1)
 		error("SDL_LockSurface failed: %s", SDL_GetError());
 
-	_framebuffer.init(_screen->w, _screen->h, _screen->pitch, _screen->pixels, _screenFormat);
+	_framebuffer.resetWithoutOwnership(_screen->w, _screen->h, _screen->pitch, reinterpret_cast<byte *>(_screen->pixels), _screenFormat);
 
 	return &_framebuffer;
 }
@@ -1336,7 +1336,7 @@ void SurfaceSdlGraphicsManager::unlockScreen() {
 void SurfaceSdlGraphicsManager::fillScreen(uint32 col) {
 	Graphics::Surface *screen = lockScreen();
 	if (screen && screen->getPixels())
-		memset(screen->getPixels(), col, screen->h * screen->pitch);
+		memset(screen->getPixels(), col, screen->getHeight() * screen->getPitch());
 	unlockScreen();
 }
 
@@ -2049,7 +2049,7 @@ void SurfaceSdlGraphicsManager::displayMessageOnOSD(const char *msg) {
 		error("displayMessageOnOSD: SDL_LockSurface failed: %s", SDL_GetError());
 
 	Graphics::Surface dst;
-	dst.init(_osdSurface->w, _osdSurface->h, _osdSurface->pitch, _osdSurface->pixels,
+	dst.resetWithoutOwnership(_osdSurface->w, _osdSurface->h, _osdSurface->pitch, reinterpret_cast<byte *>(_osdSurface->pixels),
 	         Graphics::PixelFormat(_osdSurface->format->BytesPerPixel,
 	                               8 - _osdSurface->format->Rloss, 8 - _osdSurface->format->Gloss,
 	                               8 - _osdSurface->format->Bloss, 8 - _osdSurface->format->Aloss,
@@ -2085,16 +2085,16 @@ void SurfaceSdlGraphicsManager::displayMessageOnOSD(const char *msg) {
 	}
 
 	// Clip the rect
-	if (width > dst.w)
-		width = dst.w;
-	if (height > dst.h)
-		height = dst.h;
+	if (width > dst.getWidth())
+		width = dst.getWidth();
+	if (height > dst.getHeight())
+		height = dst.getHeight();
 
 	// Draw a dark gray rect
 	// TODO: Rounded corners ? Border?
 	SDL_Rect osdRect;
-	osdRect.x = (dst.w - width) / 2;
-	osdRect.y = (dst.h - height) / 2;
+	osdRect.x = (dst.getWidth() - width) / 2;
+	osdRect.y = (dst.getHeight() - height) / 2;
 	osdRect.w = width;
 	osdRect.h = height;
 	SDL_FillRect(_osdSurface, &osdRect, SDL_MapRGB(_osdSurface->format, 64, 64, 64));

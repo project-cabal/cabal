@@ -531,10 +531,10 @@ void CharsetRendererPC::drawBits1(Graphics::Surface &dest, int x, int y, const b
 
 	byte bits = 0;
 	uint8 col = _color;
-	int pitch = dest.pitch - width * dest.format.bytesPerPixel;
-	byte *dst2 = dst + dest.pitch;
+	int pitch = dest.getPitch() - width * dest.getFormat().bytesPerPixel;
+	byte *dst2 = dst + dest.getPitch();
 
-	for (y = 0; y < height && y + drawTop < dest.h; y++) {
+	for (y = 0; y < height && y + drawTop < dest.getHeight(); y++) {
 		for (x = 0; x < width; x++) {
 			if ((x % 8) == 0)
 				bits = *src++;
@@ -547,8 +547,8 @@ void CharsetRendererPC::drawBits1(Graphics::Surface &dest, int x, int y, const b
 				}
 				dst[0] = col;
 			}
-			dst += dest.format.bytesPerPixel;
-			dst2 += dest.format.bytesPerPixel;
+			dst += dest.getFormat().bytesPerPixel;
+			dst2 += dest.getFormat().bytesPerPixel;
 		}
 
 		dst += pitch;
@@ -827,14 +827,14 @@ void CharsetRendererClassic::printCharIntern(bool is2byte, const byte *charPtr, 
 			dstPtr = vs->getBackPixels(0, 0);
 		}
 
-		Common::Rect rScreen(vs->w, vs->h);
+		Common::Rect rScreen(vs->getWidth(), vs->getHeight());
 		if (_bytesPerPixel >= 8) {
 			byte imagePalette[256];
 			memset(imagePalette, 0, sizeof(imagePalette));
 			memcpy(imagePalette, _vm->_charsetColorMap, 4);
-			Wiz::copyWizImage(dstPtr, charPtr, vs->pitch, kDstScreen, vs->w, vs->h, _left, _top, origWidth, origHeight, &rScreen, 0, imagePalette, NULL, _vm->_bytesPerPixel);
+			Wiz::copyWizImage(dstPtr, charPtr, vs->getPitch(), kDstScreen, vs->getWidth(), vs->getHeight(), _left, _top, origWidth, origHeight, &rScreen, 0, imagePalette, NULL, _vm->_bytesPerPixel);
 		} else {
-			Wiz::copyWizImage(dstPtr, charPtr, vs->pitch, kDstScreen, vs->w, vs->h, _left, _top, origWidth, origHeight, &rScreen, 0, NULL, NULL, _vm->_bytesPerPixel);
+			Wiz::copyWizImage(dstPtr, charPtr, vs->getPitch(), kDstScreen, vs->getWidth(), vs->getHeight(), _left, _top, origWidth, origHeight, &rScreen, 0, NULL, NULL, _vm->_bytesPerPixel);
 		}
 
 		if (_blitAlso && vs->hasTwoBuffers) {
@@ -881,8 +881,8 @@ void CharsetRendererClassic::printCharIntern(bool is2byte, const byte *charPtr, 
 				error("This might be broken -- please report where you encountered this to Fingolfin");
 
 			// Perform some clipping
-			int w = MIN(width, dstSurface.w - _left);
-			int h = MIN(height, dstSurface.h - drawTop);
+			int w = MIN(width, dstSurface.getWidth() - _left);
+			int h = MIN(height, dstSurface.getHeight() - drawTop);
 			if (_left < 0) {
 				w += _left;
 				back -= _left;
@@ -890,16 +890,16 @@ void CharsetRendererClassic::printCharIntern(bool is2byte, const byte *charPtr, 
 			}
 			if (drawTop < 0) {
 				h += drawTop;
-				back -= drawTop * backSurface.pitch;
-				dstPtr -= drawTop * dstSurface.pitch;
+				back -= drawTop * backSurface.getPitch();
+				dstPtr -= drawTop * dstSurface.getPitch();
 			}
 
 			// Blit the image data
 			if (w > 0) {
 				while (h-- > 0) {
 					memcpy(back, dstPtr, w);
-					back += backSurface.pitch;
-					dstPtr += dstSurface.pitch;
+					back += backSurface.getPitch();
+					dstPtr += dstSurface.getPitch();
 				}
 			}
 		}
@@ -964,7 +964,7 @@ void CharsetRendererClassic::drawBitsN(const Graphics::Surface &s, byte *dst, co
 	int color;
 	byte numbits, bits;
 
-	int pitch = s.pitch - width;
+	int pitch = s.getPitch() - width;
 
 	assert(bpp == 1 || bpp == 2 || bpp == 4 || bpp == 8);
 	bits = *src++;
@@ -982,7 +982,7 @@ void CharsetRendererClassic::drawBitsN(const Graphics::Surface &s, byte *dst, co
 			amigaMap = _vm->_roomPalette;
 	}
 
-	for (y = 0; y < height && y + drawTop < s.h; y++) {
+	for (y = 0; y < height && y + drawTop < s.getHeight(); y++) {
 		for (x = 0; x < width; x++) {
 			color = (bits >> (8 - bpp)) & 0xFF;
 
@@ -1051,29 +1051,29 @@ void CharsetRendererTownsV3::drawBits1(Graphics::Surface &dest, int x, int y, co
 
 	byte bits = 0;
 	uint8 col = _color;
-	int pitch = dest.pitch - width * dest.format.bytesPerPixel;
+	int pitch = dest.getPitch() - width * dest.getFormat().bytesPerPixel;
 	byte *dst = (byte *)dest.getBasePtr(x, y);
-	byte *dst2 = dst + dest.pitch;
+	byte *dst2 = dst + dest.getPitch();
 
 #ifndef DISABLE_TOWNS_DUAL_LAYER_MODE
 	byte *dst3 = dst2;
 	byte *dst4 = dst2;
 	if (scale2x) {
-		dst3 = dst2 + dest.pitch;
-		dst4 = dst3 + dest.pitch;
+		dst3 = dst2 + dest.getPitch();
+		dst4 = dst3 + dest.getPitch();
 		pitch <<= 1;
 	}
 #endif
 
-	for (y = 0; y < height && y + drawTop < dest.h; y++) {
+	for (y = 0; y < height && y + drawTop < dest.getHeight(); y++) {
 		for (x = 0; x < width; x++) {
 			if ((x % 8) == 0)
 				bits = *src++;
 			if ((bits & revBitMask(x % 8)) && y + drawTop >= 0) {
-				if (dest.format.bytesPerPixel == 2) {
+				if (dest.getFormat().bytesPerPixel == 2) {
 					if (_enableShadow) {
 						WRITE_UINT16(dst + 2, _vm->_16BitPalette[_shadowColor]);
-						WRITE_UINT16(dst + dest.pitch, _vm->_16BitPalette[_shadowColor]);
+						WRITE_UINT16(dst + dest.getPitch(), _vm->_16BitPalette[_shadowColor]);
 					}
 					WRITE_UINT16(dst, _vm->_16BitPalette[_color]);
 				} else {
@@ -1096,8 +1096,8 @@ void CharsetRendererTownsV3::drawBits1(Graphics::Surface &dest, int x, int y, co
 #endif
 				}
 			}
-			dst += dest.format.bytesPerPixel;
-			dst2 += dest.format.bytesPerPixel;
+			dst += dest.getFormat().bytesPerPixel;
+			dst2 += dest.getFormat().bytesPerPixel;
 #ifndef DISABLE_TOWNS_DUAL_LAYER_MODE
 			if (scale2x) {
 				dst++;
@@ -1147,38 +1147,38 @@ void CharsetRendererPCE::drawBits1(Graphics::Surface &dest, int x, int y, const 
 		uint16 col1 = _color;
 		uint16 col2 = _shadowColor;
 
-		if (dest.format.bytesPerPixel == 2) {
+		if (dest.getFormat().bytesPerPixel == 2) {
 			col1 = _vm->_16BitPalette[col1];
 			col2 = _vm->_16BitPalette[col2];
 		}
 
-		_vm->_cjkFont->drawChar(dst, _sjisCurChar, dest.pitch, dest.format.bytesPerPixel, col1, col2, -1, -1);
+		_vm->_cjkFont->drawChar(dst, _sjisCurChar, dest.getPitch(), dest.getFormat().bytesPerPixel, col1, col2, -1, -1);
 		return;
 	}
 
 	byte bits = 0;
 
-	for (y = 0; y < height && y + drawTop < dest.h; y++) {
+	for (y = 0; y < height && y + drawTop < dest.getHeight(); y++) {
 		int bitCount = 0;
 		for (x = 0; x < width; x++) {
 			if ((bitCount % 8) == 0)
 				bits = *src++;
 			if ((bits & revBitMask(bitCount % 8)) && y + drawTop >= 0) {
-				if (dest.format.bytesPerPixel == 2) {
+				if (dest.getFormat().bytesPerPixel == 2) {
 					if (_enableShadow)
-						WRITE_UINT16(dst + dest.pitch + 2, _vm->_16BitPalette[_shadowColor]);
+						WRITE_UINT16(dst + dest.getPitch() + 2, _vm->_16BitPalette[_shadowColor]);
 					WRITE_UINT16(dst, _vm->_16BitPalette[_color]);
 				} else {
 					if (_enableShadow)
-						*(dst + dest.pitch + 1) = _shadowColor;
+						*(dst + dest.getPitch() + 1) = _shadowColor;
 					*dst = _color;
 				}
 			}
-			dst += dest.format.bytesPerPixel;
+			dst += dest.getFormat().bytesPerPixel;
 			bitCount++;
 		}
 
-		dst += dest.pitch - width * dest.format.bytesPerPixel;
+		dst += dest.getPitch() - width * dest.getFormat().bytesPerPixel;
 	}
 }
 
@@ -1274,17 +1274,15 @@ void CharsetRendererNut::printChar(int chr, bool ignoreCharsetMask) {
 	shadow.right = _left + width;
 	shadow.bottom = _top + height;
 
-	Graphics::Surface s;
 	if (!ignoreCharsetMask) {
 		_hasMask = true;
 		_textScreenID = kMainVirtScreen;
 	}
 
 	int drawTop = _top;
+	Graphics::Surface s;
 	if (ignoreCharsetMask) {
-		VirtScreen *vs = &_vm->_virtscr[kMainVirtScreen];
-		s = *vs;
-		s.setPixels(vs->getPixels(0, 0));
+		s = _vm->_virtscr[kMainVirtScreen];
 	} else {
 		s = _vm->_textSurface;
 		drawTop -= _vm->_screenTop;
@@ -1448,7 +1446,7 @@ void CharsetRendererTownsClassic::drawBitsN(const Graphics::Surface&, byte *dst,
 	int color;
 	byte numbits, bits;
 
-	int pitch = _vm->_textSurface.pitch - width;
+	int pitch = _vm->_textSurface.getPitch() - width;
 
 	assert(bpp == 1 || bpp == 2 || bpp == 4 || bpp == 8);
 	bits = *src++;
@@ -1459,11 +1457,11 @@ void CharsetRendererTownsClassic::drawBitsN(const Graphics::Surface&, byte *dst,
 	if (_vm->_game.platform == Common::kPlatformFMTowns)
 		cmap = _vm->_townsCharsetColorMap;
 	if (scale2x) {
-		dst2 += _vm->_textSurface.pitch;
+		dst2 += _vm->_textSurface.getPitch();
 		pitch <<= 1;
 	}
 
-	for (y = 0; y < height && y + drawTop < _vm->_textSurface.h; y++) {
+	for (y = 0; y < height && y + drawTop < _vm->_textSurface.getHeight(); y++) {
 		for (x = 0; x < width; x++) {
 			color = (bits >> (8 - bpp)) & 0xFF;
 
@@ -1593,7 +1591,7 @@ void CharsetRendererNES::drawBits1(Graphics::Surface &dest, int x, int y, const 
 		for (int j = 0; j < 8; j++)
 			dst[j] = _vm->_NESPalette[0][((c0 >> (7 - j)) & 1) | (((c1 >> (7 - j)) & 1) << 1) |
 			(_color ? 12 : 8)];
-		dst += dest.pitch;
+		dst += dest.getPitch();
 	}
 }
 

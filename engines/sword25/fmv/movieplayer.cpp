@@ -129,13 +129,13 @@ void MoviePlayer::update() {
 			const Graphics::Surface *s = _decoder.decodeNextFrame();
 			if (s) {
 				// Transfer the next frame
-				assert(s->format.bytesPerPixel == 4);
+				assert(s->getFormat().bytesPerPixel == 4);
 
 #ifdef THEORA_INDIRECT_RENDERING
 				const byte *frameData = (const byte *)s->getPixels();
-				_outputBitmap->setContent(frameData, s->pitch * s->h, 0, s->pitch);
+				_outputBitmap->setContent(frameData, s->getPitch() * s->getHeight(), 0, s->getPitch());
 #else
-				g_system->copyRectToScreen(s->getPixels(), s->pitch, _outX, _outY, MIN(s->w, _backSurface->w), MIN(s->h, _backSurface->h));
+				g_system->copyRectToScreen(s->getPixels(), s->getPitch(), _outX, _outY, MIN(s->getWidth(), _backSurface->getWidth()), MIN(s->getHeight(), _backSurface->getHeight()));
 				g_system->updateScreen();
 #endif
 			}

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "backends/graphics/opengl/texture.h"
 #include "backends/graphics/opengl/extensions.h"
@@ -82,8 +84,8 @@ void Texture::recreateInternalTexture() {
 	// In case there is an actual texture setup we reinitialize it.
 	if (_textureData.getPixels()) {
 		// Allocate storage for OpenGL texture.
-		GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, _glIntFormat, _textureData.w,
-		       _textureData.h, 0, _glFormat, _glType, NULL));
+		GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, _glIntFormat, _textureData.getWidth(),
+		       _textureData.getHeight(), 0, _glFormat, _glType, NULL));
 
 		// Mark dirts such that it will be completely refreshed the next time.
 		flagDirty();
@@ -112,7 +114,7 @@ void Texture::allocate(uint width, uint height) {
 
 	// In case the needed texture dimension changed we will reinitialize the
 	// texture.
-	if (texWidth != _textureData.w || texHeight != _textureData.h) {
+	if (texWidth != _textureData.getWidth() || texHeight != _textureData.getHeight()) {
 		// Create a buffer for the texture data.
 		_textureData.create(texWidth, texHeight, _format);
 
@@ -120,8 +122,8 @@ void Texture::allocate(uint width, uint height) {
 		GLCALL(glBindTexture(GL_TEXTURE_2D, _glTexture));
 
 		// Allocate storage for OpenGL texture.
-		GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, _glIntFormat, _textureData.w,
-		       _textureData.h, 0, _glFormat, _glType, NULL));
+		GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, _glIntFormat, _textureData.getWidth(),
+		       _textureData.getHeight(), 0, _glFormat, _glType, NULL));
 	}
 
 	// Create a sub-buffer for raw access.
@@ -130,8 +132,8 @@ void Texture::allocate(uint width, uint height) {
 
 void Texture::copyRectToTexture(uint x, uint y, uint w, uint h, const void *srcPtr, uint srcPitch) {
 	Graphics::Surface *dstSurf = getSurface();
-	assert(x + w <= dstSurf->w);
-	assert(y + h <= dstSurf->h);
+	assert(x + w <= dstSurf->getWidth());
+	assert(y + h <= dstSurf->getHeight());
 
 	// *sigh* Common::Rect::extend behaves unexpected whenever one of the two
 	// parameters is an empty rect. Thus, we check whether the current dirty
@@ -145,10 +147,10 @@ void Texture::copyRectToTexture(uint x, uint y, uint w, uint h, const void *srcP
 
 	const byte *src = (const byte *)srcPtr;
 	byte *dst = (byte *)dstSurf->getBasePtr(x, y);
-	const uint pitch = dstSurf->pitch;
-	const uint bytesPerPixel = dstSurf->format.bytesPerPixel;
+	const uint pitch = dstSurf->getPitch();
+	const uint bytesPerPixel = dstSurf->getFormat().bytesPerPixel;
 
-	if (srcPitch == pitch && x == 0 && w == dstSurf->w) {
+	if (srcPitch == pitch && x == 0 && w == dstSurf->getWidth()) {
 		memcpy(dst, src, h * pitch);
 	} else {
 		while (h-- > 0) {
@@ -161,7 +163,7 @@ void Texture::copyRectToTexture(uint x, uint y, uint w, uint h, const void *srcP
 
 void Texture::fill(uint32 color) {
 	Graphics::Surface *dst = getSurface();
-	dst->fillRect(Common::Rect(dst->w, dst->h), color);
+	dst->fillRect(Common::Rect(dst->getWidth(), dst->getHeight()), color);
 
 	flagDirty();
 }
@@ -179,8 +181,8 @@ void Texture::draw(GLfloat x, GLfloat y, GLfloat w, GLfloat h) {
 	GLCALL(glBindTexture(GL_TEXTURE_2D, _glTexture));
 
 	// Calculate the texture rect that will be drawn.
-	const GLfloat texWidth = (GLfloat)_userPixelData.w / _textureData.w;
-	const GLfloat texHeight = (GLfloat)_userPixelData.h / _textureData.h;
+	const GLfloat texWidth = (GLfloat)_userPixelData.getWidth() / _textureData.getWidth();
+	const GLfloat texHeight = (GLfloat)_userPixelData.getHeight() / _textureData.getHeight();
 	const GLfloat texcoords[4*2] = {
 		0,        0,
 		texWidth, 0,
@@ -212,26 +214,26 @@ void Texture::updateTexture() {
 	// In case we use linear filtering we might need to duplicate the last
 	// pixel row/column to avoid glitches with filtering.
 	if (_glFilter == GL_LINEAR) {
-		if (dirtyArea.right == _userPixelData.w && _userPixelData.w != _textureData.w) {
+		if (dirtyArea.right == _userPixelData.getWidth() && _userPixelData.getWidth() != _textureData.getWidth()) {
 			uint height = dirtyArea.height();
 
-			const byte *src = (const byte *)_textureData.getBasePtr(_userPixelData.w - 1, dirtyArea.top);
-			byte *dst = (byte *)_textureData.getBasePtr(_userPixelData.w, dirtyArea.top);
+			const byte *src = (const byte *)_textureData.getBasePtr(_userPixelData.getWidth() - 1, dirtyArea.top);
+			byte *dst = (byte *)_textureData.getBasePtr(_userPixelData.getWidth(), dirtyArea.top);
 
 			while (height-- > 0) {
-				memcpy(dst, src, _textureData.format.bytesPerPixel);
-				dst += _textureData.pitch;
-				src += _textureData.pitch;
+				memcpy(dst, src, _textureData.getFormat().bytesPerPixel);
+				dst += _textureData.getPitch();
+				src += _textureData.getPitch();
 			}
 
 			// Extend the dirty area.
 			++dirtyArea.right;
 		}
 
-		if (dirtyArea.bottom == _userPixelData.h && _userPixelData.h != _textureData.h) {
-			const byte *src = (const byte *)_textureData.getBasePtr(dirtyArea.left, _userPixelData.h - 1);
-			byte *dst = (byte *)_textureData.getBasePtr(dirtyArea.left, _userPixelData.h);
-			memcpy(dst, src, dirtyArea.width() * _textureData.format.bytesPerPixel);
+		if (dirtyArea.bottom == _userPixelData.getHeight() && _userPixelData.getHeight() != _textureData.getHeight()) {
+			const byte *src = (const byte *)_textureData.getBasePtr(dirtyArea.left, _userPixelData.getHeight() - 1);
+			byte *dst = (byte *)_textureData.getBasePtr(dirtyArea.left, _userPixelData.getHeight());
+			memcpy(dst, src, dirtyArea.width() * _textureData.getFormat().bytesPerPixel);
 
 			// Extend the dirty area.
 			++dirtyArea.bottom;
@@ -259,7 +261,7 @@ void Texture::updateTexture() {
 	//
 	// 3) Use glTexSubImage2D per line changed. This is what the old OpenGL
 	//    graphics manager did but it is much slower! Thus, we do not use it.
-	GLCALL(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, dirtyArea.top, _textureData.w, dirtyArea.height(),
+	GLCALL(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, dirtyArea.top, _textureData.getWidth(), dirtyArea.height(),
 	                       _glFormat, _glType, _textureData.getBasePtr(0, dirtyArea.top)));
 
 	// We should have handled everything, thus not dirty anymore.
@@ -268,7 +270,7 @@ void Texture::updateTexture() {
 
 Common::Rect Texture::getDirtyArea() const {
 	if (_allDirty) {
-		return Common::Rect(_userPixelData.w, _userPixelData.h);
+		return Common::Rect(_userPixelData.getWidth(), _userPixelData.getHeight());
 	} else {
 		return _dirtyArea;
 	}
@@ -290,7 +292,7 @@ void TextureCLUT8::allocate(uint width, uint height) {
 
 	// We only need to reinitialize our CLUT8 surface when the output size
 	// changed.
-	if (width == _clut8Data.w && height == _clut8Data.h) {
+	if (width == _clut8Data.getWidth() && height == _clut8Data.getHeight()) {
 		return;
 	}
 
@@ -353,18 +355,18 @@ void TextureCLUT8::updateTexture() {
 
 	Common::Rect dirtyArea = getDirtyArea();
 
-	if (outSurf->format.bytesPerPixel == 2) {
+	if (outSurf->getFormat().bytesPerPixel == 2) {
 		doPaletteLookUp<uint16>((uint16 *)outSurf->getBasePtr(dirtyArea.left, dirtyArea.top),
 		                        (const byte *)_clut8Data.getBasePtr(dirtyArea.left, dirtyArea.top),
 		                        dirtyArea.width(), dirtyArea.height(),
-		                        outSurf->pitch, _clut8Data.pitch, (const uint16 *)_palette);
-	} else if (outSurf->format.bytesPerPixel == 4) {
+		                        outSurf->getPitch(), _clut8Data.getPitch(), (const uint16 *)_palette);
+	} else if (outSurf->getFormat().bytesPerPixel == 4) {
 		doPaletteLookUp<uint32>((uint32 *)outSurf->getBasePtr(dirtyArea.left, dirtyArea.top),
 		                        (const byte *)_clut8Data.getBasePtr(dirtyArea.left, dirtyArea.top),
 		                        dirtyArea.width(), dirtyArea.height(),
-		                        outSurf->pitch, _clut8Data.pitch, (const uint32 *)_palette);
+		                        outSurf->getPitch(), _clut8Data.getPitch(), (const uint32 *)_palette);
 	} else {
-		warning("TextureCLUT8::updateTexture: Unsupported pixel depth: %d", outSurf->format.bytesPerPixel);
+		warning("TextureCLUT8::updateTexture: Unsupported pixel depth: %d", outSurf->getFormat().bytesPerPixel);
 	}
 
 	// Do generic handling of updating the texture.

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,8 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #ifndef SHERLOCK_GRAPHICS_H
 #define SHERLOCK_GRAPHICS_H
 
@@ -37,8 +39,6 @@ struct ImageFrame;
 
 class Surface: public Fonts {
 private:
-	bool _freePixels;
-
 	/**
 	 * Copy a surface into this one
 	 */
@@ -160,18 +160,13 @@ public:
 	bool empty() const { return _surface.getPixels() == nullptr; }
 
 	/**
-	 * Set the pixels for the surface to an existing data block
-	 */
-	void setPixels(byte *pixels, int width, int height, Graphics::PixelFormat format);
-
-	/**
 	 * Draws the given string into the back buffer using the images stored in _font
 	 */
 	virtual void writeString(const Common::String &str, const Common::Point &pt, uint overrideColor);
 	void writeFancyString(const Common::String &str, const Common::Point &pt, uint overrideColor1, uint overrideColor2);
 
-	inline virtual uint16 w() const { return _surface.w; }
-	inline virtual uint16 h() const { return _surface.h; }
+	virtual uint16 w() const { return _surface.getWidth(); }
+	virtual uint16 h() const { return _surface.getHeight(); }
 	inline const byte *getPixels() const { return (const byte *)_surface.getPixels(); }
 	inline byte *getPixels() { return (byte *)_surface.getPixels(); }
 	inline byte *getBasePtr(int x, int y) { return (byte *)_surface.getBasePtr(x, y); }

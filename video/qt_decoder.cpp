@@ -247,9 +247,9 @@ void QuickTimeDecoder::updateAudioBuffer() {
 void QuickTimeDecoder::scaleSurface(const Graphics::Surface *src, Graphics::Surface *dst, const Common::Rational &scaleFactorX, const Common::Rational &scaleFactorY) {
 	assert(src && dst);
 
-	for (int32 j = 0; j < dst->h; j++)
-		for (int32 k = 0; k < dst->w; k++)
-			memcpy(dst->getBasePtr(k, j), src->getBasePtr((k * scaleFactorX).toInt() , (j * scaleFactorY).toInt()), src->format.bytesPerPixel);
+	for (int32 j = 0; j < dst->getHeight(); j++)
+		for (int32 k = 0; k < dst->getWidth(); k++)
+			memcpy(dst->getBasePtr(k, j), src->getBasePtr((k * scaleFactorX).toInt() , (j * scaleFactorY).toInt()), src->getFormat().bytesPerPixel);
 }
 
 QuickTimeDecoder::VideoSampleDesc::VideoSampleDesc(Common::QuickTimeParser::Track *parentTrack, uint32 codecTag) : Common::QuickTimeParser::SampleDesc(parentTrack, codecTag) {
@@ -831,13 +831,13 @@ template<typename PixelInt>
 void ditherFrame(const Graphics::Surface &src, Graphics::Surface &dst, const byte *ditherTable, const byte *palette = 0) {
 	static const uint16 colorTableOffsets[] = { 0x0000, 0xC000, 0x4000, 0x8000 };
 
-	for (int y = 0; y < dst.h; y++) {
+	for (int y = 0; y < dst.getHeight(); y++) {
 		const PixelInt *srcPtr = (const PixelInt *)src.getBasePtr(0, y);
 		byte *dstPtr = (byte *)dst.getBasePtr(0, y);
 		uint16 colorTableOffset = colorTableOffsets[y & 3];
 
-		for (int x = 0; x < dst.w; x++) {
-			uint16 color = readDitherColor(*srcPtr++, src.format, palette);
+		for (int x = 0; x < dst.getWidth(); x++) {
+			uint16 color = readDitherColor(*srcPtr++, src.getFormat(), palette);
 			*dstPtr++ = ditherTable[colorTableOffset + color];
 			colorTableOffset += 0x4000;
 		}
@@ -847,7 +847,7 @@ void ditherFrame(const Graphics::Surface &src, Graphics::Surface &dst, const byt
 } // End of anonymous namespace
 
 const Graphics::Surface *QuickTimeDecoder::VideoTrackHandler::forceDither(const Graphics::Surface &frame) {
-	if (frame.format.bytesPerPixel == 1) {
+	if (frame.getFormat().bytesPerPixel == 1) {
 		// This should always be true, but this is for sanity
 		if (!_curPalette)
 			return &frame;
@@ -860,14 +860,14 @@ const Graphics::Surface *QuickTimeDecoder::VideoTrackHandler::forceDither(const 
 	// Need to create a new one
 	if (!_ditherFrame) {
 		_ditherFrame = new Graphics::Surface();
-		_ditherFrame->create(frame.w, frame.h, Graphics::PixelFormat::createFormatCLUT8());
+		_ditherFrame->create(frame.getWidth(), frame.getHeight(), Graphics::PixelFormat::createFormatCLUT8());
 	}
 
-	if (frame.format.bytesPerPixel == 1)
+	if (frame.getFormat().bytesPerPixel == 1)
 		ditherFrame<byte>(frame, *_ditherFrame, _ditherTable, _curPalette);
-	else if (frame.format.bytesPerPixel == 2)
+	else if (frame.getFormat().bytesPerPixel == 2)
 		ditherFrame<uint16>(frame, *_ditherFrame, _ditherTable);
-	else if (frame.format.bytesPerPixel == 4)
+	else if (frame.getFormat().bytesPerPixel == 4)
 		ditherFrame<uint32>(frame, *_ditherFrame, _ditherTable);
 
 	return _ditherFrame;

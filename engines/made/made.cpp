@@ -344,7 +344,7 @@ bool MadeEngine::playMovie(const Common::String &fileName) {
 				_screen->setRGBPalette(decoder->getPalette());
 
 			if (frame) {
-				_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, frame->w, frame->h);
+				_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, frame->getWidth(), frame->getHeight());
 				_system->updateScreen();
 			}
 		}

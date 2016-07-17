@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef SHERLOCK_OBJECTS_H
 #define SHERLOCK_OBJECTS_H
@@ -329,12 +331,12 @@ public:
 	/**
 	* Return frame width
 	*/
-	int frameWidth() const { return _imageFrame ? _imageFrame->_frame.w : 0; }
+	int frameWidth() const { return _imageFrame ? _imageFrame->_frame.getWidth() : 0; }
 
 	/**
 	* Return frame height
 	*/
-	int frameHeight() const { return _imageFrame ? _imageFrame->_frame.h : 0; }
+	int frameHeight() const { return _imageFrame ? _imageFrame->_frame.getHeight() : 0; }
 
 	/**
 	 * Returns the old bounsd for the sprite from the previous frame
@@ -409,12 +411,12 @@ public:
 	/**
 	 * Return the frame width
 	 */
-	int frameWidth() const { return _imageFrame ? _imageFrame->_frame.w : 0; }
+	int frameWidth() const { return _imageFrame ? _imageFrame->_frame.getWidth() : 0; }
 
 	/**
 	 * Return the frame height
 	 */
-	int frameHeight() const { return _imageFrame ? _imageFrame->_frame.h : 0; }
+	int frameHeight() const { return _imageFrame ? _imageFrame->_frame.getHeight() : 0; }
 
 	/**
 	 * Returns the current bounds for the sprite

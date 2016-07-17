@@ -272,10 +272,10 @@ void SmushPlayer::init(int32 speed) {
 	// However, since a lot of the SMUSH code currently assumes the screen
 	// width and pitch to be equal, this will require lots of changes. So
 	// we resort to this hackish solution for now.
-	_origPitch = vs->pitch;
+	_origPitch = vs->getPitch();
 	_origNumStrips = _vm->_gdi->_numStrips;
-	vs->pitch = vs->w;
-	_vm->_gdi->_numStrips = vs->w / 8;
+	vs->resetWithoutOwnership(vs->getWidth(), vs->getHeight(), vs->getWidth(), vs->getPixels(0, 0), vs->getFormat());
+	_vm->_gdi->_numStrips = vs->getWidth() / 8;
 
 	_vm->_mixer->stopHandle(_compressedFileSoundHandle);
 	_vm->_mixer->stopHandle(_IACTchannel);
@@ -310,7 +310,8 @@ void SmushPlayer::release() {
 
 	// HACK HACK HACK: This is an *evil* trick, beware! See above for
 	// some explanation.
-	_vm->_virtscr[kMainVirtScreen].pitch = _origPitch;
+	VirtScreen &vs = _vm->_virtscr[kMainVirtScreen];
+	vs.resetWithoutOwnership(vs.getWidth(), vs.getHeight(), _origPitch, vs.getPixels(0, 0), vs.getFormat());
 	_vm->_gdi->_numStrips = _origNumStrips;
 
 	delete _codec37;

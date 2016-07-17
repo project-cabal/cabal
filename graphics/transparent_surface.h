@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef GRAPHICS_TRANSPARENTSURFACE_H
 #define GRAPHICS_TRANSPARENTSURFACE_H
@@ -71,9 +73,9 @@ enum AlphaType {
 /**
  * A transparent graphics surface, which implements alpha blitting.
  */
-struct TransparentSurface : public Graphics::Surface {
+struct TransparentSurface : public Surface {
 	TransparentSurface();
-	TransparentSurface(const Graphics::Surface &surf, bool copyData = false);
+	TransparentSurface(const Surface &surf, bool copyData = false);
 
 	/**
 	 * Returns the pixel format all operations of TransparentSurface support.
@@ -98,7 +100,7 @@ struct TransparentSurface : public Graphics::Surface {
 	 @param posY the position on the Y-axis in the target image in pixels where the image is supposed to be rendered.<br>
 	 The default value is 0.
 	 @param flipping how the the image should be flipped.<br>
-	 The default value is Graphics::FLIP_NONE (no flipping)
+	 The default value is FLIP_NONE (no flipping)
 	 @param pPartRect Pointer on Common::Rect which specifies the section to be rendered. If the whole image has to be rendered the Pointer is NULL.<br>
 	 This referes to the unflipped and unscaled image.<br>
 	 The default value is NULL.
@@ -117,7 +119,7 @@ struct TransparentSurface : public Graphics::Surface {
 	 The default value is -1.
 	 @return returns false if the rendering failed.
 	 */
-	Common::Rect blit(Graphics::Surface &target, int posX = 0, int posY = 0,
+	Common::Rect blit(Surface &target, int posX = 0, int posY = 0,
 	                  int flipping = FLIP_NONE,
 	                  Common::Rect *pPartRect = nullptr,
 	                  uint color = TS_ARGB(255, 255, 255, 255),
@@ -145,22 +147,10 @@ struct TransparentSurface : public Graphics::Surface {
 	TransparentSurface *rotoscale(const TransformStruct &transform) const;
 	AlphaType getAlphaMode() const;
 	void setAlphaMode(AlphaType);
+
 private:
 	AlphaType _alphaMode;
-
 };
-
-/**
- * A deleter for Surface objects which can be used with SharedPtr.
- *
- * This deleter assures Surface::free is called on deletion.
- */
-/*struct SharedPtrTransparentSurfaceDeleter {
-    void operator()(TransparentSurface *ptr) {
-        ptr->free();
-        delete ptr;
-    }
-};*/
 
 } // End of namespace Graphics
 

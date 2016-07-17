@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Video script opcodes for Simon1/Simon2
 
@@ -152,7 +154,7 @@ void AGOSEngine::vc61() {
 		for (int i = 0; i < _screenHeight; i++) {
 			memcpy(dst, src, _screenWidth);
 			src += 320;
-			dst += screen->pitch;
+			dst += screen->getPitch();
 		}
 
 		tmp = 4 - 1;
@@ -167,11 +169,11 @@ void AGOSEngine::vc61() {
 	src += 800;
 
 	if (a != 5) {
-		dst = dstPtr + 23 * screen->pitch + 88;
+		dst = dstPtr + 23 * screen->getPitch() + 88;
 		for (h = 0; h < 177; h++) {
 			memcpy(dst, src, 144);
 			src += 144;
-			dst += screen->pitch;
+			dst += screen->getPitch();
 		}
 
 		if (a != 6) {
@@ -182,11 +184,11 @@ void AGOSEngine::vc61() {
 		src = _curVgaFile2 + 9984 * 16 + 15344;
 	}
 
-	dst = dstPtr + 157 * screen->pitch + 56;
+	dst = dstPtr + 157 * screen->getPitch() + 56;
 	for (h = 0; h < 17; h++) {
 		memcpy(dst, src, 208);
 		src += 208;
-		dst += screen->pitch;
+		dst += screen->getPitch();
 	}
 
 	_system->unlockScreen();

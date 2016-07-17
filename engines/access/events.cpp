@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "graphics/cursorman.h"
@@ -70,8 +72,8 @@ void EventsManager::setCursor(CursorType cursorId) {
 	
 	if (cursorId == CURSOR_INVENTORY) {
 		// Set the cursor
-		CursorMan.replaceCursor(_invCursor.getPixels(), _invCursor.w, _invCursor.h,
-			_invCursor.w / 2, _invCursor.h / 2, 0);
+		CursorMan.replaceCursor(_invCursor.getPixels(), _invCursor.getWidth(), _invCursor.getHeight(),
+			_invCursor.getWidth() / 2, _invCursor.getHeight() / 2, 0);
 	} else {
 		// Get a pointer to the mouse data to use, and get the cursor hotspot
 		const byte *srcP = &_vm->_res->CURSORS[cursorId][0];

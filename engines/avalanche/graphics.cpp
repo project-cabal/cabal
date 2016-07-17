@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on the original source code of Lord Avalot d'Argent version 1.3.
@@ -114,6 +116,8 @@ void GraphicManager::loadDigits() {
 }
 
 void GraphicManager::loadMouse(byte which) {
+	// FIXME: Isn't this just WinCursor?
+
 	if (which == _vm->_currentMouse)
 		return;
 
@@ -132,8 +136,8 @@ void GraphicManager::loadMouse(byte which) {
 
 	Graphics::Surface mask = loadPictureGraphic(f);
 
-	for (int j = 0; j < mask.h; j++) {
-		for (int i = 0; i < mask.w; i++) {
+	for (int j = 0; j < mask.getHeight(); j++) {
+		for (int i = 0; i < mask.getWidth(); i++) {
 			byte pixel = *(byte *)mask.getBasePtr(i, j);
 			if (pixel == 0) {
 				*(byte *)cursor.getBasePtr(i, j * 2    ) = 0;
@@ -149,8 +153,8 @@ void GraphicManager::loadMouse(byte which) {
 
 	mask = loadPictureGraphic(f);
 
-	for (int j = 0; j < mask.h; j++) {
-		for (int i = 0; i < mask.w; i++) {
+	for (int j = 0; j < mask.getHeight(); j++) {
+		for (int i = 0; i < mask.getWidth(); i++) {
 			byte pixel = *(byte *)mask.getBasePtr(i, j);
 			if (pixel != 0) {
 				*(byte *)cursor.getBasePtr(i, j * 2    ) = pixel;
@@ -764,14 +768,14 @@ void GraphicManager::seuDrawPicture(int x, int y, byte which) {
  */
 void GraphicManager::seuDrawCameo(int destX, int destY, byte w1, byte w2) {
 	// First we make the pixels of the previous sprite (cameo) blank:
-	uint16 maxX = _seuPictures[w2].w;
-	uint16 maxY = _seuPictures[w2].h;
+	uint16 maxX = _seuPictures[w2].getWidth();
+	uint16 maxY = _seuPictures[w2].getHeight();
 
-	if (destX + maxX > _surface.w)
-		maxX = _surface.w - destX;
+	if (destX + maxX > _surface.getWidth())
+		maxX = _surface.getWidth() - destX;
 
-	if (destY + maxY > _surface.h)
-		maxY = _surface.h - destY;
+	if (destY + maxY > _surface.getHeight())
+		maxY = _surface.getHeight() - destY;
 
 	for (uint16 y = 0; y < maxY; y++) {
 		for (uint16 x = 0; x < maxX; x++) {
@@ -785,15 +789,15 @@ void GraphicManager::seuDrawCameo(int destX, int destY, byte w1, byte w2) {
 }
 
 uint16 GraphicManager::seuGetPicWidth(int which) {
-	return _seuPictures[which].w;
+	return _seuPictures[which].getWidth();
 }
 
 uint16 GraphicManager::seuGetPicHeight(int which) {
-	return _seuPictures[which].h;
+	return _seuPictures[which].getHeight();
 }
 
 void GraphicManager::menuRefreshScreen() {
-	g_system->copyRectToScreen(_menu.getPixels(), _menu.pitch, 0, 0, kScreenWidth, kMenuScreenHeight);
+	g_system->copyRectToScreen(_menu.getPixels(), _menu.getPitch(), 0, 0, kScreenWidth, kMenuScreenHeight);
 	g_system->updateScreen();
 }
 
@@ -886,10 +890,10 @@ void GraphicManager::menuDrawIndicator(int x) { // TODO: Implement striped patte
  * useful parts from the files, so we have to skip these differences between readings.
  */
 void GraphicManager::skipDifference(int size, const Graphics::Surface &picture, Common::File &file) {
-	int bytesPerRow = (picture.w / 8);
-	if ((picture.w % 8) > 0)
+	int bytesPerRow = picture.getWidth() / 8;
+	if ((picture.getWidth() % 8) > 0)
 		bytesPerRow += 1;
-	int loadedBytes = picture.h * bytesPerRow * 4 + 4;
+	int loadedBytes = picture.getHeight() * bytesPerRow * 4 + 4;
 	// * 4 is for the four planes, + 4 is for the reading of the width and the height at loadPictureGraphic's beginning.
 
 	int bytesToSkip = size - loadedBytes;
@@ -977,10 +981,10 @@ Graphics::Surface GraphicManager::loadPictureSign(Common::File &file, uint16 wid
 * Shifts the whole screen down by one line and fills the gap with black.
 */
 void GraphicManager::shiftScreen() {
-	for (uint16 y = _surface.h - 1; y > 1; y--)
-		memcpy(_surface.getBasePtr(0, y), _surface.getBasePtr(0, y - 1), _surface.w);
+	for (uint16 y = _surface.getHeight() - 1; y > 1; y--)
+		memcpy(_surface.getBasePtr(0, y), _surface.getBasePtr(0, y - 1), _surface.getWidth());
 
-	_surface.drawLine(0, 0, _surface.w, 0, kColorBlack);
+	_surface.drawLine(0, 0, _surface.getWidth(), 0, kColorBlack);
 }
 
 void GraphicManager::drawWinningPic() {
@@ -1033,7 +1037,7 @@ void GraphicManager::drawSprite(AnimationType *sprite, byte picnum, int16 x, int
 	// First we make the pixels of the sprite blank.
 	for (int j = 0; j < sprite->_yLength; j++) {
 		for (int i = 0; i < sprite->_xLength; i++) {
-			if ((x + i < _surface.w) && (y + j < _surface.h)) {
+			if ((x + i < _surface.getWidth()) && (y + j < _surface.getHeight())) {
 				if (((*sprite->_sil[picnum])[j][i / 8] >> ((7 - i % 8)) & 1) == 0)
 					*(byte *)_surface.getBasePtr(x + i, y + j) = 0;
 			}
@@ -1048,7 +1052,7 @@ void GraphicManager::drawSprite(AnimationType *sprite, byte picnum, int16 x, int
 			for (uint16 i = 0; i < sprite->_xLength; i += 8) {
 				byte pixel = (*sprite->_mani[picnum])[maniPos++];
 				for (int bit = 0; bit < 8; bit++) {
-					if ((x + i + 7 < _surface.w) && (y + j < _surface.h)) {
+					if ((x + i + 7 < _surface.getWidth()) && (y + j < _surface.getHeight())) {
 						byte pixelBit = (pixel >> bit) & 1;
 						*(byte *)_surface.getBasePtr(x + i + 7 - bit, y + j) += (pixelBit << plane);
 					}
@@ -1060,14 +1064,14 @@ void GraphicManager::drawSprite(AnimationType *sprite, byte picnum, int16 x, int
 
 void GraphicManager::drawPicture(Graphics::Surface &target, const Graphics::Surface picture, uint16 destX, uint16 destY) {
 	// Copy the picture to the given place on the screen.
-	uint16 maxX = picture.w;
-	uint16 maxY = picture.h;
+	uint16 maxX = picture.getWidth();
+	uint16 maxY = picture.getHeight();
 
-	if (destX + maxX > target.w)
-		maxX = target.w - destX;
+	if (destX + maxX > target.getWidth())
+		maxX = target.getWidth() - destX;
 
-	if (destY + maxY > target.h)
-		maxY = target.h - destY;
+	if (destY + maxY > target.getHeight())
+		maxY = target.getHeight() - destY;
 
 	for (uint16 y = 0; y < maxY; y++) {
 		for (uint16 x = 0; x < maxX; x++)
@@ -1181,12 +1185,12 @@ void GraphicManager::drawChar(byte ander, int x, int y, Color color) {
 }
 void GraphicManager::refreshScreen() {
 	// These cycles are for doubling the screen height.
-	for (uint16 y = 0; y < _screen.h / 2; y++) {
-		memcpy(_screen.getBasePtr(0, y * 2), _surface.getBasePtr(0, y), _screen.w);
-		memcpy(_screen.getBasePtr(0, y * 2 + 1), _surface.getBasePtr(0, y), _screen.w);
+	for (uint16 y = 0; y < _screen.getHeight() / 2; y++) {
+		memcpy(_screen.getBasePtr(0, y * 2), _surface.getBasePtr(0, y), _screen.getWidth());
+		memcpy(_screen.getBasePtr(0, y * 2 + 1), _surface.getBasePtr(0, y), _screen.getWidth());
 	}
 	// Now we copy the stretched picture to the screen.
-	g_system->copyRectToScreen(_screen.getPixels(), _screen.pitch, 0, 0, kScreenWidth, kScreenHeight * 2);
+	g_system->copyRectToScreen(_screen.getPixels(), _screen.getPitch(), 0, 0, kScreenWidth, kScreenHeight * 2);
 	g_system->updateScreen();
 }
 

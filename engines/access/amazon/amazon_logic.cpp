@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "access/access.h"
@@ -394,7 +396,7 @@ void Opening::doTitle() {
 		_vm->_events->zeroKeys();
 	}
 
-	_vm->_buffer1.create(_vm->_screen->w + TILE_WIDTH, _vm->_screen->h);
+	_vm->_buffer1.create(_vm->_screen->getWidth() + TILE_WIDTH, _vm->_screen->getHeight());
 	_vm->_room->loadRoom(0);
 	screen.clearScreen();
 	screen.setBufferScan();
@@ -609,8 +611,8 @@ void Plane::doFallCell() {
 		return;
 
 	SpriteFrame *frame = _vm->_objectsTable[20]->getFrame(_planeCount / 6);
-	Common::Rect r(115, 11, 115 + _vm->_screen->_scaleTable1[frame->w],
-		11 + _vm->_screen->_scaleTable1[frame->h]);
+	Common::Rect r(115, 11, 115 + _vm->_screen->_scaleTable1[frame->getWidth()],
+		11 + _vm->_screen->_scaleTable1[frame->getHeight()]);
 	_vm->_buffer2.sPlotF(frame, r);
 
 	_vm->_scaleI -= 3;

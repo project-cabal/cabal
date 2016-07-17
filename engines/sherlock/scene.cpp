@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/scene.h"
 #include "sherlock/sherlock.h"
@@ -1248,8 +1250,8 @@ void Scene::transitionToScene() {
 
 			if (obj._type != NO_SHAPE) {
 				topLeft += obj._imageFrame->_offset;
-				bottomRight.x = topLeft.x + obj._imageFrame->_frame.w;
-				bottomRight.y = topLeft.y + obj._imageFrame->_frame.h;
+				bottomRight.x = topLeft.x + obj._imageFrame->_frame.getWidth();
+				bottomRight.y = topLeft.y + obj._imageFrame->_frame.getHeight();
 			} else {
 				bottomRight = topLeft + obj._noShapeSize;
 			}

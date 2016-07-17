@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "toon/picture.h"
 #include "toon/tools.h"
@@ -166,13 +168,13 @@ void Picture::drawMask(Graphics::Surface &surface, int16 x, int16 y, int16 dx, i
 		_vm->setPaletteEntries(color, i, 1);
 	}
 
-	int16 rx = MIN<int16>(_width, surface.w - x);
-	int16 ry = MIN<int16>(_height, surface.h - y);
+	int16 rx = MIN<int16>(_width, surface.getWidth() - x);
+	int16 ry = MIN<int16>(_height, surface.getHeight() - y);
 
 	if (rx < 0 || ry < 0)
 		return;
 
-	int32 destPitch = surface.pitch;
+	int32 destPitch = surface.getPitch();
 	int32 srcPitch = _width;
 	uint8 *c = _data + _width * dy + dx;
 	uint8 *curRow = (uint8 *)surface.getBasePtr(x, y);
@@ -193,13 +195,13 @@ void Picture::drawMask(Graphics::Surface &surface, int16 x, int16 y, int16 dx, i
 }
 
 void Picture::drawWithRectList(Graphics::Surface& surface, int16 x, int16 y, int16 dx, int16 dy, Common::Array<Common::Rect>& rectArray) {
-	int16 rx = MIN<int16>(_width, surface.w - x);
-	int16 ry = MIN<int16>(_height, surface.h - y);
+	int16 rx = MIN<int16>(_width, surface.getWidth() - x);
+	int16 ry = MIN<int16>(_height, surface.getHeight() - y);
 
 	if (rx < 0 || ry < 0)
 		return;
 
-	int32 destPitch = surface.pitch;
+	int32 destPitch = surface.getPitch();
 	int32 srcPitch = _width;
 
 	for (uint32 i = 0; i < rectArray.size(); i++) {
@@ -229,13 +231,13 @@ void Picture::drawWithRectList(Graphics::Surface& surface, int16 x, int16 y, int
 void Picture::draw(Graphics::Surface &surface, int16 x, int16 y, int16 dx, int16 dy) {
 	debugC(6, kDebugPicture, "draw(surface, %d, %d, %d, %d)", x, y, dx, dy);
 
-	int16 rx = MIN<int16>(_width, surface.w - x);
-	int16 ry = MIN<int16>(_height, surface.h - y);
+	int16 rx = MIN<int16>(_width, surface.getWidth() - x);
+	int16 ry = MIN<int16>(_height, surface.getHeight() - y);
 
 	if (rx < 0 || ry < 0)
 		return;
 
-	int32 destPitch = surface.pitch;
+	int32 destPitch = surface.getPitch();
 	int32 srcPitch = _width;
 	uint8 *c = _data + _width * dy + dx;
 	uint8 *curRow = (uint8 *)surface.getBasePtr(x, y);

@@ -1161,10 +1161,10 @@ bool SceneViewWindow::pushTransition(Graphics::Surface *curBackground, Graphics:
 	switch (direction) {
 	case 0: // Push down
 		for (int i = 0; i < DIB_FRAME_HEIGHT; i += stripSize) {
-			curBackground->move(0, stripSize, curBackground->h);
+			curBackground->move(0, stripSize, curBackground->getHeight());
 
 			for (int j = 0; j < stripSize; j++)
-				memcpy(curBackground->getBasePtr(0, j), newBackground->getBasePtr(0, curBackground->h - (i + stripSize) + j), newBackground->w * newBackground->format.bytesPerPixel);
+				memcpy(curBackground->getBasePtr(0, j), newBackground->getBasePtr(0, curBackground->getHeight() - (i + stripSize) + j), newBackground->getWidth() * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1172,10 +1172,10 @@ bool SceneViewWindow::pushTransition(Graphics::Surface *curBackground, Graphics:
 		break;
 	case 1: // Push right
 		for (int i = 0; i < DIB_FRAME_WIDTH; i += stripSize) {
-			curBackground->move(stripSize, 0, curBackground->h);
+			curBackground->move(stripSize, 0, curBackground->getHeight());
 
-			for (int j = 0; j < curBackground->h; j++)
-				memcpy(curBackground->getBasePtr(0, j), newBackground->getBasePtr(newBackground->w - (i + stripSize), j), stripSize * newBackground->format.bytesPerPixel);
+			for (int j = 0; j < curBackground->getHeight(); j++)
+				memcpy(curBackground->getBasePtr(0, j), newBackground->getBasePtr(newBackground->getWidth() - (i + stripSize), j), stripSize * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1183,10 +1183,10 @@ bool SceneViewWindow::pushTransition(Graphics::Surface *curBackground, Graphics:
 		break;
 	case 2: // Push left
 		for (int i = 0; i < DIB_FRAME_WIDTH; i += stripSize) {
-			curBackground->move(-stripSize, 0, curBackground->h);
+			curBackground->move(-stripSize, 0, curBackground->getHeight());
 
-			for (int j = 0; j < curBackground->h; j++)
-				memcpy(curBackground->getBasePtr(curBackground->w - stripSize, j), newBackground->getBasePtr(i, j), stripSize * newBackground->format.bytesPerPixel);
+			for (int j = 0; j < curBackground->getHeight(); j++)
+				memcpy(curBackground->getBasePtr(curBackground->getWidth() - stripSize, j), newBackground->getBasePtr(i, j), stripSize * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1194,10 +1194,10 @@ bool SceneViewWindow::pushTransition(Graphics::Surface *curBackground, Graphics:
 		break;
 	case 3: // Push up
 		for (int i = 0; i < DIB_FRAME_HEIGHT; i += stripSize) {
-			curBackground->move(0, -stripSize, curBackground->h);
+			curBackground->move(0, -stripSize, curBackground->getHeight());
 
 			for (int j = 0; j < stripSize; j++)
-				memcpy(curBackground->getBasePtr(0, curBackground->h - stripSize + j), newBackground->getBasePtr(0, i + j), newBackground->w * newBackground->format.bytesPerPixel);
+				memcpy(curBackground->getBasePtr(0, curBackground->getHeight() - stripSize + j), newBackground->getBasePtr(0, i + j), newBackground->getWidth() * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1233,7 +1233,7 @@ bool SceneViewWindow::slideInTransition(Graphics::Surface *newBackground, int di
 	case 0: // Push down
 		for (int i = stripSize; i <= DIB_FRAME_HEIGHT; i += stripSize) {
 			for (int j = 0; j < i; j++)
-				memcpy(_preBuffer->getBasePtr(0, j), newBackground->getBasePtr(0, DIB_FRAME_HEIGHT - j), newBackground->w * newBackground->format.bytesPerPixel);
+				memcpy(_preBuffer->getBasePtr(0, j), newBackground->getBasePtr(0, DIB_FRAME_HEIGHT - j), newBackground->getWidth() * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1242,7 +1242,7 @@ bool SceneViewWindow::slideInTransition(Graphics::Surface *newBackground, int di
 	case 1: // Push right
 		for (int i = stripSize; i <= DIB_FRAME_WIDTH; i += stripSize) {
 			for (int j = 0; j < DIB_FRAME_HEIGHT; j++)
-				memcpy(_preBuffer->getBasePtr(0, j), newBackground->getBasePtr(DIB_FRAME_WIDTH - i, j), i * newBackground->format.bytesPerPixel);
+				memcpy(_preBuffer->getBasePtr(0, j), newBackground->getBasePtr(DIB_FRAME_WIDTH - i, j), i * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1251,7 +1251,7 @@ bool SceneViewWindow::slideInTransition(Graphics::Surface *newBackground, int di
 	case 2: // Push left
 		for (int i = stripSize; i <= DIB_FRAME_WIDTH; i += stripSize) {
 			for (int j = 0; j < DIB_FRAME_HEIGHT; j++)
-				memcpy(_preBuffer->getBasePtr(0, DIB_FRAME_WIDTH - i), newBackground->getBasePtr(0, j), i * newBackground->format.bytesPerPixel);
+				memcpy(_preBuffer->getBasePtr(0, DIB_FRAME_WIDTH - i), newBackground->getBasePtr(0, j), i * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();
@@ -1260,7 +1260,7 @@ bool SceneViewWindow::slideInTransition(Graphics::Surface *newBackground, int di
 	case 3: // Push up
 		for (int i = stripSize; i <= DIB_FRAME_HEIGHT; i += stripSize) {
 			for (int j = 0; j < i; j++)
-				memcpy(_preBuffer->getBasePtr(0, DIB_FRAME_HEIGHT - j), newBackground->getBasePtr(0, j), newBackground->w * newBackground->format.bytesPerPixel);
+				memcpy(_preBuffer->getBasePtr(0, DIB_FRAME_HEIGHT - j), newBackground->getBasePtr(0, j), newBackground->getWidth() * newBackground->getFormat().bytesPerPixel);
 
 			invalidateWindow(false);
 			_vm->yield();

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "bbvs/graphics.h"
 
@@ -56,7 +58,7 @@ void Screen::setPalette(Palette &palette) {
 }
 
 void Screen::copyToScreen() {
-	_system->copyRectToScreen((const byte*)_surface->getBasePtr(0, 0), _surface->pitch, 0, 0, 320, 240);
+	_system->copyRectToScreen((const byte*)_surface->getBasePtr(0, 0), _surface->getPitch(), 0, 0, 320, 240);
 	_system->updateScreen();
 }
 
@@ -80,7 +82,7 @@ void Screen::drawSprite(Sprite &sprite, int x, int y) {
 	destX = sprite.xOffs + x;
 	destY = sprite.yOffs + y;
 
-	if (destX >= _surface->w || destY >= _surface->h)
+	if (destX >= _surface->getWidth() || destY >= _surface->getHeight())
 		return;
 
 	height = sprite.height;
@@ -91,8 +93,8 @@ void Screen::drawSprite(Sprite &sprite, int x, int y) {
 		skipY = -destY;
 		destY = 0;
 	}
-	if (destY + height > _surface->h)
-		height = _surface->h - destY;
+	if (destY + height > _surface->getHeight())
+		height = _surface->getHeight() - destY;
 
 	width = sprite.width;
 	if (destX < 0) {
@@ -102,8 +104,8 @@ void Screen::drawSprite(Sprite &sprite, int x, int y) {
 		skipX = -destX;
 		destX = 0;
 	}
-	if (destX + width >= _surface->w)
-		width = _surface->w - destX;
+	if (destX + width >= _surface->getWidth())
+		width = _surface->getWidth() - destX;
 
 	debug(0, "drawSprite() (%d, %d, %d, %d); skipX: %d; skipY: %d; %d", destX, destY, width, height, skipX, skipY, sprite.type);
 

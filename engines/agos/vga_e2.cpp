@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Video script opcodes for Simon1/Simon2
 
@@ -103,7 +105,7 @@ void AGOSEngine::vc45_setWindowPalette() {
 				val |= color * 16;
 				WRITE_LE_UINT16(dst + w * 2, val);
 			}
-			dst += screen->pitch;
+			dst += screen->getPitch();
 		}
 
 		_system->unlockScreen();
@@ -226,7 +228,7 @@ void AGOSEngine::vc53_dissolveIn() {
 		byte *dstPtr = (byte *)screen->getBasePtr(x, y);
 
 		yoffs = _rnd.getRandomNumber(dissolveY);
-		dst = dstPtr + yoffs * screen->pitch;
+		dst = dstPtr + yoffs * screen->getPitch();
 		src = (byte *)_window4BackScn->getBasePtr(0, yoffs);
 
 		xoffs = _rnd.getRandomNumber(dissolveX);
@@ -250,15 +252,15 @@ void AGOSEngine::vc53_dissolveIn() {
 		dstOffs2 = dst;
 
 		yoffs = (dissolveY - 1) * 2 - (yoffs * 2);
-		src = srcOffs + yoffs * _window4BackScn->pitch;
-		dst = dstOffs + yoffs * screen->pitch;
+		src = srcOffs + yoffs * _window4BackScn->getPitch();
+		dst = dstOffs + yoffs * screen->getPitch();
 
 		color = 0xF0;
 		*dst &= color;
 		*dst |= *src & 0xF;
 
-		dst = dstOffs2 + yoffs * screen->pitch;
-		src = srcOffs2 + yoffs * _window4BackScn->pitch;
+		dst = dstOffs2 + yoffs * screen->getPitch();
+		src = srcOffs2 + yoffs * _window4BackScn->getPitch();
 
 		*dst &= color;
 		*dst |= *src & 0xF;
@@ -301,7 +303,7 @@ void AGOSEngine::vc54_dissolveOut() {
 
 		yoffs = _rnd.getRandomNumber(dissolveY);
 		xoffs = _rnd.getRandomNumber(dissolveX);
-		dst = dstPtr + xoffs + yoffs * screen->pitch;
+		dst = dstPtr + xoffs + yoffs * screen->getPitch();
 		*dst = color;
 
 		dstOffs = dst;
@@ -311,7 +313,7 @@ void AGOSEngine::vc54_dissolveOut() {
 		*dst = color;
 
 		yoffs = (dissolveY - 1) * 2 - (yoffs * 2);
-		dst = dstOffs + yoffs * screen->pitch;
+		dst = dstOffs + yoffs * screen->getPitch();
 		*dst = color;
 
 		dst += xoffs;
@@ -384,7 +386,7 @@ void AGOSEngine::vc56_fullScreen() {
 	for (int i = 0; i < _screenHeight; i++) {
 		memcpy(dst, src, _screenWidth);
 		src += 320;
-		dst += screen->pitch;
+		dst += screen->getPitch();
 	}
 	_system->unlockScreen();
 

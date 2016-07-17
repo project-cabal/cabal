@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Based off ffmpeg's msrledec.c
 
@@ -51,11 +53,11 @@ const Graphics::Surface *MSRLEDecoder::decodeFrame(Common::SeekableReadStream &s
 void MSRLEDecoder::decode8(Common::SeekableReadStream &stream) {
 
 	int x = 0;
-	int y = _surface->h - 1;
+	int y = _surface->getHeight() - 1;
 
 	byte *data = (byte *) _surface->getPixels();
-	uint16 width  = _surface->w;
-	uint16 height = _surface->h;
+	uint16 width  = _surface->getWidth();
+	uint16 height = _surface->getHeight();
 
 	byte *output     = data + ((height - 1) * width);
 	byte *output_end = data + ((height)     * width);

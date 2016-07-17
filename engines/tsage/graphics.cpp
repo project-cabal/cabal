@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "tsage/events.h"
 #include "tsage/graphics.h"
@@ -49,8 +51,8 @@ GfxSurface *surfaceGetArea(GfxSurface &src, const Rect &bounds) {
 	byte *srcP = (byte *)srcSurface.getBasePtr(bounds.left, bounds.top);
 	byte *destP = (byte *)destSurface.getPixels();
 
-	for (int y = bounds.top; y < bounds.bottom; ++y, srcP += srcSurface.pitch, destP += destSurface.pitch)
-		Common::copy(srcP, srcP + destSurface.pitch, destP);
+	for (int y = bounds.top; y < bounds.bottom; ++y, srcP += srcSurface.getPitch(), destP += destSurface.getPitch())
+		Common::copy(srcP, srcP + destSurface.getPitch(), destP);
 
 	src.unlockSurface();
 	dest->unlockSurface();
@@ -285,7 +287,7 @@ void GfxSurface::updateScreen() {
 			continue;
 
 		const byte *srcP = (const byte *)_customSurface->getBasePtr(r.left, r.top);
-		g_system->copyRectToScreen(srcP, _customSurface->pitch, r.left, r.top,
+		g_system->copyRectToScreen(srcP, _customSurface->getPitch(), r.left, r.top,
 			r.width(), r.height());
 	}
 
@@ -343,9 +345,7 @@ Graphics::Surface GfxSurface::lockSurface() {
 
 	// Setup the returned surface either as one pointing to the same pixels as the source, or
 	// as a subset of the source one based on the currently set bounds
-	Graphics::Surface result;
-	result.init(_bounds.width(), _bounds.height(), src->pitch, src->getBasePtr(_bounds.left, _bounds.top), src->format);
-	return result;
+	return src->getSubArea(_bounds);
 }
 
 /**
@@ -368,9 +368,11 @@ void GfxSurface::synchronize(Serializer &s) {
 	if (s.isSaving()) {
 		// Save contents of the surface
 		if (_customSurface) {
-			s.syncAsSint16LE(_customSurface->w);
-			s.syncAsSint16LE(_customSurface->h);
-			s.syncBytes((byte *)_customSurface->getPixels(), _customSurface->w * _customSurface->h);
+			uint16 width = _customSurface->getWidth();
+			s.syncAsSint16LE(width);
+			uint16 height = _customSurface->getHeight();
+			s.syncAsSint16LE(height);
+			s.syncBytes((byte *)_customSurface->getPixels(), _customSurface->getWidth() * _customSurface->getHeight());
 		} else {
 			int zero = 0;
 			s.syncAsSint16LE(zero);
@@ -424,7 +426,7 @@ GfxSurface &GfxSurface::operator=(const GfxSurface &s) {
 	if (_customSurface) {
 		// Surface owns the internal data, so replicate it so new surface owns it's own
 		_customSurface = new Graphics::Surface();
-		_customSurface->create(s._customSurface->w, s._customSurface->h, Graphics::PixelFormat::createFormatCLUT8());
+		_customSurface->create(s._customSurface->getWidth(), s._customSurface->getHeight(), Graphics::PixelFormat::createFormatCLUT8());
 		const byte *srcP = (const byte *)s._customSurface->getPixels();
 		byte *destP = (byte *)_customSurface->getPixels();
 
@@ -537,8 +539,8 @@ static GfxSurface ResizeSurface(GfxSurface &src, int xSize, int ySize, int trans
 	Graphics::Surface srcImage = src.lockSurface();
 	Graphics::Surface destImage = s.lockSurface();
 
-	int *horizUsage = scaleLine(xSize, srcImage.w);
-	int *vertUsage = scaleLine(ySize, srcImage.h);
+	int *horizUsage = scaleLine(xSize, srcImage.getWidth());
+	int *vertUsage = scaleLine(ySize, srcImage.getHeight());
 
 	// Loop to create scaled version
 	for (int yp = 0; yp < ySize; ++yp) {
@@ -592,7 +594,7 @@ void GfxSurface::copyFrom(GfxSurface &src, Rect srcBounds, Rect destBounds,
 
 		const byte *srcP = (const byte *)srcSurface.getBasePtr(srcBounds.left, srcBounds.top);
 		byte *destP = (byte *)destSurface.getPixels();
-		for (int yp = srcBounds.top; yp < srcBounds.bottom; ++yp, srcP += srcSurface.pitch, destP += destSurface.pitch) {
+		for (int yp = srcBounds.top; yp < srcBounds.bottom; ++yp, srcP += srcSurface.getPitch(), destP += destSurface.getPitch()) {
 			Common::copy(srcP, srcP + srcBounds.width(), destP);
 		}
 
@@ -608,7 +610,7 @@ void GfxSurface::copyFrom(GfxSurface &src, Rect srcBounds, Rect destBounds,
 
 	// Get clipping area
 	Rect clipRect = !_clipRect.isEmpty() ? _clipRect :
-		Rect(0, 0, destSurface.w, destSurface.h);
+		Rect(0, 0, destSurface.getWidth(), destSurface.getHeight());
 
 	// Adjust bounds to ensure destination will be on-screen
 	int srcX = 0, srcY = 0;
@@ -626,14 +628,14 @@ void GfxSurface::copyFrom(GfxSurface &src, Rect srcBounds, Rect destBounds,
 		destBounds.bottom = clipRect.bottom;
 
 	if (destBounds.isValidRect() && !((destBounds.right < 0) || (destBounds.bottom < 0)
-		|| (destBounds.left >= destSurface.w) || (destBounds.top >= destSurface.h))) {
+		|| (destBounds.left >= destSurface.getWidth()) || (destBounds.top >= destSurface.getHeight()))) {
 		// Register the affected area as dirty
 		addDirtyRect(destBounds);
 
 		const byte *pSrc = (const byte *)srcSurface.getBasePtr(srcX, srcY);
 		byte *pDest = (byte *)destSurface.getBasePtr(destBounds.left, destBounds.top);
 
-		for (int y = 0; y < destBounds.height(); ++y, pSrc += srcSurface.pitch, pDest += destSurface.pitch) {
+		for (int y = 0; y < destBounds.height(); ++y, pSrc += srcSurface.getPitch(), pDest += destSurface.getPitch()) {
 
 			if (!priorityRegion && (src._transColor == -1))
 				Common::copy(pSrc, pSrc + destBounds.width(), pDest);

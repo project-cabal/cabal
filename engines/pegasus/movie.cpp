@@ -96,17 +96,17 @@ void Movie::redrawMovieWorld() {
 		// Make sure we have a surface in the current pixel format
 		Graphics::Surface *convertedFrame = 0;
 
-		if (frame->format != g_system->getScreenFormat()) {
+		if (frame->getFormat() != g_system->getScreenFormat()) {
 			convertedFrame = frame->convertTo(g_system->getScreenFormat());
 			frame = convertedFrame;
 		}
 
 		// Copy to the surface using _movieBox
-		uint16 width = MIN<int>(frame->w, _movieBox.width());
-		uint16 height = MIN<int>(frame->h, _movieBox.height());
+		uint16 width = MIN<int>(frame->getWidth(), _movieBox.width());
+		uint16 height = MIN<int>(frame->getHeight(), _movieBox.height());
 
 		for (uint16 y = 0; y < height; y++)
-			memcpy((byte *)_surface->getBasePtr(_movieBox.left, _movieBox.top + y), (const byte *)frame->getBasePtr(0, y), width * frame->format.bytesPerPixel);
+			memcpy((byte *)_surface->getBasePtr(_movieBox.left, _movieBox.top + y), (const byte *)frame->getBasePtr(0, y), width * frame->getFormat().bytesPerPixel);
 
 		if (convertedFrame) {
 			convertedFrame->free();

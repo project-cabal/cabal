@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/endian.h"
 #include "common/scummsys.h"
@@ -76,34 +78,37 @@ void createThumbnail_4(const uint8 *src, uint32 srcPitch, uint8 *dstPtr, uint32 
 }
 
 static void scaleThumbnail(Graphics::Surface &in, Graphics::Surface &out) {
-	while (in.w / out.w >= 4 || in.h / out.h >= 4) {
-		createThumbnail_4<565>((const uint8 *)in.getPixels(), in.pitch, (uint8 *)in.getPixels(), in.pitch, in.w, in.h);
-		in.w /= 4;
-		in.h /= 4;
+	uint16 inWidth = in.getWidth();
+	uint16 inHeight = in.getHeight();
+
+	while (inWidth / out.getWidth() >= 4 || inHeight / out.getHeight() >= 4) {
+		createThumbnail_4<565>((const uint8 *)in.getPixels(), in.getPitch(), (uint8 *)in.getPixels(), in.getPitch(), inWidth, inHeight);
+		inWidth /= 4;
+		inHeight /= 4;
 	}
 
-	while (in.w / out.w >= 2 || in.h / out.h >= 2) {
-		createThumbnail_2<565>((const uint8 *)in.getPixels(), in.pitch, (uint8 *)in.getPixels(), in.pitch, in.w, in.h);
-		in.w /= 2;
-		in.h /= 2;
+	while (inWidth / out.getWidth() >= 2 || inHeight / out.getHeight() >= 2) {
+		createThumbnail_2<565>((const uint8 *)in.getPixels(), in.getPitch(), (uint8 *)in.getPixels(), in.getPitch(), inWidth, inHeight);
+		inWidth /= 2;
+		inHeight /= 2;
 	}
 
-	if ((in.w == out.w && in.h < out.h) || (in.w < out.w && in.h == out.h)) {
+	if ((inWidth == out.getWidth() && inHeight < out.getHeight()) || (inWidth < out.getWidth() && inHeight == out.getHeight())) {
 		// In this case we simply center the input surface in the output
-		uint8 *dst = (uint8 *)out.getBasePtr((out.w - in.w) / 2, (out.h - in.h) / 2);
+		uint8 *dst = (uint8 *)out.getBasePtr((out.getWidth() - inWidth) / 2, (out.getHeight() - inHeight) / 2);
 		const uint8 *src = (const uint8 *)in.getPixels();
 
-		for (int y = 0; y < in.h; ++y) {
-			memcpy(dst, src, in.w * in.format.bytesPerPixel);
-			src += in.pitch;
-			dst += out.pitch;
+		for (int y = 0; y < inHeight; ++y) {
+			memcpy(dst, src, inWidth * in.getFormat().bytesPerPixel);
+			src += in.getPitch();
+			dst += out.getPitch();
 		}
 	} else {
 		// Assure the aspect of the scaled image still matches the original.
-		int targetWidth = out.w, targetHeight = out.h;
+		int targetWidth = out.getWidth(), targetHeight = out.getHeight();
 
-		const float inputAspect = (float)in.w / in.h;
-		const float outputAspect = (float)out.w / out.h;
+		const float inputAspect = (float)inWidth / inHeight;
+		const float outputAspect = (float)out.getWidth() / out.getHeight();
 
 		if (inputAspect > outputAspect) {
 			targetHeight = int(targetWidth / inputAspect);
@@ -112,25 +117,25 @@ static void scaleThumbnail(Graphics::Surface &in, Graphics::Surface &out) {
 		}
 
 		// Make sure we are still in the bounds of the output
-		assert(targetWidth <= out.w);
-		assert(targetHeight <= out.h);
+		assert(targetWidth <= out.getWidth());
+		assert(targetHeight <= out.getHeight());
 
 		// Center the image on the output surface
-		byte *dst = (byte *)out.getBasePtr((out.w - targetWidth) / 2, (out.h - targetHeight) / 2);
-		const uint dstLineIncrease = out.pitch - targetWidth * out.format.bytesPerPixel;
+		byte *dst = (byte *)out.getBasePtr((out.getWidth() - targetWidth) / 2, (out.getHeight() - targetHeight) / 2);
+		const uint dstLineIncrease = out.getPitch() - targetWidth * out.getFormat().bytesPerPixel;
 
-		const float scaleFactorX = (float)targetWidth / in.w;
-		const float scaleFactorY = (float)targetHeight / in.h;
+		const float scaleFactorX = (float)targetWidth / inWidth;
+		const float scaleFactorY = (float)targetHeight / inWidth;
 
 		for (int y = 0; y < targetHeight; ++y) {
 			const float yFrac = (y / scaleFactorY);
 			const int y1 = (int)yFrac;
-			const int y2 = (y1 + 1 < in.h) ? (y1 + 1) : (in.h - 1);
+			const int y2 = (y1 + 1 < inHeight) ? (y1 + 1) : (inHeight - 1);
 
 			for (int x = 0; x < targetWidth; ++x) {
 				const float xFrac = (x / scaleFactorX);
 				const int x1 = (int)xFrac;
-				const int x2 = (x1 + 1 < in.w) ? (x1 + 1) : (in.w - 1);
+				const int x2 = (x1 + 1 < inWidth) ? (x1 + 1) : (inWidth - 1);
 
 				// Look up colors at the points
 				uint8 p1R, p1G, p1B;
@@ -171,12 +176,12 @@ static bool grabScreen565(Graphics::Surface *surf) {
 	if (!screen)
 		return false;
 
-	assert(screen->format.bytesPerPixel == 1 || screen->format.bytesPerPixel == 2);
+	assert(screen->getFormat().bytesPerPixel == 1 || screen->getFormat().bytesPerPixel == 2);
 	assert(screen->getPixels() != 0);
 
 	Graphics::PixelFormat screenFormat = g_system->getScreenFormat();
 
-	surf->create(screen->w, screen->h, Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0));
+	surf->create(screen->getWidth(), screen->getHeight(), Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0));
 
 	byte *palette = 0;
 	if (screenFormat.bytesPerPixel == 1) {
@@ -185,8 +190,8 @@ static bool grabScreen565(Graphics::Surface *surf) {
 		g_system->getPaletteManager()->grabPalette(palette, 0, 256);
 	}
 
-	for (uint y = 0; y < screen->h; ++y) {
-		for (uint x = 0; x < screen->w; ++x) {
+	for (uint y = 0; y < screen->getHeight(); ++y) {
+		for (uint x = 0; x < screen->getWidth(); ++x) {
 			byte r = 0, g = 0, b = 0;
 
 			if (screenFormat.bytesPerPixel == 1) {
@@ -211,7 +216,7 @@ static bool grabScreen565(Graphics::Surface *surf) {
 
 static bool createThumbnail(Graphics::Surface &out, Graphics::Surface &in) {
 	int height;
-	if ((in.w == 320 && in.h == 200) || (in.w == 640 && in.h == 400)) {
+	if ((in.getWidth() == 320 && in.getHeight() == 200) || (in.getWidth() == 640 && in.getHeight() == 400)) {
 		height = kThumbnailHeight1;
 	} else {
 		height = kThumbnailHeight2;
@@ -240,8 +245,8 @@ bool createThumbnail(Graphics::Surface *surf, const uint8 *pixels, int w, int h,
 	Graphics::Surface screen;
 	screen.create(w, h, Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0));
 
-	for (uint y = 0; y < screen.h; ++y) {
-		for (uint x = 0; x < screen.w; ++x) {
+	for (uint y = 0; y < screen.getHeight(); ++y) {
+		for (uint x = 0; x < screen.getWidth(); ++x) {
 			byte r, g, b;
 			r = palette[pixels[y * w + x] * 3];
 			g = palette[pixels[y * w + x] * 3 + 1];
@@ -267,9 +272,9 @@ bool createScreenShot(Graphics::Surface &surf) {
 		if (!screen) {
 			return false;
 		}
-		surf.create(screen->w, screen->h, Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
-		for (uint y = 0; y < screen->h; ++y) {
-			for (uint x = 0; x < screen->w; ++x) {
+		surf.create(screen->getWidth(), screen->getHeight(), Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
+		for (uint y = 0; y < screen->getHeight(); ++y) {
+			for (uint x = 0; x < screen->getWidth(); ++x) {
 				byte r = 0, g = 0, b = 0, a = 0;
 				uint32 col = READ_UINT32(screen->getBasePtr(x, y));
 				screenFormat.colorToARGB(col, a, r, g, b);

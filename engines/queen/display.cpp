@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/events.h"
@@ -819,15 +820,15 @@ void Display::decodePCX(const uint8 *src, uint32 srcSize, uint8 *dst, uint16 dst
 		error("Error while reading PCX image");
 
 	const ::Graphics::Surface *pcxSurface = pcx.getSurface();
-	if (pcxSurface->format.bytesPerPixel != 1)
-		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->format.bytesPerPixel);
-	*w = pcxSurface->w;
-	*h = pcxSurface->h;
+	if (pcxSurface->getFormat().bytesPerPixel != 1)
+		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->getFormat().bytesPerPixel);
+	*w = pcxSurface->getWidth();
+	*h = pcxSurface->getHeight();
 
 	assert(palStart <= palEnd && palEnd <= 256);
 	memcpy(pal, pcx.getPalette() + palStart * 3, (palEnd - palStart) * 3);
-	for (uint16 y = 0; y < pcxSurface->h; y++)
-		memcpy(dst + y * dstPitch, pcxSurface->getBasePtr(0, y), pcxSurface->w);
+	for (uint16 y = 0; y < pcxSurface->getHeight(); y++)
+		memcpy(dst + y * dstPitch, pcxSurface->getBasePtr(0, y), pcxSurface->getWidth());
 }
 
 void Display::decodeIFF(const uint8 *src, uint32 srcSize, uint8 *dst, uint16 dstPitch, uint16 *w, uint16 *h, uint8 *pal, uint16 palStart, uint16 palEnd, uint8 colorBase) {
@@ -838,13 +839,13 @@ void Display::decodeIFF(const uint8 *src, uint32 srcSize, uint8 *dst, uint16 dst
 		error("Error while reading IFF image");
 
 	const ::Graphics::Surface *iffSurface = iff.getSurface();
-	*w	= iffSurface->w;
-	*h	= iffSurface->h;
+	*w = iffSurface->getWidth();
+	*h = iffSurface->getHeight();
 
 	assert(palStart <= palEnd && palEnd <= 256);
 	memcpy(pal, iff.getPalette() + palStart * 3, (palEnd - palStart) * 3);
-	for (uint16 y = 0; y < iffSurface->h; y++)
-		for(uint16 x = 0; x < iffSurface->w; x++)
+	for (uint16 y = 0; y < iffSurface->getHeight(); y++)
+		for(uint16 x = 0; x < iffSurface->getWidth(); x++)
 			dst[(y * dstPitch) + x] = *(const byte *)iffSurface->getBasePtr(x, y) + colorBase;
 }
 

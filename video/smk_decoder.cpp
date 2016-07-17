@@ -544,15 +544,15 @@ SmackerDecoder::SmackerVideoTrack::~SmackerVideoTrack() {
 }
 
 uint16 SmackerDecoder::SmackerVideoTrack::getWidth() const {
-	return _surface->w;
+	return _surface->getWidth();
 }
 
 uint16 SmackerDecoder::SmackerVideoTrack::getHeight() const {
-	return _surface->h;
+	return _surface->getHeight();
 }
 
 Graphics::PixelFormat SmackerDecoder::SmackerVideoTrack::getPixelFormat() const {
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 void SmackerDecoder::SmackerVideoTrack::readTrees(Common::BitStream &bs, uint32 mMapSize, uint32 mClrSize, uint32 fullSize, uint32 typeSize) {

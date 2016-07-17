@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef _ANDROID_TEXTURE_H_
 #define _ANDROID_TEXTURE_H_
@@ -50,7 +52,7 @@ public:
 
 	void setLinearFilter(bool value);
 
-	virtual void allocBuffer(GLuint w, GLuint h);
+	virtual void allocBuffer(GLuint w, GLuint h) = 0;
 
 	virtual void updateBuffer(GLuint x, GLuint y, GLuint width, GLuint height,
 								const void *buf, int pitch_buf) = 0;
@@ -80,23 +82,23 @@ public:
 	}
 
 	inline void drawTextureOrigin() {
-			drawTexture(0, 0, _surface.w, _surface.h);
+		drawTexture(0, 0, _surface.getWidth(), _surface.getHeight());
 	}
 
 	inline GLuint width() const {
-		return _surface.w;
+		return _surface.getWidth();
 	}
 
 	inline GLuint height() const {
-		return _surface.h;
+		return _surface.getHeight();
 	}
 
 	inline uint16 pitch() const {
-		return _surface.pitch;
+		return _surface.getPitch();
 	}
 
 	inline bool isEmpty() const {
-		return _surface.w == 0 || _surface.h == 0;
+		return _surface.getWidth() == 0 || _surface.getHeight() == 0;
 	}
 
 	inline const Graphics::Surface *surface_const() const {
@@ -151,6 +153,8 @@ protected:
 				_dirty_rect.extend(r);
 		}
 	}
+
+	void allocTexture(GLuint w, GLuint h);
 
 	GLenum _glFormat;
 	GLenum _glType;

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -97,13 +99,13 @@ PaintControl::PaintControl(ZVision *engine, uint32 key, Common::SeekableReadStre
 	}
 
 	if (_paint) {
-		_colorKey = _paint->format.RGBToColor(255, 0, 255);
+		_colorKey = _paint->getFormat().RGBToColor(255, 0, 255);
 		_bkg = new Graphics::Surface;
-		_bkg->create(_rectangle.width(), _rectangle.height(), _paint->format);
+		_bkg->create(_rectangle.width(), _rectangle.height(), _paint->getFormat());
 		_bkg->fillRect(Common::Rect(_rectangle.width(), _rectangle.height()), _colorKey);
 
 		Graphics::Surface *tmp = new Graphics::Surface;
-		tmp->create(_rectangle.width(), _rectangle.height(), _paint->format);
+		tmp->create(_rectangle.width(), _rectangle.height(), _paint->getFormat());
 		_engine->getRenderManager()->blitSurfaceToSurface(*_paint, _rectangle, *tmp, 0, 0);
 		_paint->free();
 		delete _paint;
@@ -189,7 +191,7 @@ bool PaintControl::eligeblity(int itemId) {
 }
 
 Common::Rect PaintControl::paint(const Common::Point &point) {
-	Common::Rect paintRect = Common::Rect(_brush->w, _brush->h);
+	Common::Rect paintRect = Common::Rect(_brush->getWidth(), _brush->getHeight());
 	paintRect.moveTo(point);
 	paintRect.clip(_rectangle);
 

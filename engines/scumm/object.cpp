@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/actor.h"
 #include "scumm/bomp.h"
@@ -1714,7 +1716,6 @@ void ScummEngine_v6::drawBlastObject(BlastObject *eo) {
 		error("object %d is not a blast object", eo->number);
 
 	bdd.dst = *vs;
-	bdd.dst.setPixels(vs->getPixels(0, 0));
 	bdd.x = eo->rect.left;
 	bdd.y = eo->rect.top;
 
@@ -1773,7 +1774,7 @@ void ScummEngine_v6::removeBlastObject(BlastObject *eo) {
 
 	r = eo->rect;
 
-	r.clip(Common::Rect(vs->w, vs->h));
+	r.clip(Common::Rect(vs->getWidth(), vs->getHeight()));
 
 	if (r.width() <= 0 || r.height() <= 0)
 		return;

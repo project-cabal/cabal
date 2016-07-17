@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/animation.h"
 #include "sherlock/sherlock.h"
@@ -203,7 +205,7 @@ bool Animation::play3DO(const Common::String &filename, bool intro, int minDelay
 			// since we don't want the offsets in the image file to be used, just the explicit position we specify
 			screen._backBuffer1.transBlitFrom(images[imageFrame]._frame, pt);
 			if (!fadeActive)
-				screen.slamArea(pt.x, pt.y, images[imageFrame]._frame.w, images[imageFrame]._frame.h);
+				screen.slamArea(pt.x, pt.y, images[imageFrame]._frame.getWidth(), images[imageFrame]._frame.getHeight());
 		} else {
 			// At this point, either the sprites for the frame has been complete, or there weren't any sprites
 			// at all to draw for the frame

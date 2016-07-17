@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/debug.h"
 #include "common/rect.h"
@@ -183,19 +185,19 @@ void Animation::drawFrame(Graphics::Surface &surface, int32 frame, int16 xx, int
 	else
 		rectY -= offsY;
 
-	if (rectX + xx + _x1 + _frames[frame]._x1 >= surface.w)
-		rectX = surface.w - xx - _x1 - _frames[frame]._x1;
+	if (rectX + xx + _x1 + _frames[frame]._x1 >= surface.getWidth())
+		rectX = surface.getWidth() - xx - _x1 - _frames[frame]._x1;
 
 	if (rectX < 0)
 		return;
 
-	if (rectY + yy + _y1 + _frames[frame]._y1 >= surface.h)
-		rectY = surface.h - yy - _y1 - _frames[frame]._y1;
+	if (rectY + yy + _y1 + _frames[frame]._y1 >= surface.getHeight())
+		rectY = surface.getHeight() - yy - _y1 - _frames[frame]._y1;
 
 	if (rectY < 0)
 		return;
 
-	int32 destPitch = surface.pitch;
+	int32 destPitch = surface.getPitch();
 	uint8 *srcRow = _frames[dataFrame]._data + offsX + (_frames[frame]._x2 - _frames[frame]._x1) * offsY;
 	uint8 *curRow = (uint8 *)surface.getBasePtr(xx + _x1 + _frames[frame]._x1 + offsX, yy + _frames[frame]._y1 + _y1 + offsY);
 	for (int16 y = 0; y < rectY; y++) {
@@ -239,7 +241,7 @@ void Animation::drawFrameWithMaskAndScale(Graphics::Surface &surface, int32 fram
 
 	_vm->addDirtyRect(xx1, yy1, xx2, yy2);
 
-	int32 destPitch = surface.pitch;
+	int32 destPitch = surface.getPitch();
 	int32 destPitchMask = mask->getWidth();
 	uint8 *c = _frames[dataFrame]._data;
 	uint8 *curRow = (uint8 *)surface.getPixels();
@@ -334,19 +336,19 @@ void Animation::drawFontFrame(Graphics::Surface &surface, int32 frame, int16 xx,
 	if ((xx + _x1 + _frames[frame]._x1 < 0) || (yy + _y1 + _frames[frame]._y1 < 0))
 		return;
 
-	if (rectX + xx + _x1 + _frames[frame]._x1 >= surface.w)
-		rectX = surface.w - xx - _x1 - _frames[frame]._x1;
+	if (rectX + xx + _x1 + _frames[frame]._x1 >= surface.getWidth())
+		rectX = surface.getWidth() - xx - _x1 - _frames[frame]._x1;
 
 	if (rectX < 0)
 		return;
 
-	if (rectY + yy + _y1 + _frames[frame]._y1 >= surface.h)
-		rectY = surface.h - yy - _y1 - _frames[frame]._y1;
+	if (rectY + yy + _y1 + _frames[frame]._y1 >= surface.getHeight())
+		rectY = surface.getHeight() - yy - _y1 - _frames[frame]._y1;
 
 	if (rectY < 0)
 		return;
 
-	int32 destPitch = surface.pitch;
+	int32 destPitch = surface.getPitch();
 	uint8 *c = _frames[dataFrame]._data;
 	uint8 *curRow = (uint8 *)surface.getBasePtr(xx + _x1 + _frames[frame]._x1, yy + _frames[frame]._y1 + _y1);
 	for (int16 y = 0; y < rectY; y++) {

@@ -1311,7 +1311,7 @@ void Wiz::captureWizImage(int resNum, const Common::Rect& r, bool backBuffer, in
 	} else {
 		src = pvs->getPixels(0, 0);
 	}
-	captureImage(src, pvs->pitch, pvs->w, pvs->h, resNum, r, compType);
+	captureImage(src, pvs->getPitch(), pvs->getWidth(), pvs->getHeight(), resNum, r, compType);
 }
 
 void Wiz::captureImage(uint8 *src, int srcPitch, int srcw, int srch, int resNum, const Common::Rect& r, int compType) {
@@ -1523,9 +1523,9 @@ uint8 *Wiz::drawWizImage(int resNum, int state, int maskNum, int maskState, int 
 			} else {
 				dst = pvs->getBackPixels(0, pvs->topline);
 			}
-			cw = pvs->w;
-			ch = pvs->h;
-			dstPitch = pvs->pitch;
+			cw = pvs->getWidth();
+			ch = pvs->getHeight();
+			dstPitch = pvs->getPitch();
 			dstType = kDstScreen;
 		}
 	}
@@ -1842,9 +1842,9 @@ void Wiz::drawWizPolygonTransform(int resNum, int state, Common::Point *wp, int 
 		} else {
 			dst = pvs->getBackPixels(0, 0);
 		}
-		dstw = pvs->w;
-		dsth = pvs->h;
-		dstpitch = pvs->pitch;
+		dstw = pvs->getWidth();
+		dsth = pvs->getHeight();
+		dstpitch = pvs->getPitch();
 		dstType = kDstScreen;
 	}
 

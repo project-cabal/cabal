@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/scumm.h"
 #include "scumm/actor.h"
@@ -607,7 +609,7 @@ void AkosRenderer::codec1_genericDecode(Codec1 &v1) {
 						}
 					}
 				}
-				dst += _out.pitch;
+				dst += _out.getPitch();
 				mask += _numStrips;
 				y++;
 			}
@@ -818,8 +820,8 @@ byte AkosRenderer::codec1(int xmoveCur, int ymoveCur) {
 
 	v1.boundsRect.left = 0;
 	v1.boundsRect.top = 0;
-	v1.boundsRect.right = _out.w;
-	v1.boundsRect.bottom = _out.h;
+	v1.boundsRect.right = _out.getWidth();
+	v1.boundsRect.bottom = _out.getHeight();
 
 	if (use_scaling) {
 
@@ -1025,8 +1027,8 @@ byte AkosRenderer::codec5(int xmoveCur, int ymoveCur) {
 	clip.top = _actorY + ymoveCur;
 	clip.right = clip.left + _width;
 	clip.bottom = clip.top + _height;
-	maxw = _out.w;
-	maxh = _out.h;
+	maxw = _out.getWidth();
+	maxh = _out.getHeight();
 
 	markRectAsDirty(clip);
 
@@ -1207,8 +1209,8 @@ byte AkosRenderer::codec16(int xmoveCur, int ymoveCur) {
 	clip.bottom = clip.top + _height;
 
 	minx = miny = 0;
-	maxw = _out.w;
-	maxh = _out.h;
+	maxw = _out.getWidth();
+	maxh = _out.getHeight();
 
 	if (_vm->_game.heversion >= 71) {
 		if (_clipOverride.right > _clipOverride.left && _clipOverride.bottom > _clipOverride.top) {
@@ -1290,7 +1292,7 @@ byte AkosRenderer::codec16(int xmoveCur, int ymoveCur) {
 
 	byte *dst = (byte *)_out.getBasePtr(width_unk, height_unk);
 
-	akos16Decompress(dst, _out.pitch, _srcptr, cur_x, out_height, dir, numskip_before, numskip_after, transparency, clip.left, clip.top, _zbuf);
+	akos16Decompress(dst, _out.getPitch(), _srcptr, cur_x, out_height, dir, numskip_before, numskip_after, transparency, clip.left, clip.top, _zbuf);
 	return 0;
 }
 
@@ -1360,12 +1362,12 @@ byte AkosRenderer::codec32(int xmoveCur, int ymoveCur) {
 
 	byte *dstPtr = (byte *)_out.getBasePtr(dst.left, dst.top);
 	if (_shadow_mode == 3) {
-		Wiz::decompressWizImage<kWizXMap>(dstPtr, _out.pitch, kDstScreen, _srcptr, src, 0, palPtr, xmap, _vm->_bytesPerPixel);
+		Wiz::decompressWizImage<kWizXMap>(dstPtr, _out.getPitch(), kDstScreen, _srcptr, src, 0, palPtr, xmap, _vm->_bytesPerPixel);
 	} else {
 		if (palPtr != NULL) {
-			Wiz::decompressWizImage<kWizRMap>(dstPtr, _out.pitch, kDstScreen, _srcptr, src, 0, palPtr, NULL, _vm->_bytesPerPixel);
+			Wiz::decompressWizImage<kWizRMap>(dstPtr, _out.getPitch(), kDstScreen, _srcptr, src, 0, palPtr, NULL, _vm->_bytesPerPixel);
 		} else {
-			Wiz::decompressWizImage<kWizCopy>(dstPtr, _out.pitch, kDstScreen, _srcptr, src, 0, NULL, NULL, _vm->_bytesPerPixel);
+			Wiz::decompressWizImage<kWizCopy>(dstPtr, _out.getPitch(), kDstScreen, _srcptr, src, 0, NULL, NULL, _vm->_bytesPerPixel);
 		}
 	}
 #endif

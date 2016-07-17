@@ -85,9 +85,9 @@ private:
 		~TheoraVideoTrack();
 
 		bool endOfTrack() const { return _endOfVideo; }
-		uint16 getWidth() const { return _displaySurface.w; }
-		uint16 getHeight() const { return _displaySurface.h; }
-		Graphics::PixelFormat getPixelFormat() const { return _displaySurface.format; }
+		uint16 getWidth() const { return _displaySurface.getWidth(); }
+		uint16 getHeight() const { return _displaySurface.getHeight(); }
+		Graphics::PixelFormat getPixelFormat() const { return _displaySurface.getFormat(); }
 		int getCurFrame() const { return _curFrame; }
 		Common::Timestamp getNextFrameStartTime() const { return (uint32)(_nextFrameStartTime * 1000); }
 		const Graphics::Surface *decodeNextFrame() { return &_displaySurface; }

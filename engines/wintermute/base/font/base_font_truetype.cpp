@@ -295,7 +295,7 @@ BaseSurface *BaseFontTT::renderTextToTexture(const WideString &text, int width, 
 		uint32 *pixels = (uint32 *)surface->getPixels();
 
 		// This is a Surface we created ourselves, so no empty space between rows.
-		for (int i = 0; i < surface->w * surface->h; ++i) {
+		for (int i = 0; i < surface->getWidth() * surface->getHeight(); ++i) {
 			uint8 a, r, g, b;
 			format.colorToRGB(*pixels, r, g, b);
 			a = r;

@@ -110,7 +110,7 @@ bool Surface::getImageFromPICTStream(Common::SeekableReadStream *stream) {
 
 	_surface = pict.getSurface()->convertTo(g_system->getScreenFormat(), pict.getPalette());
 	_ownsSurface = true;
-	_bounds = Common::Rect(0, 0, _surface->w, _surface->h);
+	_bounds = Common::Rect(_surface->getWidth(), _surface->getHeight());
 	return true;
 }
 
@@ -124,7 +124,7 @@ void Surface::getImageFromMovieFrame(Video::VideoDecoder *video, TimeValue time)
 
 		_surface->copyFrom(*frame);
 		_ownsSurface = true;
-		_bounds = Common::Rect(0, 0, _surface->w, _surface->h);
+		_bounds = Common::Rect(_surface->getWidth(), _surface->getHeight());
 	} else {
 		deallocateSurface();
 	}
@@ -151,12 +151,12 @@ void Surface::copyToCurrentPort(const Common::Rect &srcRect, const Common::Rect 
 	byte *src = (byte *)_surface->getBasePtr(srcRect.left, srcRect.top);
 	byte *dst = (byte *)screen->getBasePtr(dstRect.left, dstRect.top);
 
-	int lineSize = srcRect.width() * _surface->format.bytesPerPixel;
+	int lineSize = srcRect.width() * _surface->getFormat().bytesPerPixel;
 
 	for (int y = 0; y < srcRect.height(); y++) {
 		memcpy(dst, src, lineSize);
-		src += _surface->pitch;
-		dst += screen->pitch;
+		src += _surface->getPitch();
+		dst += screen->getPitch();
 	}
 }
 
@@ -165,7 +165,7 @@ void Surface::copyToCurrentPortTransparent(const Common::Rect &srcRect, const Co
 	byte *src = (byte *)_surface->getBasePtr(srcRect.left, srcRect.top);
 	byte *dst = (byte *)screen->getBasePtr(dstRect.left, dstRect.top);
 
-	int lineSize = srcRect.width() * _surface->format.bytesPerPixel;
+	int lineSize = srcRect.width() * _surface->getFormat().bytesPerPixel;
 
 	for (int y = 0; y < srcRect.height(); y++) {
 		for (int x = 0; x < srcRect.width(); x++) {
@@ -183,8 +183,8 @@ void Surface::copyToCurrentPortTransparent(const Common::Rect &srcRect, const Co
 			dst += g_system->getScreenFormat().bytesPerPixel;
 		}
 
-		src += _surface->pitch - lineSize;
-		dst += screen->pitch - lineSize;
+		src += _surface->getPitch() - lineSize;
+		dst += screen->getPitch() - lineSize;
 	}
 }
 
@@ -193,7 +193,7 @@ void Surface::copyToCurrentPortMasked(const Common::Rect &srcRect, const Common:
 	byte *src = (byte *)_surface->getBasePtr(srcRect.left, srcRect.top);
 	byte *dst = (byte *)screen->getBasePtr(dstRect.left, dstRect.top);
 
-	int lineSize = srcRect.width() * _surface->format.bytesPerPixel;
+	int lineSize = srcRect.width() * _surface->getFormat().bytesPerPixel;
 
 	for (int y = 0; y < srcRect.height(); y++) {
 		byte *maskSrc = (byte *)mask->getSurface()->getBasePtr(0, y);
@@ -214,8 +214,8 @@ void Surface::copyToCurrentPortMasked(const Common::Rect &srcRect, const Common:
 			dst += g_system->getScreenFormat().bytesPerPixel;
 		}
 
-		src += _surface->pitch - lineSize;
-		dst += screen->pitch - lineSize;
+		src += _surface->getPitch() - lineSize;
+		dst += screen->getPitch() - lineSize;
 	}
 }
 
@@ -227,7 +227,7 @@ void Surface::copyToCurrentPortTransparentGlow(const Common::Rect &srcRect, cons
 	byte *src = (byte *)_surface->getBasePtr(srcRect.left, srcRect.top);
 	byte *dst = (byte *)screen->getBasePtr(dstRect.left, dstRect.top);
 
-	int lineSize = srcRect.width() * _surface->format.bytesPerPixel;
+	int lineSize = srcRect.width() * _surface->getFormat().bytesPerPixel;
 
 	for (int y = 0; y < srcRect.height(); y++) {
 		for (int x = 0; x < srcRect.width(); x++) {
@@ -245,8 +245,8 @@ void Surface::copyToCurrentPortTransparentGlow(const Common::Rect &srcRect, cons
 			dst += g_system->getScreenFormat().bytesPerPixel;
 		}
 
-		src += _surface->pitch - lineSize;
-		dst += screen->pitch - lineSize;
+		src += _surface->getPitch() - lineSize;
+		dst += screen->getPitch() - lineSize;
 	}
 }
 

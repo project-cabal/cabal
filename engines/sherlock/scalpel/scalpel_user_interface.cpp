@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/scalpel/scalpel_user_interface.h"
 #include "sherlock/scalpel/scalpel_fixed_text.h"
@@ -410,7 +412,7 @@ void ScalpelUserInterface::restoreButton(int num) {
 	// Restore the UI on the back buffer
 	screen._backBuffer1.blitFrom(screen._backBuffer2, pt,
 		Common::Rect(pt.x, pt.y, pt.x + 90, pt.y + 19));
-	screen.slamArea(pt.x, pt.y, pt.x + frame.w, pt.y + frame.h);
+	screen.slamArea(pt.x, pt.y, pt.x + frame.getWidth(), pt.y + frame.getHeight());
 
 	if (!_menuCounter) {
 		_infoFlag = true;
@@ -1829,7 +1831,7 @@ void ScalpelUserInterface::printObjectDesc(const Common::String &str, bool first
 				// If it wasn't a right button click, then we need depress
 				// the look button before we close the window. So save a copy of the
 				// menu area, and draw the controls onto it
-				Surface tempSurface((*_controls)[0]._frame.w, (*_controls)[0]._frame.h);
+				Surface tempSurface((*_controls)[0]._frame.getWidth(), (*_controls)[0]._frame.getHeight());
 				Common::Point pt(MENU_POINTS[0][0], MENU_POINTS[0][1]);
 				offsetButton3DO(pt, 0);
 

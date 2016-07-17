@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "dreamweb/dreamweb.h"
 #include "engines/util.h"
@@ -178,10 +180,10 @@ void DreamWebEngine::showPCX(const Common::String &suffix) {
 	Graphics::Surface *s = g_system->lockScreen();
 	s->fillRect(Common::Rect(640, 480), 0);
 	const Graphics::Surface *pcxSurface = pcx.getSurface();
-	if (pcxSurface->format.bytesPerPixel != 1)
-		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->format.bytesPerPixel);
-	for (uint16 y = 0; y < pcxSurface->h; y++)
-		memcpy((byte *)s->getBasePtr(0, y), pcxSurface->getBasePtr(0, y), pcxSurface->w);
+	if (pcxSurface->getFormat().bytesPerPixel != 1)
+		error("Invalid bytes per pixel in PCX surface (%d)", pcxSurface->getFormat().bytesPerPixel);
+	for (uint16 y = 0; y < pcxSurface->getHeight(); y++)
+		memcpy((byte *)s->getBasePtr(0, y), pcxSurface->getBasePtr(0, y), pcxSurface->getWidth());
 	g_system->unlockScreen();
 }
 

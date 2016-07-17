@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on Broken Sword 2.5 engine
@@ -140,14 +142,10 @@ RenderedImage::RenderedImage(const Common::String &filename, bool &result) :
 	// Cleanup FileData
 	delete[] pFileData;
 
-	_doCleanup = true;
-
 #if defined(SCUMM_LITTLE_ENDIAN)
 	// Makes sense for LE only at the moment
 	checkForTransparency();
 #endif
-
-	return;
 }
 
 // -----------------------------------------------------------------------------
@@ -159,28 +157,16 @@ RenderedImage::RenderedImage(uint width, uint height, bool &result) :
 
 	_backSurface = Kernel::getInstance()->getGfx()->getSurface();
 
-	_doCleanup = true;
-
 	result = true;
-	return;
 }
 
-RenderedImage::RenderedImage() : _isTransparent(true) {
+RenderedImage::RenderedImage(const Graphics::Surface &surface) : _surface(surface), _isTransparent(true) {
 	_backSurface = Kernel::getInstance()->getGfx()->getSurface();
-
-	_surface.format = Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0);
-
-	_doCleanup = false;
-
-	return;
 }
 
 // -----------------------------------------------------------------------------
 
 RenderedImage::~RenderedImage() {
-	if (_doCleanup) {
-		_surface.free();
-	}
 }
 
 // -----------------------------------------------------------------------------
@@ -194,29 +180,23 @@ bool RenderedImage::fill(const Common::Rect *pFillRect, uint color) {
 
 bool RenderedImage::setContent(const byte *pixeldata, uint size, uint offset, uint stride) {
 	// Check if PixelData contains enough pixel to create an image with image size equals width * height
-	if (size < static_cast<uint>(_surface.w * _surface.h * 4)) {
-		error("PixelData vector is too small to define a 32 bit %dx%d image.", _surface.w, _surface.h);
+	if (size < static_cast<uint>(_surface.getWidth() * _surface.getHeight() * 4)) {
+		error("PixelData vector is too small to define a 32 bit %dx%d image.", _surface.getWidth(), _surface.getHeight());
 		return false;
 	}
 
 	const byte *in = &pixeldata[offset];
 	byte *out = (byte *)_surface.getPixels();
 
-	for (int i = 0; i < _surface.h; i++) {
-		memcpy(out, in, _surface.w * 4);
-		out += _surface.w * 4;
+	for (int i = 0; i < _surface.getHeight(); i++) {
+		memcpy(out, in, _surface.getWidth() * 4);
+		out += _surface.getWidth() * 4;
 		in += stride;
 	}
 
 	return true;
 }
 
-void RenderedImage::replaceContent(byte *pixeldata, int width, int height) {
-	_surface.w = width;
-	_surface.h = height;
-	_surface.pitch = width * 4;
-	_surface.setPixels(pixeldata);
-}
 // -----------------------------------------------------------------------------
 
 uint RenderedImage::getPixel(int x, int y) {
@@ -234,34 +214,34 @@ bool RenderedImage::blit(int posX, int posY, int flipping, Common::Rect *pPartRe
 
 void RenderedImage::copyDirectly(int posX, int posY) {
 	byte *data = (byte *)_surface.getPixels();
-	int w = _surface.w;
-	int h = _surface.h;
+	int w = _surface.getWidth();
+	int h = _surface.getHeight();
 
 	// Handle off-screen clipping
 	if (posY < 0) {
-		h = MAX(0, (int)_surface.h - -posY);
-		data = (byte *)_surface.getPixels() + _surface.w * -posY;
+		h = MAX(0, (int)_surface.getHeight() - -posY);
+		data = (byte *)_surface.getPixels() + _surface.getWidth() * -posY;
 		posY = 0;
 	}
 
 	if (posX < 0) {
-		w = MAX(0, (int)_surface.h - -posX);
+		w = MAX(0, (int)_surface.getHeight() - -posX);
 		data = (byte *)_surface.getPixels() + (-posX * 4);
 		posX = 0;
 	}
 
-	w = CLIP((int)w, 0, (int)MAX((int)_backSurface->w - posX, 0));
-	h = CLIP((int)h, 0, (int)MAX((int)_backSurface->h - posY, 0));
+	w = CLIP((int)w, 0, (int)MAX((int)_backSurface->getWidth() - posX, 0));
+	h = CLIP((int)h, 0, (int)MAX((int)_backSurface->getHeight() - posY, 0));
 
-	g_system->copyRectToScreen(data, _backSurface->pitch, posX, posY, w, h);
+	g_system->copyRectToScreen(data, _backSurface->getPitch(), posX, posY, w, h);
 }
 
 void RenderedImage::checkForTransparency() {
 	// Check if the source bitmap has any transparent pixels at all
 	_isTransparent = false;
 	byte *data = (byte *)_surface.getPixels();
-	for (int i = 0; i < _surface.h; i++) {
-		for (int j = 0; j < _surface.w; j++) {
+	for (int i = 0; i < _surface.getHeight(); i++) {
+		for (int j = 0; j < _surface.getWidth(); j++) {
 			_isTransparent = data[3] != 0xff;
 			if (_isTransparent)
 				return;

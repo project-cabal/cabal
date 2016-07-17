@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/config-manager.h"
@@ -2739,7 +2741,7 @@ GfxSurface SceneObject::getFrame() {
 	if ((g_vm->getGameID() == GType_Ringworld2) && (_shade >= 1)) {
 		Graphics::Surface s = frame.lockSurface();
 		byte *p = (byte *)s.getPixels();
-		byte *endP = p + s.w * s.h;
+		byte *endP = p + s.getWidth() * s.getHeight();
 
 		while (p < endP) {
 			if (*p != frame._transColor)
@@ -3341,11 +3343,11 @@ int Visage::getFrameCount() const {
 void Visage::flipHorizontal(GfxSurface &gfxSurface) {
 	Graphics::Surface s = gfxSurface.lockSurface();
 
-	for (int y = 0; y < s.h; ++y) {
+	for (int y = 0; y < s.getHeight(); ++y) {
 		// Flip the line
 		byte *lineP = (byte *)s.getBasePtr(0, y);
-		for (int x = 0; x < (s.w / 2); ++x)
-			SWAP(lineP[x], lineP[s.w - x - 1]);
+		for (int x = 0; x < (s.getWidth() / 2); ++x)
+			SWAP(lineP[x], lineP[s.getWidth() - x - 1]);
 	}
 
 	gfxSurface.unlockSurface();
@@ -3354,12 +3356,12 @@ void Visage::flipHorizontal(GfxSurface &gfxSurface) {
 void Visage::flipVertical(GfxSurface &gfxSurface) {
 	Graphics::Surface s = gfxSurface.lockSurface();
 
-	for (int y = 0; y < s.h / 2; ++y) {
+	for (int y = 0; y < s.getHeight() / 2; ++y) {
 		// Flip the lines1
 		byte *line1P = (byte *)s.getBasePtr(0, y);
-		byte *line2P = (byte *)s.getBasePtr(0, s.h - y - 1);
+		byte *line2P = (byte *)s.getBasePtr(0, s.getHeight() - y - 1);
 
-		for (int x = 0; x < s.w; ++x)
+		for (int x = 0; x < s.getWidth(); ++x)
 			SWAP(line1P[x], line2P[x]);
 	}
 

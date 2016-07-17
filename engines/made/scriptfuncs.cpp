@@ -577,7 +577,7 @@ int16 ScriptFunctions::sfLoadMouseCursor(int16 argc, int16 *argv) {
 	PictureResource *flex = _vm->_res->getPicture(argv[2]);
 	if (flex) {
 		Graphics::Surface *surf = flex->getPicture();
-		CursorMan.replaceCursor(surf->getPixels(), surf->w, surf->h, argv[1], argv[0], 0);
+		CursorMan.replaceCursor(surf->getPixels(), surf->getWidth(), surf->getHeight(), argv[1], argv[0], 0);
 		_vm->_res->freeResource(flex);
 	}
 	return 0;
@@ -867,7 +867,7 @@ int16 ScriptFunctions::sfGetPictureWidth(int16 argc, int16 *argv) {
 	int16 width = 0;
 	PictureResource *flex = _vm->_res->getPicture(argv[0]);
 	if (flex) {
-		width = flex->getPicture()->w;
+		width = flex->getPicture()->getWidth();
 		_vm->_res->freeResource(flex);
 	}
 	return width;
@@ -877,7 +877,7 @@ int16 ScriptFunctions::sfGetPictureHeight(int16 argc, int16 *argv) {
 	int16 height = 0;
 	PictureResource *flex = _vm->_res->getPicture(argv[0]);
 	if (flex) {
-		height = flex->getPicture()->h;
+		height = flex->getPicture()->getHeight();
 		_vm->_res->freeResource(flex);
 	}
 	return height;

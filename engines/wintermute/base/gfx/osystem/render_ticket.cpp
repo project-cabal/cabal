@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This file is based on WME Lite.
@@ -43,11 +45,11 @@ RenderTicket::RenderTicket(BaseSurfaceOSystem *owner, const Graphics::Surface *s
 	_transform(transform) {
 	if (surf) {
 		_surface = new Graphics::Surface();
-		_surface->create((uint16)srcRect->width(), (uint16)srcRect->height(), surf->format);
-		assert(_surface->format.bytesPerPixel == 4);
+		_surface->create((uint16)srcRect->width(), (uint16)srcRect->height(), surf->getFormat());
+		assert(_surface->getFormat().bytesPerPixel == 4);
 		// Get a clipped copy of the surface
-		for (int i = 0; i < _surface->h; i++) {
-			memcpy(_surface->getBasePtr(0, i), surf->getBasePtr(srcRect->left, srcRect->top + i), srcRect->width() * _surface->format.bytesPerPixel);
+		for (int i = 0; i < _surface->getHeight(); i++) {
+			memcpy(_surface->getBasePtr(0, i), surf->getBasePtr(srcRect->left, srcRect->top + i), srcRect->width() * _surface->getFormat().bytesPerPixel);
 		}
 		// Then scale it if necessary
 		//
@@ -99,9 +101,7 @@ bool RenderTicket::operator==(const RenderTicket &t) const {
 void RenderTicket::drawToSurface(Graphics::Surface *_targetSurface) const {
 	Graphics::TransparentSurface src(*getSurface(), false);
 
-	Common::Rect clipRect;
-	clipRect.setWidth(getSurface()->w);
-	clipRect.setHeight(getSurface()->h);
+	Common::Rect clipRect(getSurface()->getWidth(), getSurface()->getHeight());
 
 	if (_owner) {
 		if (_transform._alphaDisable) {
@@ -131,8 +131,8 @@ void RenderTicket::drawToSurface(Graphics::Surface *_targetSurface, Common::Rect
 	if (!clipRect) {
 		doDelete = true;
 		clipRect = new Common::Rect();
-		clipRect->setWidth(getSurface()->w * _transform._numTimesX);
-		clipRect->setHeight(getSurface()->h * _transform._numTimesY);
+		clipRect->setWidth(getSurface()->getWidth() * _transform._numTimesX);
+		clipRect->setHeight(getSurface()->getHeight() * _transform._numTimesY);
 	}
 
 	if (_owner) {
@@ -153,8 +153,8 @@ void RenderTicket::drawToSurface(Graphics::Surface *_targetSurface, Common::Rect
 		Common::Rect subRect;
 
 		int y = 0;
-		int w = getSurface()->w;
-		int h = getSurface()->h;
+		int w = getSurface()->getWidth();
+		int h = getSurface()->getHeight();
 		assert(w == _dstRect.width() / _transform._numTimesX);
 		assert(h == _dstRect.height() / _transform._numTimesY);
 

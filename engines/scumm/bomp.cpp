@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,7 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "scumm/scumm.h"
 #include "scumm/akos.h"
@@ -222,13 +223,13 @@ void drawBomp(const BompDrawData &bd) {
 	}
 
 	clip.right = bd.srcwidth;
-	if (clip.right > bd.dst.w - bd.x) {
-		clip.right = bd.dst.w - bd.x;
+	if (clip.right > bd.dst.getWidth() - bd.x) {
+		clip.right = bd.dst.getWidth() - bd.x;
 	}
 
 	clip.bottom = bd.srcheight;
-	if (clip.bottom > bd.dst.h - bd.y) {
-		clip.bottom = bd.dst.h - bd.y;
+	if (clip.bottom > bd.dst.getHeight() - bd.y) {
+		clip.bottom = bd.dst.getHeight() - bd.y;
 	}
 
 	src = bd.src;
@@ -327,7 +328,7 @@ void drawBomp(const BompDrawData &bd) {
 		// Advance to the next line
 		pos_y++;
 		mask += bd.numStrips;
-		dst += bd.dst.pitch;
+		dst += bd.dst.getPitch();
 	}
 }
 

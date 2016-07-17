@@ -1,27 +1,29 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
- *
- * Additional copyright for this file:
- * Copyright (C) 1995-1997 Presto Studios, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Additional copyright for this file:
+// Copyright (C) 1995-1997 Presto Studios, Inc.
 
 #include "common/events.h"
 #include "common/stream.h"
@@ -83,11 +85,11 @@ void Cursor::setCurrentFrameIndex(int32 index) {
 		if (index != -1) {
 			loadCursorImage(_info[index]);
 
-			if (_info[index].surface->format.bytesPerPixel == 1) {
+			if (_info[index].surface->getFormat().bytesPerPixel == 1) {
 				CursorMan.replaceCursorPalette(_info[index].palette, 0, _info[index].colorCount);
-				CursorMan.replaceCursor(_info[index].surface->getPixels(), _info[index].surface->w, _info[index].surface->h, _info[index].hotspot.x, _info[index].hotspot.y, 0);
+				CursorMan.replaceCursor(_info[index].surface->getPixels(), _info[index].surface->getWidth(), _info[index].surface->getHeight(), _info[index].hotspot.x, _info[index].hotspot.y, 0);
 			} else {
-				CursorMan.replaceCursor(_info[index].surface->getPixels(), _info[index].surface->w, _info[index].surface->h, _info[index].hotspot.x, _info[index].hotspot.y, _info[index].surface->format.RGBToColor(0xFF, 0xFF, 0xFF), false, &_info[index].surface->format);
+				CursorMan.replaceCursor(_info[index].surface->getPixels(), _info[index].surface->getWidth(), _info[index].surface->getHeight(), _info[index].hotspot.x, _info[index].hotspot.y, _info[index].surface->getFormat().RGBToColor(0xFF, 0xFF, 0xFF), false, &_info[index].surface->getFormat());
 			}
 
 			((PegasusEngine *)g_engine)->_gfx->markCursorAsDirty();

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifdef ENABLE_IHNM
 
@@ -212,8 +214,8 @@ bool Scene::playTitle(int title, int time, int mode) {
 			break;
 
 		case 2: // display background
-			_vm->_system->copyRectToScreen(backBufferSurface->getPixels(), backBufferSurface->w, 0, 0,
-							  backBufferSurface->w, backBufferSurface->h);
+			_vm->_system->copyRectToScreen(backBufferSurface->getPixels(), backBufferSurface->getWidth(), 0, 0,
+							  backBufferSurface->getWidth(), backBufferSurface->getHeight());
 			phase++;
 			startTime = curTime;
 			break;
@@ -247,8 +249,8 @@ bool Scene::playTitle(int title, int time, int mode) {
 
 					frameTime = curTime;
 
-					_vm->_system->copyRectToScreen(backBufferSurface->getPixels(), backBufferSurface->w, 0, 0,
-							  backBufferSurface->w, backBufferSurface->h);
+					_vm->_system->copyRectToScreen(backBufferSurface->getPixels(), backBufferSurface->getWidth(), 0, 0,
+							  backBufferSurface->getWidth(), backBufferSurface->getHeight());
 				}
 
 			}
@@ -273,9 +275,9 @@ bool Scene::playTitle(int title, int time, int mode) {
 
 	_vm->_anim->endVideo();
 
-	memset((byte *)backBufferSurface->getPixels(), 0,  backBufferSurface->w *  backBufferSurface->h);
-	_vm->_system->copyRectToScreen(backBufferSurface->getPixels(), backBufferSurface->w, 0, 0,
-							  backBufferSurface->w, backBufferSurface->h);
+	memset((byte *)backBufferSurface->getPixels(), 0,  backBufferSurface->getWidth() *  backBufferSurface->getHeight());
+	_vm->_system->copyRectToScreen(backBufferSurface->getPixels(), backBufferSurface->getWidth(), 0, 0,
+							  backBufferSurface->getWidth(), backBufferSurface->getHeight());
 
 	return interrupted;
 }

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -18,8 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * Low level graphics interface.
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Low level graphics interface.
 
 #include "tinsel/graphics.h"
 #include "tinsel/handle.h"	// LockMem()
@@ -810,7 +813,7 @@ void ClearScreen() {
 void UpdateScreenRect(const Common::Rect &pClip) {
 	int yOffset = TinselV2 ? (g_system->getHeight() - SCREEN_HEIGHT) / 2 : 0;
 	byte *pSrc = (byte *)_vm->screen().getBasePtr(pClip.left, pClip.top);
-	g_system->copyRectToScreen(pSrc, _vm->screen().pitch, pClip.left, pClip.top + yOffset,
+	g_system->copyRectToScreen(pSrc, _vm->screen().getPitch(), pClip.left, pClip.top + yOffset,
 		pClip.width(), pClip.height());
 }
 

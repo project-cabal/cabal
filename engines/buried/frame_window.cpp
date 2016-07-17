@@ -83,8 +83,8 @@ bool FrameWindow::showTitleSequence() {
 	updateWindow();
 
 	Graphics::Surface *swLogo = _vm->_gfx->getBitmap(_vm->isTrueColor() ? "MISC/24BPP/SWLOGO.BMP" : "MISC/8BPP/SWLOGO.BMP");
-	uint32 x = (640 - swLogo->w) / 2;
-	uint32 y = (480 - swLogo->h) / 2;
+	uint32 x = (640 - swLogo->getWidth()) / 2;
+	uint32 y = (480 - swLogo->getHeight()) / 2;
 	_vm->_gfx->blit(swLogo, x, y);
 	_vm->_gfx->updateScreen(false);
 	swLogo->free();

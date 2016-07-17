@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -18,14 +18,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- *
- * The bottom part of this is file is adapted from SDL_rotozoom.c. The
- * relevant copyright notice for those specific functions can be found at the
- * top of that section.
- *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
 
+// The bottom part of this is file is adapted from SDL_rotozoom.c. The
+// relevant copyright notice for those specific functions can be found at the
+// top of that section.
 
 #include "common/algorithm.h"
 #include "common/endian.h"
@@ -67,19 +66,9 @@ void doBlitSubtractiveBlend(byte *ino, byte *outo, uint32 width, uint32 height, 
 
 TransparentSurface::TransparentSurface() : Surface(), _alphaMode(ALPHA_FULL) {}
 
-TransparentSurface::TransparentSurface(const Surface &surf, bool copyData) : Surface(), _alphaMode(ALPHA_FULL) {
-	if (copyData) {
+TransparentSurface::TransparentSurface(const Surface &surf, bool copyData) : Surface(surf), _alphaMode(ALPHA_FULL) {
+	if (copyData)
 		copyFrom(surf);
-	} else {
-		w = surf.w;
-		h = surf.h;
-		pitch = surf.pitch;
-		format = surf.format;
-		// We need to cast the const qualifier away here because 'pixels'
-		// always needs to be writable. 'surf' however is a constant Surface,
-		// thus getPixels will always return const pixel data.
-		pixels = const_cast<void *>(surf.getPixels());
-	}
 }
 
 /**
@@ -329,57 +318,48 @@ void doBlitSubtractiveBlend(byte *ino, byte *outo, uint32 width, uint32 height, 
 }
 
 Common::Rect TransparentSurface::blit(Graphics::Surface &target, int posX, int posY, int flipping, Common::Rect *pPartRect, uint color, int width, int height, TSpriteBlendMode blendMode) {
-
-	Common::Rect retSize;
-	retSize.top = 0;
-	retSize.left = 0;
-	retSize.setWidth(0);
-	retSize.setHeight(0);
 	// Check if we need to draw anything at all
 	int ca = (color >> kAModShift) & 0xff;
 
-	if (ca == 0) {
-		return retSize;
+	if (ca == 0)
+		return Common::Rect();
+
+	// TODO: Is the data really in the screen format?
+	if (getFormat().bytesPerPixel != 4) {
+		warning("TransparentSurface can only blit 32bpp images, but got %d", getFormat().bytesPerPixel * 8);
+		return Common::Rect();
 	}
 
 	// Create an encapsulating surface for the data
-	TransparentSurface srcImage(*this, false);
-	// TODO: Is the data really in the screen format?
-	if (format.bytesPerPixel != 4) {
-		warning("TransparentSurface can only blit 32bpp images, but got %d", format.bytesPerPixel * 8);
-		return retSize;
-	}
+	TransparentSurface srcImage(*this);
 
 	if (pPartRect) {
-
 		int xOffset = pPartRect->left;
 		int yOffset = pPartRect->top;
 
 		if (flipping & FLIP_V) {
-			yOffset = srcImage.h - pPartRect->bottom;
+			yOffset = srcImage.getHeight() - pPartRect->bottom;
 		}
 
 		if (flipping & FLIP_H) {
-			xOffset = srcImage.w - pPartRect->right;
+			xOffset = srcImage.getWidth() - pPartRect->right;
 		}
 
-		srcImage.pixels = getBasePtr(xOffset, yOffset);
-		srcImage.w = pPartRect->width();
-		srcImage.h = pPartRect->height();
+		srcImage = getSubArea(Common::Rect(xOffset, yOffset, xOffset + pPartRect->width(), yOffset + pPartRect->height()));
 
 		debug(6, "Blit(%d, %d, %d, [%d, %d, %d, %d], %08x, %d, %d)", posX, posY, flipping,
-			  pPartRect->left,  pPartRect->top, pPartRect->width(), pPartRect->height(), color, width, height);
+			  pPartRect->left, pPartRect->top, pPartRect->width(), pPartRect->height(), color, width, height);
 	} else {
 
 		debug(6, "Blit(%d, %d, %d, [%d, %d, %d, %d], %08x, %d, %d)", posX, posY, flipping, 0, 0,
-			  srcImage.w, srcImage.h, color, width, height);
+			  srcImage.getWidth(), srcImage.getHeight(), color, width, height);
 	}
 
 	if (width == -1) {
-		width = srcImage.w;
+		width = srcImage.getWidth();
 	}
 	if (height == -1) {
-		height = srcImage.h;
+		height = srcImage.getHeight();
 	}
 
 #ifdef SCALING_TESTING
@@ -388,78 +368,64 @@ Common::Rect TransparentSurface::blit(Graphics::Surface &target, int posX, int p
 	height = height * 2 / 3;
 #endif
 
-	Graphics::Surface *img = nullptr;
-	Graphics::Surface *imgScaled = nullptr;
-	byte *savedPixels = nullptr;
-	if ((width != srcImage.w) || (height != srcImage.h)) {
+	Surface img;
+	if ((width != srcImage.getWidth()) || (height != srcImage.getHeight())) {
 		// Scale the image
-		img = imgScaled = srcImage.scale(width, height);
-		savedPixels = (byte *)img->getPixels();
+		Common::ScopedPtr<Surface> scaledImage(srcImage.scale(width, height));
+		img = *scaledImage;
 	} else {
-		img = &srcImage;
+		img = srcImage;
 	}
 
 	// Handle off-screen clipping
 	if (posY < 0) {
-		img->h = MAX(0, (int)img->h - -posY);
-		img->setPixels((byte *)img->getBasePtr(0, -posY));
+		img = img.getSubArea(Common::Rect(0, -posY, img.getWidth(), MAX(0, posY + img.getHeight()) - posY));
 		posY = 0;
 	}
 
 	if (posX < 0) {
-		img->w = MAX(0, (int)img->w - -posX);
-		img->setPixels((byte *)img->getBasePtr(-posX, 0));
+		img = img.getSubArea(Common::Rect(-posX, 0, MAX(0, posX + img.getWidth()) - posX, img.getHeight()));
 		posX = 0;
 	}
 
-	img->w = CLIP((int)img->w, 0, (int)MAX((int)target.w - posX, 0));
-	img->h = CLIP((int)img->h, 0, (int)MAX((int)target.h - posY, 0));
+	uint realWidth = CLIP((int)img.getWidth(), 0, (int)MAX((int)target.getWidth() - posX, 0));
+	uint realHeight = CLIP((int)img.getHeight(), 0, (int)MAX((int)target.getHeight() - posY, 0));
+	if (realWidth < img.getWidth() || realHeight < img.getHeight())
+		img = img.getSubArea(Common::Rect(realWidth, realHeight));
 
-	if ((img->w > 0) && (img->h > 0)) {
+	if (img.getWidth() != 0 && img.getHeight() != 0) {
 		int xp = 0, yp = 0;
 
 		int inStep = 4;
-		int inoStep = img->pitch;
+		int inoStep = img.getPitch();
 		if (flipping & FLIP_H) {
 			inStep = -inStep;
-			xp = img->w - 1;
+			xp = img.getWidth() - 1;
 		}
 
 		if (flipping & FLIP_V) {
 			inoStep = -inoStep;
-			yp = img->h - 1;
+			yp = img.getHeight() - 1;
 		}
 
-		byte *ino = (byte *)img->getBasePtr(xp, yp);
+		byte *ino = (byte *)img.getBasePtr(xp, yp);
 		byte *outo = (byte *)target.getBasePtr(posX, posY);
 
 		if (color == 0xFFFFFFFF && blendMode == BLEND_NORMAL && _alphaMode == ALPHA_OPAQUE) {
-			doBlitOpaqueFast(ino, outo, img->w, img->h, target.pitch, inStep, inoStep);
+			doBlitOpaqueFast(ino, outo, img.getWidth(), img.getHeight(), target.getPitch(), inStep, inoStep);
 		} else if (color == 0xFFFFFFFF && blendMode == BLEND_NORMAL && _alphaMode == ALPHA_BINARY) {
-			doBlitBinaryFast(ino, outo, img->w, img->h, target.pitch, inStep, inoStep);
+			doBlitBinaryFast(ino, outo, img.getWidth(), img.getHeight(), target.getPitch(), inStep, inoStep);
+		} else if (blendMode == BLEND_ADDITIVE) {
+			doBlitAdditiveBlend(ino, outo, img.getWidth(), img.getHeight(), target.getPitch(), inStep, inoStep, color);
+		} else if (blendMode == BLEND_SUBTRACTIVE) {
+			doBlitSubtractiveBlend(ino, outo, img.getWidth(), img.getHeight(), target.getPitch(), inStep, inoStep, color);
 		} else {
-			if (blendMode == BLEND_ADDITIVE) {
-				doBlitAdditiveBlend(ino, outo, img->w, img->h, target.pitch, inStep, inoStep, color);
-			} else if (blendMode == BLEND_SUBTRACTIVE) {
-				doBlitSubtractiveBlend(ino, outo, img->w, img->h, target.pitch, inStep, inoStep, color);
-			} else {
-				assert(blendMode == BLEND_NORMAL);
-				doBlitAlphaBlend(ino, outo, img->w, img->h, target.pitch, inStep, inoStep, color);
-			}
+			assert(blendMode == BLEND_NORMAL);
+			doBlitAlphaBlend(ino, outo, img.getWidth(), img.getHeight(), target.getPitch(), inStep, inoStep, color);
 		}
-
 	}
 
-	retSize.setWidth(img->w);
-	retSize.setHeight(img->h);
-
-	if (imgScaled) {
-		imgScaled->setPixels(savedPixels);
-		imgScaled->free();
-		delete imgScaled;
-	}
-
-	return retSize;
+	return Common::Rect(img.getWidth(), img.getHeight());
 }
 
 /**
@@ -470,18 +436,18 @@ Common::Rect TransparentSurface::blit(Graphics::Surface &target, int posX, int p
  * @param overwriteAlpha if true, all other alpha will be set fully opaque
  */
 void TransparentSurface::applyColorKey(uint8 rKey, uint8 gKey, uint8 bKey, bool overwriteAlpha) {
-	assert(format.bytesPerPixel == 4);
-	for (int i = 0; i < h; i++) {
-		for (int j = 0; j < w; j++) {
-			uint32 pix = ((uint32 *)pixels)[i * w + j];
+	assert(getFormat().bytesPerPixel == 4);
+	for (int i = 0; i < getHeight(); i++) {
+		for (int j = 0; j < getWidth(); j++) {
+			uint32 pix = ((uint32 *)getPixels())[i * getWidth() + j];
 			uint8 r, g, b, a;
-			format.colorToARGB(pix, a, r, g, b);
+			getFormat().colorToARGB(pix, a, r, g, b);
 			if (r == rKey && g == gKey && b == bKey) {
 				a = 0;
-				((uint32 *)pixels)[i * w + j] = format.ARGBToColor(a, r, g, b);
+				((uint32 *)getPixels())[i * getWidth() + j] = getFormat().ARGBToColor(a, r, g, b);
 			} else if (overwriteAlpha) {
 				a = 255;
-				((uint32 *)pixels)[i * w + j] = format.ARGBToColor(a, r, g, b);
+				((uint32 *)getPixels())[i * getWidth() + j] = getFormat().ARGBToColor(a, r, g, b);
 			}
 		}
 	}
@@ -545,23 +511,22 @@ systems.
 
 
 TransparentSurface *TransparentSurface::rotoscale(const TransformStruct &transform) const {
-
 	assert(transform._angle != 0); // This would not be ideal; rotoscale() should never be called in conditional branches where angle = 0 anyway.
 
 	Common::Point newHotspot;
-	Common::Rect srcRect(0, 0, (int16)w, (int16)h);
+	Common::Rect srcRect(0, 0, getWidth(), getHeight());
 	Common::Rect rect = TransformTools::newRect(Common::Rect(srcRect), transform, &newHotspot);
-	Common::Rect dstRect(0, 0, (int16)(rect.right - rect.left), (int16)(rect.bottom - rect.top));
+	Common::Rect dstRect(0, 0, rect.right - rect.left, rect.bottom - rect.top);
 
 	TransparentSurface *target = new TransparentSurface();
-	assert(format.bytesPerPixel == 4);
+	assert(getFormat().bytesPerPixel == 4);
 
-	int srcW = w;
-	int srcH = h;
+	int srcW = getWidth();
+	int srcH = getHeight();
 	int dstW = dstRect.width();
 	int dstH = dstRect.height();
 
-	target->create((uint16)dstW, (uint16)dstH, this->format);
+	target->create((uint16)dstW, (uint16)dstH, getFormat());
 
 	if (transform._zoom.x == 0 || transform._zoom.y == 0) {
 		return target;
@@ -659,20 +624,19 @@ TransparentSurface *TransparentSurface::rotoscale(const TransformStruct &transfo
 }
 
 TransparentSurface *TransparentSurface::scale(uint16 newWidth, uint16 newHeight) const {
-
-	Common::Rect srcRect(0, 0, (int16)w, (int16)h);
-	Common::Rect dstRect(0, 0, (int16)newWidth, (int16)newHeight);
+	Common::Rect srcRect(0, 0, getWidth(), getHeight());
+	Common::Rect dstRect(0, 0, newWidth, newHeight);
 
 	TransparentSurface *target = new TransparentSurface();
 
-	assert(format.bytesPerPixel == 4);
+	assert(getFormat().bytesPerPixel == 4);
 
 	int srcW = srcRect.width();
 	int srcH = srcRect.height();
 	int dstW = dstRect.width();
 	int dstH = dstRect.height();
 
-	target->create((uint16)dstW, (uint16)dstH, this->format);
+	target->create((uint16)dstW, (uint16)dstH, getFormat());
 
 #ifdef ENABLE_BILINEAR
 

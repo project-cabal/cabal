@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Mortville Manor DOS source code
@@ -60,7 +62,6 @@ private:
 	byte nextNibble(const byte *&pSrc);
 	byte nextByte(const byte *&pSrc, const byte *&pLookup);
 
-	void majTtxTty();
 	int desanalyse(const byte *&pSrc);
 	void horizontal(const byte *&pSrc, byte *&pDest, const byte *&pLookup);
 	void vertical(const byte *&pSrc, byte *&pDest, const byte *&pLookup);

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/file.h"
 #include "common/system.h"
@@ -206,15 +208,15 @@ void AGOSEngine_Simon2::drawIcon(WindowBlock *window, uint icon, uint x, uint y)
 
 	dst += 110;
 	dst += x;
-	dst += (y + window->y) * screen->pitch;
+	dst += (y + window->y) * screen->getPitch();
 
 	src = _iconFilePtr;
 	src += READ_LE_UINT16(src + icon * 4 + 0);
-	decompressIcon(dst, src, 20, 10, 224, screen->pitch);
+	decompressIcon(dst, src, 20, 10, 224, screen->getPitch());
 
 	src = _iconFilePtr;
 	src += READ_LE_UINT16(src + icon * 4 + 2);
-	decompressIcon(dst, src, 20, 10, 208, screen->pitch);
+	decompressIcon(dst, src, 20, 10, 208, screen->getPitch());
 
 	_system->unlockScreen();
 
@@ -231,17 +233,17 @@ void AGOSEngine_Simon1::drawIcon(WindowBlock *window, uint icon, uint x, uint y)
 	dst = (byte *)screen->getPixels();
 
 	dst += (x + window->x) * 8;
-	dst += (y * 25 + window->y) * screen->pitch;
+	dst += (y * 25 + window->y) * screen->getPitch();
 
 	if (getPlatform() == Common::kPlatformAmiga) {
 		src = _iconFilePtr;
 		src += READ_BE_UINT32(src + icon * 4);
 		uint8 color = (getFeatures() & GF_32COLOR) ? 224 : 240;
-		decompressIconPlanar(dst, src, 24, 12, color, screen->pitch);
+		decompressIconPlanar(dst, src, 24, 12, color, screen->getPitch());
 	} else {
 		src = _iconFilePtr;
 		src += READ_LE_UINT16(src + icon * 2);
-		decompressIcon(dst, src, 24, 12, 224, screen->pitch);
+		decompressIcon(dst, src, 24, 12, 224, screen->getPitch());
 	}
 
 	_system->unlockScreen();
@@ -259,17 +261,17 @@ void AGOSEngine_Waxworks::drawIcon(WindowBlock *window, uint icon, uint x, uint 
 	dst = (byte *)screen->getPixels();
 
 	dst += (x + window->x) * 8;
-	dst += (y * 20 + window->y) * screen->pitch;
+	dst += (y * 20 + window->y) * screen->getPitch();
 
 	uint8 color = dst[0] & 0xF0;
 	if (getPlatform() == Common::kPlatformAmiga) {
 		src = _iconFilePtr;
 		src += READ_BE_UINT32(src + icon * 4);
-		decompressIconPlanar(dst, src, 24, 10, color, screen->pitch);
+		decompressIconPlanar(dst, src, 24, 10, color, screen->getPitch());
 	} else {
 		src = _iconFilePtr;
 		src += READ_LE_UINT16(src + icon * 2);
-		decompressIcon(dst, src, 24, 10, color, screen->pitch);
+		decompressIcon(dst, src, 24, 10, color, screen->getPitch());
 	}
 
 	_system->unlockScreen();
@@ -287,17 +289,17 @@ void AGOSEngine_Elvira2::drawIcon(WindowBlock *window, uint icon, uint x, uint y
 	dst = (byte *)screen->getPixels();
 
 	dst += (x + window->x) * 8;
-	dst += (y * 8 + window->y) * screen->pitch;
+	dst += (y * 8 + window->y) * screen->getPitch();
 
 	uint color = dst[0] & 0xF0;
 	if (getFeatures() & GF_PLANAR) {
 		src = _iconFilePtr;
 		src += READ_BE_UINT32(src + icon * 4);
-		decompressIconPlanar(dst, src, 24, 12, color, screen->pitch);
+		decompressIconPlanar(dst, src, 24, 12, color, screen->getPitch());
 	} else {
 		src = _iconFilePtr;
 		src += READ_LE_UINT16(src + icon * 2);
-		decompressIcon(dst, src, 24, 12, color, screen->pitch);
+		decompressIcon(dst, src, 24, 12, color, screen->getPitch());
 	}
 
 	_system->unlockScreen();
@@ -315,16 +317,16 @@ void AGOSEngine_Elvira1::drawIcon(WindowBlock *window, uint icon, uint x, uint y
 	dst = (byte *)screen->getPixels();
 
 	dst += (x + window->x) * 8;
-	dst += (y * 8 + window->y) * screen->pitch;
+	dst += (y * 8 + window->y) * screen->getPitch();
 
 	if (getFeatures() & GF_PLANAR) {
 		src = _iconFilePtr;
 		src += READ_BE_UINT16(src + icon * 2);
-		decompressIconPlanar(dst, src, 24, 12, 16, screen->pitch);
+		decompressIconPlanar(dst, src, 24, 12, 16, screen->getPitch());
 	} else {
 		src = _iconFilePtr;
 		src += icon * 288;
-		decompressIconPlanar(dst, src, 24, 12, 16, screen->pitch, false);
+		decompressIconPlanar(dst, src, 24, 12, 16, screen->getPitch(), false);
 	}
 
 	_system->unlockScreen();
@@ -346,7 +348,7 @@ void AGOSEngine::drawIcon(WindowBlock *window, uint icon, uint x, uint y) {
 		// Draw Blank Icon
 		for (int yp = 0; yp < 24; yp++) {
 			memset(dst, 0, 24);
-			dst += screen->pitch;
+			dst += screen->getPitch();
 		}
 	} else {
 		uint8 palette[4];
@@ -359,7 +361,7 @@ void AGOSEngine::drawIcon(WindowBlock *window, uint icon, uint x, uint y) {
 			uint32 v1 = (READ_BE_UINT16(src) << 8) | *(src + 4);
 			uint32 v2 = (READ_BE_UINT16(src + 2) << 8) | *(src + 5);
 			for (int xp = 0; xp < 24; ++xp, v1 >>= 1, v2 >>= 1) {
-				dst[yp * screen->pitch + (23 - xp)] = palette[((v1 & 1) << 1) | (v2 & 1)];
+				dst[yp * screen->getPitch() + (23 - xp)] = palette[((v1 & 1) << 1) | (v2 & 1)];
 			}
 		}
 	}
@@ -960,7 +962,7 @@ void AGOSEngine::drawArrow(uint16 x, uint16 y, int8 dir) {
 		}
 
 		src += dir;
-		dst+= screen->pitch;
+		dst+= screen->getPitch();
 	}
 
 	_system->unlockScreen();
@@ -1057,7 +1059,7 @@ void AGOSEngine_PN::drawIconHitBar() {
 				b <<= 1;
 			}
 		}
-		dst += screen->pitch;
+		dst += screen->getPitch();
 	}
 
 	_system->unlockScreen();

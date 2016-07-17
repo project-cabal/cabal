@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef BACKENDS_GRAPHICS_OPENGL_TEXTURE_H
 #define BACKENDS_GRAPHICS_OPENGL_TEXTURE_H
@@ -84,8 +86,8 @@ public:
 	void flagDirty() { _allDirty = true; }
 	bool isDirty() const { return _allDirty || !_dirtyArea.isEmpty(); }
 
-	uint getWidth() const { return _userPixelData.w; }
-	uint getHeight() const { return _userPixelData.h; }
+	uint getWidth() const { return _userPixelData.getWidth(); }
+	uint getHeight() const { return _userPixelData.getHeight(); }
 
 	/**
 	 * @return The hardware format of the texture data.

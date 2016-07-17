@@ -399,7 +399,7 @@ bool ThemeEngine::init() {
 
 	// TODO: Instead of hard coding the font here, it should be possible
 	// to specify the fonts to be used for each resolution in the theme XML.
-	if (_screen.w >= 400 && _screen.h >= 300) {
+	if (_screen.getWidth() >= 400 && _screen.getHeight() >= 300) {
 		_font = FontMan.getFontByUsage(Graphics::FontManager::kBigGUIFont);
 	} else {
 		_font = FontMan.getFontByUsage(Graphics::FontManager::kGUIFont);
@@ -443,7 +443,7 @@ bool ThemeEngine::init() {
 void ThemeEngine::clearAll() {
 	if (_initOk) {
 		_system->clearOverlay();
-		_system->grabOverlay(_screen.getPixels(), _screen.pitch);
+		_system->grabOverlay(_screen.getPixels(), _screen.getPitch());
 	}
 }
 
@@ -548,7 +548,7 @@ void WidgetDrawData::calcBackgroundOffset() {
 }
 
 void ThemeEngine::restoreBackground(Common::Rect r) {
-	r.clip(_screen.w, _screen.h);
+	r.clip(_screen.getWidth(), _screen.getHeight());
 	_vectorRenderer->blitSurface(&_backBuffer, r);
 }
 
@@ -656,7 +656,7 @@ bool ThemeEngine::addBitmap(const Common::String &filename) {
 		}
 	}
 
-	if (srcSurface && srcSurface->format.bytesPerPixel != 1)
+	if (srcSurface && srcSurface->getFormat().bytesPerPixel != 1)
 		surf = srcSurface->convertTo(_overlayFormat);
 
 	// Store the surface into our hashmap (attention, may store NULL entries!)
@@ -839,7 +839,7 @@ void ThemeEngine::queueDD(DrawData type, const Common::Rect &r, uint32 dynamic, 
 		return;
 
 	Common::Rect area = r;
-	area.clip(_screen.w, _screen.h);
+	area.clip(_screen.getWidth(), _screen.getHeight());
 
 	ThemeItemDrawData *q = new ThemeItemDrawData(this, _widgets[type], area, dynamic);
 
@@ -865,7 +865,7 @@ void ThemeEngine::queueDDText(TextData type, TextColor color, const Common::Rect
 		return;
 
 	Common::Rect area = r;
-	area.clip(_screen.w, _screen.h);
+	area.clip(_screen.getWidth(), _screen.getHeight());
 
 	ThemeItemTextData *q = new ThemeItemTextData(this, _texts[type], _textColors[color], area, drawableTextArea, text, alignH, alignV, ellipsis, restoreBg, deltax);
 
@@ -880,7 +880,7 @@ void ThemeEngine::queueDDText(TextData type, TextColor color, const Common::Rect
 void ThemeEngine::queueBitmap(const Graphics::Surface *bitmap, const Common::Rect &r, bool alpha) {
 
 	Common::Rect area = r;
-	area.clip(_screen.w, _screen.h);
+	area.clip(_screen.getWidth(), _screen.getHeight());
 
 	ThemeItemBitmap *q = new ThemeItemBitmap(this, area, bitmap, alpha);
 
@@ -1216,7 +1216,7 @@ void ThemeEngine::drawChar(const Common::Rect &r, byte ch, const Graphics::Font 
 		return;
 
 	Common::Rect charArea = r;
-	charArea.clip(_screen.w, _screen.h);
+	charArea.clip(_screen.getWidth(), _screen.getHeight());
 
 	uint32 rgbColor = _overlayFormat.RGBToColor(_textColors[color]->r, _textColors[color]->g, _textColors[color]->b);
 
@@ -1246,7 +1246,7 @@ void ThemeEngine::updateScreen(bool render) {
 		}
 
 		_vectorRenderer->setSurface(&_screen);
-		memcpy(_screen.getPixels(), _backBuffer.getPixels(), _screen.pitch * _screen.h);
+		memcpy(_screen.getPixels(), _backBuffer.getPixels(), _screen.getPitch() * _screen.getHeight());
 		_bufferQueue.clear();
 	}
 
@@ -1267,7 +1267,7 @@ void ThemeEngine::updateScreen(bool render) {
 
 void ThemeEngine::addDirtyRect(Common::Rect r) {
 	// Clip the rect to screen coords
-	r.clip(_screen.w, _screen.h);
+	r.clip(_screen.getWidth(), _screen.getHeight());
 
 	// If it is empty after clipping, we are done
 	if (r.isEmpty())
@@ -1311,10 +1311,10 @@ void ThemeEngine::openDialog(bool doBuffer, ShadingStyle style) {
 
 	if (style != kShadingNone) {
 		_vectorRenderer->applyScreenShading(style);
-		addDirtyRect(Common::Rect(0, 0, _screen.w, _screen.h));
+		addDirtyRect(Common::Rect(0, 0, _screen.getWidth(), _screen.getHeight()));
 	}
 
-	memcpy(_backBuffer.getPixels(), _screen.getPixels(), _screen.pitch * _screen.h);
+	memcpy(_backBuffer.getPixels(), _screen.getPixels(), _screen.getPitch() * _screen.getHeight());
 	_vectorRenderer->setSurface(&_screen);
 }
 
@@ -1335,8 +1335,8 @@ bool ThemeEngine::createCursor(const Common::String &filename, int hotspotX, int
 	_cursorHotspotX = hotspotX;
 	_cursorHotspotY = hotspotY;
 
-	_cursorWidth = cursor->w;
-	_cursorHeight = cursor->h;
+	_cursorWidth = cursor->getWidth();
+	_cursorHeight = cursor->getHeight();
 
 	// Allocate a new buffer for the cursor
 	delete[] _cursor;
@@ -1357,19 +1357,19 @@ bool ThemeEngine::createCursor(const Common::String &filename, int hotspotX, int
 			uint32 color = colTransparent;
 			byte r, g, b;
 
-			if (cursor->format.bytesPerPixel == 2) {
+			if (cursor->getFormat().bytesPerPixel == 2) {
 				color = READ_UINT16(src);
-			} else if (cursor->format.bytesPerPixel == 4) {
+			} else if (cursor->getFormat().bytesPerPixel == 4) {
 				color = READ_UINT32(src);
 			}
 
-			src += cursor->format.bytesPerPixel;
+			src += cursor->getFormat().bytesPerPixel;
 
 			// Skip transparency
 			if (color == colTransparent)
 				continue;
 
-			cursor->format.colorToRGB(color, r, g, b);
+			cursor->getFormat().colorToRGB(color, r, g, b);
 			const int col = (r << 16) | (g << 8) | b;
 
 			// If there is no entry yet for this color in the palette: Add one

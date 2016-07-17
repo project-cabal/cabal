@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/endian.h"
 #include "common/system.h"
@@ -692,7 +694,7 @@ void AGOSEngine_Feeble::windowDrawChar(WindowBlock *window, uint x, uint y, byte
 	_videoLockOut |= 0x8000;
 
 	dst = getBackGround();
-	dstPitch = _backGroundBuf->pitch;
+	dstPitch = _backGroundBuf->getPitch();
 	h = 13;
 	w = getFeebleFontSize(chr);
 
@@ -2925,7 +2927,7 @@ void AGOSEngine::windowDrawChar(WindowBlock *window, uint x, uint y, byte chr) {
 
 	if (getGameType() == GType_SIMON1 || getGameType() == GType_SIMON2) {
 		dst = (byte *)screen->getPixels();
-		dstPitch = screen->pitch;
+		dstPitch = screen->getPitch();
 		h = 8;
 		w = 6;
 
@@ -2962,7 +2964,7 @@ void AGOSEngine::windowDrawChar(WindowBlock *window, uint x, uint y, byte chr) {
 		}
 	} else if (getGameType() == GType_ELVIRA2 || getGameType() == GType_WW) {
 		dst = (byte *)screen->getPixels();
-		dstPitch = screen->pitch;
+		dstPitch = screen->getPitch();
 		h = 8;
 		w = 6;
 
@@ -2987,14 +2989,14 @@ void AGOSEngine::windowDrawChar(WindowBlock *window, uint x, uint y, byte chr) {
 		}
 	} else if (getGameType() == GType_ELVIRA1) {
 		dst = (byte *)screen->getPixels();
-		dstPitch = screen->pitch;
+		dstPitch = screen->getPitch();
 		h = 8;
 		w = 6;
 
 		src = english_elvira1Font + (chr - 32) * 8;
 	} else {
 		dst = (byte *)screen->getPixels();
-		dstPitch = screen->pitch;
+		dstPitch = screen->getPitch();
 		h = 8;
 		w = 8;
 

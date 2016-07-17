@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "zvision/graphics/render_table.h"
@@ -108,10 +110,10 @@ void RenderTable::mutateImage(Graphics::Surface *dstBuf, Graphics::Surface *srcB
 	uint16 *sourceBuffer = (uint16 *)srcBuf->getPixels();
 	uint16 *destBuffer = (uint16 *)dstBuf->getPixels();
 
-	for (int16 y = 0; y < srcBuf->h; ++y) {
+	for (int16 y = 0; y < srcBuf->getHeight(); ++y) {
 		uint32 sourceOffset = y * _numColumns;
 
-		for (int16 x = 0; x < srcBuf->w; ++x) {
+		for (int16 x = 0; x < srcBuf->getWidth(); ++x) {
 			uint32 index = sourceOffset + x;
 
 			// RenderTable only stores offsets from the original coordinates

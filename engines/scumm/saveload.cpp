@@ -548,8 +548,8 @@ bool ScummEngine::loadState(int slot, bool compat, Common::String &filename) {
 	initScreens(0, _screenHeight);
 
 	VirtScreen *vs = &_virtscr[kMainVirtScreen];
-	memset(vs->getPixels(0, 0), 0, vs->pitch * vs->h);
-	vs->setDirtyRange(0, vs->h);
+	memset(vs->getPixels(0, 0), 0, vs->getPitch() * vs->getHeight());
+	vs->setDirtyRange(0, vs->getHeight());
 	updateDirtyScreen(kMainVirtScreen);
 	updatePalette();
 	initScreens(sb, sh);

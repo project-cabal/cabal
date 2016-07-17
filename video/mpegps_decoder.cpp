@@ -506,18 +506,18 @@ MPEGPSDecoder::MPEGVideoTrack::~MPEGVideoTrack() {
 }
 
 uint16 MPEGPSDecoder::MPEGVideoTrack::getWidth() const {
-	return _surface ? _surface->w : 0;
+	return _surface ? _surface->getWidth() : 0;
 }
 
 uint16 MPEGPSDecoder::MPEGVideoTrack::getHeight() const {
-	return _surface ? _surface->h : 0;
+	return _surface ? _surface->getHeight() : 0;
 }
 
 Graphics::PixelFormat MPEGPSDecoder::MPEGVideoTrack::getPixelFormat() const {
 	if (!_surface)
 		return Graphics::PixelFormat();
 
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 const Graphics::Surface *MPEGPSDecoder::MPEGVideoTrack::decodeNextFrame() {

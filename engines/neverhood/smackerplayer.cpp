@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "graphics/palette.h"
 #include "neverhood/gamemodule.h"
@@ -43,12 +45,12 @@ void SmackerSurface::draw() {
 void SmackerSurface::setSmackerFrame(const Graphics::Surface *smackerFrame) {
 	_drawRect.x = 0;
 	_drawRect.y = 0;
-	_drawRect.width = smackerFrame->w;
-	_drawRect.height = smackerFrame->h;
+	_drawRect.width = smackerFrame->getWidth();
+	_drawRect.height = smackerFrame->getHeight();
 	_sysRect.x = 0;
 	_sysRect.y = 0;
-	_sysRect.width = (smackerFrame->w + 3) & 0xFFFC; // align by 4 bytes
-	_sysRect.height = smackerFrame->h;
+	_sysRect.width = (smackerFrame->getWidth() + 3) & 0xFFFC; // align by 4 bytes
+	_sysRect.height = smackerFrame->getHeight();
 	_smackerFrame = smackerFrame;
 }
 

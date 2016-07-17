@@ -316,7 +316,7 @@ bool MoviePlayer::playVideo() {
 				if (_decoderType == kVideoDecoderPSX)
 					drawFramePSX(frame);
 				else
-					_vm->_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, frame->w, frame->h);
+					_vm->_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, frame->getWidth(), frame->getHeight());
 			}
 
 			if (_decoder->hasDirtyPalette()) {
@@ -492,15 +492,15 @@ void MoviePlayer::drawFramePSX(const Graphics::Surface *frame) {
 	// The PSX videos have half resolution
 
 	Graphics::Surface scaledFrame;
-	scaledFrame.create(frame->w, frame->h * 2, frame->format);
+	scaledFrame.create(frame->getWidth(), frame->getHeight() * 2, frame->getFormat());
 
-	for (int y = 0; y < scaledFrame.h; y++)
-		memcpy(scaledFrame.getBasePtr(0, y), frame->getBasePtr(0, y / 2), scaledFrame.w * scaledFrame.format.bytesPerPixel);
+	for (int y = 0; y < scaledFrame.getHeight(); y++)
+		memcpy(scaledFrame.getBasePtr(0, y), frame->getBasePtr(0, y / 2), scaledFrame.getWidth() * scaledFrame.getFormat().bytesPerPixel);
 
-	uint16 x = (g_system->getWidth() - scaledFrame.w) / 2;
-	uint16 y = (g_system->getHeight() - scaledFrame.h) / 2;
+	uint16 x = (g_system->getWidth() - scaledFrame.getWidth()) / 2;
+	uint16 y = (g_system->getHeight() - scaledFrame.getHeight()) / 2;
 
-	_vm->_system->copyRectToScreen(scaledFrame.getPixels(), scaledFrame.pitch, x, y, scaledFrame.w, scaledFrame.h);
+	_vm->_system->copyRectToScreen(scaledFrame.getPixels(), scaledFrame.getPitch(), x, y, scaledFrame.getWidth(), scaledFrame.getHeight());
 
 	scaledFrame.free();
 }

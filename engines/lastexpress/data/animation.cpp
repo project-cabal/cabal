@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Based on Deniz Oezmen's code: http://oezmen.eu/
 
@@ -270,7 +272,7 @@ void Animation::play() {
 			draw(s);
 
 			// XXX: Update the screen
-			g_system->copyRectToScreen(s->getPixels(), s->pitch, 0, 0, s->w, s->h);
+			g_system->copyRectToScreen(s->getPixels(), s->getPitch(), 0, 0, s->getWidth(), s->getHeight());
 
 			// Free the temporary surface
 			s->free();

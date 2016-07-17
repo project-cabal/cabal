@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "image/codecs/bmp_raw.h"
 
@@ -70,7 +72,7 @@ const Graphics::Surface *BitmapRawDecoder::decodeFrame(Common::SeekableReadStrea
 			}
 
 			stream.skip(extraDataLength);
-			dst -= _surface->pitch * 2;
+			dst -= _surface->getPitch() * 2;
 		}
 	} else { // 32 bpp
 		byte *dst = (byte *)_surface->getBasePtr(0, _height - 1);
@@ -91,7 +93,7 @@ const Graphics::Surface *BitmapRawDecoder::decodeFrame(Common::SeekableReadStrea
 			}
 
 			stream.skip(extraDataLength);
-			dst -= _surface->pitch * 2;
+			dst -= _surface->getPitch() * 2;
 		}
 	}
 

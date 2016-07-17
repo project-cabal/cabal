@@ -23,6 +23,7 @@
 #include <theora/theoradec.h>
 
 #include "common/ptr.h"
+#include "common/rect.h"
 #include "common/stream.h"
 #include "common/system.h"
 #include "common/textconsole.h"
@@ -268,8 +269,7 @@ void TheoraDecoder::initCommon() {
 	_surface.create(_theoraInfo.frame_width, _theoraInfo.frame_height, _pixelFormat);
 
 	// Set up a display surface to take into account the x/y offset
-	_displaySurface.init(_theoraInfo.pic_width, _theoraInfo.pic_height, _surface.pitch,
-	                     _surface.getBasePtr(_theoraInfo.pic_x, _theoraInfo.pic_y), _pixelFormat);
+	_displaySurface = _surface.getSubArea(Common::Rect(_theoraInfo.pic_x, _theoraInfo.pic_y, _theoraInfo.pic_x + _theoraInfo.pic_width, _theoraInfo.pic_y + _theoraInfo.pic_height));
 }
 
 Codec *makeTheoraDecoder(Common::SeekableReadStream &extraData) {

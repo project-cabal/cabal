@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "access/inventory.h"
 #include "access/access.h"
@@ -274,14 +276,14 @@ void InventoryManager::initFields() {
 	Screen &screen = *_vm->_screen;
 	Room &room = *_vm->_room;
 
-	screen._vWindowHeight = screen.h;
-	room._playFieldHeight = screen.h;
-	screen._vWindowLinesTall = screen.h;
-	screen._clipHeight = screen.h;
-	room._playFieldWidth = screen.w;
-	screen._vWindowWidth = screen.w;
-	screen._vWindowBytesWide = screen.w;
-	screen._clipWidth = screen.w;
+	screen._vWindowHeight = screen.getHeight();
+	room._playFieldHeight = screen.getHeight();
+	screen._vWindowLinesTall = screen.getHeight();
+	screen._clipHeight = screen.getHeight();
+	room._playFieldWidth = screen.getWidth();
+	screen._vWindowWidth = screen.getWidth();
+	screen._vWindowBytesWide = screen.getWidth();
+	screen._clipWidth = screen.getWidth();
 
 	screen._windowXAdd = 0;
 	screen._windowYAdd = 0;
@@ -377,12 +379,11 @@ int InventoryManager::coordIndexOf() {
 void InventoryManager::saveScreens() {
 	_vm->_buffer1.copyTo(&_savedBuffer1);
 	_vm->_screen->copyTo(&_savedScreen);
-	_vm->_newRects.push_back(Common::Rect(0, 0, _savedScreen.w, _savedScreen.h));
+	_vm->_newRects.push_back(Common::Rect(_savedScreen.getWidth(), _savedScreen.getHeight()));
 
 }
 
 void InventoryManager::restoreScreens() {
-	_vm->_buffer1.w = _vm->_buffer1.pitch;
 	_savedBuffer1.copyTo(&_vm->_buffer1);
 	_savedScreen.copyTo(_vm->_screen);
 
@@ -402,7 +403,7 @@ void InventoryManager::outlineIcon(int itemIndex) {
 	font._fontColors[1] = 10;
 	font._fontColors[2] = 11;
 	font._fontColors[3] = 12;
-	font.drawString(&screen, s, Common::Point((screen.w - strWidth) / 2, 184));
+	font.drawString(&screen, s, Common::Point((screen.getWidth() - strWidth) / 2, 184));
 }
 
 void InventoryManager::combineItems() {

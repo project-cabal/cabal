@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/config-manager.h"
@@ -369,10 +371,10 @@ void AccessEngine::plotList1() {
 		SpriteResource *sprites = ie._spritesPtr;
 		SpriteFrame *frame = sprites->getFrame(ie._frameNumber);
 
-		Common::Rect bounds(pt.x, pt.y, pt.x + frame->w, pt.y + frame->h);
+		Common::Rect bounds(pt.x, pt.y, pt.x + frame->getWidth(), pt.y + frame->getHeight());
 		if (!_imgUnscaled) {
-			bounds.setWidth(_screen->_scaleTable1[frame->w]);
-			bounds.setHeight(_screen->_scaleTable1[frame->h]);
+			bounds.setWidth(_screen->_scaleTable1[frame->getWidth()]);
+			bounds.setHeight(_screen->_scaleTable1[frame->getHeight()]);
 		}
 
 		// Make a copy - some of the drawing methods I've adapted need the full
@@ -442,8 +444,8 @@ void AccessEngine::copyBF2Vid() {
 
 	for (int yp = 0; yp < _screen->_vWindowLinesTall; ++yp) {
 		Common::copy(srcP, srcP + _screen->_vWindowBytesWide, destP);
-		srcP += _buffer2.pitch;
-		destP += _screen->pitch;
+		srcP += _buffer2.getPitch();
+		destP += _screen->getPitch();
 	}
 
 	// Add dirty rect for affected area
@@ -598,7 +600,7 @@ void AccessEngine::writeSavegameHeader(Common::OutSaveFile *out, AccessSavegameH
 	_screen->getPalette(thumbPalette);
 	Graphics::Surface saveThumb;
 	::createThumbnail(&saveThumb, (const byte *)_screen->getPixels(),
-		_screen->w, _screen->h, thumbPalette);
+		_screen->getWidth(), _screen->getHeight(), thumbPalette);
 	Graphics::saveThumbnail(*out, saveThumb);
 	saveThumb.free();
 

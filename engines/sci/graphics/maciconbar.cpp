@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sci/sci.h"
 #include "sci/engine/kernel.h"
@@ -85,7 +87,7 @@ void GfxMacIconBar::addIcon(reg_t obj) {
 	uint16 y = g_sci->_gfxScreen->getHeight() + 2;
 
 	if (item.nonSelectedImage)
-		item.rect = Common::Rect(_lastX, y, MIN<uint32>(_lastX + item.nonSelectedImage->w, 320), y + item.nonSelectedImage->h);
+		item.rect = Common::Rect(_lastX, y, MIN<uint32>(_lastX + item.nonSelectedImage->getWidth(), 320), y + item.nonSelectedImage->getHeight());
 	else
 		error("Could not find a non-selected image for icon %d", iconIndex);
 
@@ -116,7 +118,7 @@ void GfxMacIconBar::drawIcon(uint16 iconIndex, bool selected) {
 		drawDisabledImage(_iconBarItems[iconIndex].nonSelectedImage, rect);
 
 	if ((iconIndex == _inventoryIndex) && _inventoryIcon) {
-		Common::Rect invRect = Common::Rect(0, 0, _inventoryIcon->w, _inventoryIcon->h);
+		Common::Rect invRect = Common::Rect(_inventoryIcon->getWidth(), _inventoryIcon->getHeight());
 		invRect.moveTo(rect.left, rect.top);
 		invRect.translate((rect.width() - invRect.width()) / 2, (rect.height() - invRect.height()) / 2);
 
@@ -129,7 +131,7 @@ void GfxMacIconBar::drawIcon(uint16 iconIndex, bool selected) {
 
 void GfxMacIconBar::drawEnabledImage(Graphics::Surface *surface, const Common::Rect &rect) {
 	if (surface)
-		g_system->copyRectToScreen(surface->getPixels(), surface->pitch, rect.left, rect.top, rect.width(), rect.height());
+		g_system->copyRectToScreen(surface->getPixels(), surface->getPitch(), rect.left, rect.top, rect.width(), rect.height());
 }
 
 void GfxMacIconBar::drawDisabledImage(Graphics::Surface *surface, const Common::Rect &rect) {
@@ -141,7 +143,7 @@ void GfxMacIconBar::drawDisabledImage(Graphics::Surface *surface, const Common::
 	Graphics::Surface newSurf;
 	newSurf.copyFrom(*surface);
 
-	for (int i = 0; i < newSurf.h; i++) {
+	for (int i = 0; i < newSurf.getHeight(); i++) {
 		// Start at the next four byte boundary
 		int startX = 3 - ((rect.left + 3) & 3);
 
@@ -149,11 +151,11 @@ void GfxMacIconBar::drawDisabledImage(Graphics::Surface *surface, const Common::
 		if ((i + rect.top) & 1)
 			startX = (startX + 2) & 3;
 
-		for (int j = startX; j < newSurf.w; j += 4)
+		for (int j = startX; j < newSurf.getWidth(); j += 4)
 			*((byte *)newSurf.getBasePtr(j, i)) = 0;
 	}
 
-	g_system->copyRectToScreen(newSurf.getPixels(), newSurf.pitch, rect.left, rect.top, rect.width(), rect.height());
+	g_system->copyRectToScreen(newSurf.getPixels(), newSurf.getPitch(), rect.left, rect.top, rect.width(), rect.height());
 	newSurf.free();
 }
 
@@ -227,7 +229,7 @@ void GfxMacIconBar::remapColors(Graphics::Surface *surf, const byte *palette) {
 	byte *pixels = (byte *)surf->getPixels();
 
 	// Remap to the screen palette
-	for (uint16 i = 0; i < surf->w * surf->h; i++) {
+	for (uint16 i = 0; i < surf->getWidth() * surf->getHeight(); i++) {
 		byte color = *pixels;
 
 		byte r = palette[color * 3];

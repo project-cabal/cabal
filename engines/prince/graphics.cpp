@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "prince/graphics.h"
 #include "prince/prince.h"
@@ -78,15 +80,15 @@ void GraphicsMan::change() {
 }
 
 void GraphicsMan::draw(Graphics::Surface *screen, const Graphics::Surface *s) {
-	uint16 w = MIN(screen->w, s->w);
+	uint16 w = MIN(screen->getWidth(), s->getWidth());
 	const byte *src = (const byte *)s->getBasePtr(0, 0);
 	byte *dst = (byte *)screen->getBasePtr(0, 0);
-	for (uint y = 0; y < s->h; y++) {
-		if (y < screen->h) {
+	for (uint y = 0; y < s->getHeight(); y++) {
+		if (y < screen->getHeight()) {
 			memcpy(dst, src, w);
 		}
-		src += s->pitch;
-		dst += screen->pitch;
+		src += s->getPitch();
+		dst += screen->getPitch();
 	}
 	change();
 }
@@ -95,20 +97,20 @@ void GraphicsMan::draw(Graphics::Surface *screen, const Graphics::Surface *s) {
 void GraphicsMan::drawTransparentSurface(Graphics::Surface *screen, int32 posX, int32 posY, const Graphics::Surface *s, int secondTransColor) {
 	const byte *src1 = (const byte *)s->getBasePtr(0, 0);
 	byte *dst1 = (byte *)screen->getBasePtr(posX, posY);
-	for (int y = 0; y < s->h; y++) {
-		if (y + posY < screen->h && y + posY >= 0) {
+	for (int y = 0; y < s->getHeight(); y++) {
+		if (y + posY < screen->getHeight() && y + posY >= 0) {
 			const byte *src2 = src1;
 			byte *dst2 = dst1;
-			for (int x = 0; x < s->w; x++, src2++, dst2++) {
+			for (int x = 0; x < s->getWidth(); x++, src2++, dst2++) {
 				if (*src2 && *src2 != secondTransColor) {
-					if (x + posX < screen->w && x + posX >= 0) {
+					if (x + posX < screen->getWidth() && x + posX >= 0) {
 						*dst2 = *src2;
 					}
 				}
 			}
 		}
-		src1 += s->pitch;
-		dst1 += screen->pitch;
+		src1 += s->getPitch();
+		dst1 += screen->getPitch();
 	}
 	change();
 }
@@ -120,20 +122,20 @@ void GraphicsMan::drawTransparentSurface(Graphics::Surface *screen, int32 posX, 
 void GraphicsMan::drawAsShadowSurface(Graphics::Surface *screen, int32 posX, int32 posY, const Graphics::Surface *s, byte *shadowTable) {
 	const byte *src1 = (const byte *)s->getBasePtr(0, 0);
 	byte *dst1 = (byte *)screen->getBasePtr(posX, posY);
-	for (int y = 0; y < s->h; y++) {
-		if (y + posY < screen->h && y + posY >= 0) {
+	for (int y = 0; y < s->getHeight(); y++) {
+		if (y + posY < screen->getHeight() && y + posY >= 0) {
 			const byte *src2 = src1;
 			byte *dst2 = dst1;
-			for (int x = 0; x < s->w; x++, src2++, dst2++) {
+			for (int x = 0; x < s->getWidth(); x++, src2++, dst2++) {
 				if (*src2 == kShadowColor) {
-					if (x + posX < screen->w && x + posX >= 0) {
+					if (x + posX < screen->getWidth() && x + posX >= 0) {
 						*dst2 = *(shadowTable + *dst2);
 					}
 				}
 			}
 		}
-		src1 += s->pitch;
-		dst1 += screen->pitch;
+		src1 += s->getPitch();
+		dst1 += screen->getPitch();
 	}
 }
 
@@ -148,20 +150,20 @@ void GraphicsMan::drawTransparentWithBlendSurface(Graphics::Surface *screen, int
 	for (int i = 0; i < 256; i++) {
 		blendTable[i] = 255;
 	}
-	for (int y = 0; y < s->h; y++) {
-		if (y + posY < screen->h && y + posY >= 0) {
+	for (int y = 0; y < s->getHeight(); y++) {
+		if (y + posY < screen->getHeight() && y + posY >= 0) {
 			const byte *src2 = src1;
 			byte *dst2 = dst1;
-			for (int x = 0; x < s->w; x++, src2++, dst2++) {
+			for (int x = 0; x < s->getWidth(); x++, src2++, dst2++) {
 				if (*src2) {
-					if (x + posX < screen->w && x + posX >= 0) {
+					if (x + posX < screen->getWidth() && x + posX >= 0) {
 						*dst2 = getBlendTableColor(*src2, *dst2, blendTable);
 					}
 				}
 			}
 		}
-		src1 += s->pitch;
-		dst1 += screen->pitch;
+		src1 += s->getPitch();
+		dst1 += screen->getPitch();
 	}
 	free(blendTable);
 	change();
@@ -174,20 +176,20 @@ void GraphicsMan::drawTransparentWithBlendSurface(Graphics::Surface *screen, int
 void GraphicsMan::drawTransparentDrawNode(Graphics::Surface *screen, DrawNode *drawNode) {
 	byte *src1 = (byte *)drawNode->s->getBasePtr(0, 0);
 	byte *dst1 = (byte *)screen->getBasePtr(drawNode->posX, drawNode->posY);
-	for (int y = 0; y < drawNode->s->h; y++) {
-		if (y + drawNode->posY < screen->h && y + drawNode->posY >= 0) {
+	for (int y = 0; y < drawNode->s->getHeight(); y++) {
+		if (y + drawNode->posY < screen->getHeight() && y + drawNode->posY >= 0) {
 			byte *src2 = src1;
 			byte *dst2 = dst1;
-			for (int x = 0; x < drawNode->s->w; x++, src2++, dst2++) {
+			for (int x = 0; x < drawNode->s->getWidth(); x++, src2++, dst2++) {
 				if (*src2 != 255) {
-					if (x + drawNode->posX < screen->w && x + drawNode->posX >= 0) {
+					if (x + drawNode->posX < screen->getWidth() && x + drawNode->posX >= 0) {
 						*dst2 = *src2;
 					}
 				}
 			}
 		}
-		src1 += drawNode->s->pitch;
-		dst1 += screen->pitch;
+		src1 += drawNode->s->getPitch();
+		dst1 += screen->getPitch();
 	}
 }
 
@@ -205,14 +207,14 @@ void GraphicsMan::drawTransparentWithTransDrawNode(Graphics::Surface *screen, Dr
 	byte *dst1 = (byte *)screen->getBasePtr(drawNode->posX, drawNode->posY);
 	// trasition table for calculating new color value
 	byte *transTableData = (byte *)drawNode->data;
-	for (int y = 0; y < drawNode->s->h; y++) {
-		if (y + drawNode->posY < screen->h && y + drawNode->posY >= 0) {
+	for (int y = 0; y < drawNode->s->getHeight(); y++) {
+		if (y + drawNode->posY < screen->getHeight() && y + drawNode->posY >= 0) {
 			// current pixel in row of source sprite
 			byte *src2 = src1;
 			// current pixel in row of screen surface
 			byte *dst2 = dst1;
-			for (int x = 0; x < drawNode->s->w; x++, src2++, dst2++) {
-				if (x + drawNode->posX < screen->w && x + drawNode->posX >= 0) {
+			for (int x = 0; x < drawNode->s->getWidth(); x++, src2++, dst2++) {
+				if (x + drawNode->posX < screen->getWidth() && x + drawNode->posX >= 0) {
 					if (*src2 != 255) {
 						// if source sprite pixel is not mask color than draw it normally
 						*dst2 = *src2;
@@ -222,7 +224,7 @@ void GraphicsMan::drawTransparentWithTransDrawNode(Graphics::Surface *screen, Dr
 							// not first pixel in row
 							if (*(src2 - 1) == 255) {
 								// if it has mask color to the left - check right
-								if (x != drawNode->s->w - 1) {
+								if (x != drawNode->s->getWidth() - 1) {
 									// not last pixel in row
 									if (*(src2 + 1) == 255) {
 										// pixel to the right with mask color - no anti-alias
@@ -235,7 +237,7 @@ void GraphicsMan::drawTransparentWithTransDrawNode(Graphics::Surface *screen, Dr
 								}
 							}
 							// it's not mask color to the left - we continue checking
-						} else if (x != drawNode->s->w - 1) {
+						} else if (x != drawNode->s->getWidth() - 1) {
 							// first pixel in row but not last - just right pixel checking
 							if (*(src2 + 1) == 255) {
 								// pixel to the right with mask color - no anti-alias
@@ -247,15 +249,15 @@ void GraphicsMan::drawTransparentWithTransDrawNode(Graphics::Surface *screen, Dr
 							continue;
 						}
 						byte value = 0;
-						if (y != drawNode->s->h - 1) {
+						if (y != drawNode->s->getHeight() - 1) {
 							// not last row
 							// check pixel below of current src2 pixel
-							value = *(src2 + drawNode->s->pitch);
+							value = *(src2 + drawNode->s->getPitch());
 							if (value == 255) {
 								// pixel below with mask color - check above
 								if (y) {
 									// not first row
-									value = *(src2 - drawNode->s->pitch);
+									value = *(src2 - drawNode->s->getPitch());
 									if (value == 255) {
 										// pixel above with mask color - no anti-alias
 										continue;
@@ -269,7 +271,7 @@ void GraphicsMan::drawTransparentWithTransDrawNode(Graphics::Surface *screen, Dr
 							// it's not mask color below - we draw as transition color
 						} else if (y) {
 							// last row - just check above
-							value = *(src2 - drawNode->s->pitch);
+							value = *(src2 - drawNode->s->getPitch());
 							if (value == 255) {
 								// pixel above with mask color - no anti-alias
 								continue;
@@ -286,8 +288,8 @@ void GraphicsMan::drawTransparentWithTransDrawNode(Graphics::Surface *screen, Dr
 			}
 		}
 		// adding pitch to jump to next row of pixels
-		src1 += drawNode->s->pitch;
-		dst1 += screen->pitch;
+		src1 += drawNode->s->getPitch();
+		dst1 += screen->getPitch();
 	}
 }
 
@@ -299,12 +301,12 @@ void GraphicsMan::drawMaskDrawNode(Graphics::Surface *screen, DrawNode *drawNode
 	int maskPostion = 0;
 	int maskCounter = 128;
 	for (int y = 0; y < drawNode->height; y++) {
-		if (y + drawNode->posY < screen->h && y + drawNode->posY >= 0) {
+		if (y + drawNode->posY < screen->getHeight() && y + drawNode->posY >= 0) {
 			byte *src2 = src1;
 			byte *dst2 = dst1;
 			int tempMaskPostion = maskPostion;
 			for (int x = 0; x < drawNode->width; x++, src2++, dst2++) {
-				if (x + drawNode->posX < screen->w && x + drawNode->posX >= 0) {
+				if (x + drawNode->posX < screen->getWidth() && x + drawNode->posX >= 0) {
 					if ((maskData[tempMaskPostion] & maskCounter) != 0) {
 						*dst2 = *src2;
 					}
@@ -316,8 +318,8 @@ void GraphicsMan::drawMaskDrawNode(Graphics::Surface *screen, DrawNode *drawNode
 				}
 			}
 		}
-		src1 += drawNode->originalRoomSurface->pitch;
-		dst1 += screen->pitch;
+		src1 += drawNode->originalRoomSurface->getPitch();
+		dst1 += screen->getPitch();
 		maskPostion += maskWidth;
 		maskCounter = 128;
 	}
@@ -327,33 +329,33 @@ void GraphicsMan::drawAsShadowDrawNode(Graphics::Surface *screen, DrawNode *draw
 	byte *shadowData = (byte *)drawNode->data;
 	byte *src1 = (byte *)drawNode->s->getBasePtr(0, 0);
 	byte *dst1 = (byte *)screen->getBasePtr(drawNode->posX, drawNode->posY);
-	for (int y = 0; y < drawNode->s->h; y++) {
-		if (y + drawNode->posY < screen->h && y + drawNode->posY >= 0) {
+	for (int y = 0; y < drawNode->s->getHeight(); y++) {
+		if (y + drawNode->posY < screen->getHeight() && y + drawNode->posY >= 0) {
 			byte *src2 = src1;
 			byte *dst2 = dst1;
-			for (int x = 0; x < drawNode->s->w; x++, src2++, dst2++) {
+			for (int x = 0; x < drawNode->s->getWidth(); x++, src2++, dst2++) {
 				if (*src2 == kShadowColor) {
-					if (x + drawNode->posX < screen->w && x + drawNode->posX >= 0) {
+					if (x + drawNode->posX < screen->getWidth() && x + drawNode->posX >= 0) {
 						*dst2 = *(shadowData + *dst2);
 					}
 				}
 			}
 		}
-		src1 += drawNode->s->pitch;
-		dst1 += screen->pitch;
+		src1 += drawNode->s->getPitch();
+		dst1 += screen->getPitch();
 	}
 }
 
 void GraphicsMan::drawBackSpriteDrawNode(Graphics::Surface *screen, DrawNode *drawNode) {
 	byte *src1 = (byte *)drawNode->s->getBasePtr(0, 0);
 	byte *dst1 = (byte *)screen->getBasePtr(drawNode->posX, drawNode->posY);
-	for (int y = 0; y < drawNode->s->h; y++) {
-		if (y + drawNode->posY < screen->h && y + drawNode->posY >= 0) {
+	for (int y = 0; y < drawNode->s->getHeight(); y++) {
+		if (y + drawNode->posY < screen->getHeight() && y + drawNode->posY >= 0) {
 			byte *src2 = src1;
 			byte *dst2 = dst1;
-			for (int x = 0; x < drawNode->s->w; x++, src2++, dst2++) {
+			for (int x = 0; x < drawNode->s->getWidth(); x++, src2++, dst2++) {
 				if (*src2 != 255) {
-					if (x + drawNode->posX < screen->w && x + drawNode->posX >= 0) {
+					if (x + drawNode->posX < screen->getWidth() && x + drawNode->posX >= 0) {
 						if (*dst2 == 255) {
 							*dst2 = *src2;
 						}
@@ -361,8 +363,8 @@ void GraphicsMan::drawBackSpriteDrawNode(Graphics::Surface *screen, DrawNode *dr
 				}
 			}
 		}
-		src1 += drawNode->s->pitch;
-		dst1 += screen->pitch;
+		src1 += drawNode->s->getPitch();
+		dst1 += screen->getPitch();
 	}
 }
 

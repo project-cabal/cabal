@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/algorithm.h"
 #include "common/memstream.h"
@@ -40,7 +42,7 @@ SpriteResource::~SpriteResource() {
 void SpriteResource::draw(Graphics::Surface *destSurface, bool flipX, bool flipY) {
 	if (_pixels) {
 		byte *dest = (byte*)destSurface->getPixels();
-		const int destPitch = destSurface->pitch;
+		const int destPitch = destSurface->getPitch();
 		if (_rle)
 			unpackSpriteRle(_pixels, _dimensions.width, _dimensions.height, dest, destPitch, flipX, flipY);
 		else
@@ -117,7 +119,7 @@ AnimResource::~AnimResource() {
 void AnimResource::draw(uint frameIndex, Graphics::Surface *destSurface, bool flipX, bool flipY) {
 	const AnimFrameInfo frameInfo = _frames[frameIndex];
 	byte *dest = (byte*)destSurface->getPixels();
-	const int destPitch = destSurface->pitch;
+	const int destPitch = destSurface->getPitch();
 	_currSpriteData = _spriteData + frameInfo.spriteDataOffs;
 	_width = frameInfo.drawOffset.width;
 	_height = frameInfo.drawOffset.height;
@@ -296,7 +298,7 @@ NDrawRect& MouseCursorResource::getRect() {
 void MouseCursorResource::draw(int frameNum, Graphics::Surface *destSurface) {
 	if (_cursorSprite.getPixels()) {
 		const int sourcePitch = (_cursorSprite.getDimensions().width + 3) & 0xFFFC; // 4 byte alignment
-		const int destPitch = destSurface->pitch;
+		const int destPitch = destSurface->getPitch();
 		const byte *source = _cursorSprite.getPixels() + _cursorNum * (sourcePitch * 32) + frameNum * 32;
 		byte *dest = (byte*)destSurface->getPixels();
 		for (int16 yc = 0; yc < 32; yc++) {

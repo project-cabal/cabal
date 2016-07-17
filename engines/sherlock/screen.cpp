@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/screen.h"
 #include "sherlock/sherlock.h"
@@ -70,7 +72,7 @@ void Screen::update() {
 	for (i = _dirtyRects.begin(); i != _dirtyRects.end(); ++i) {
 		const Common::Rect &r = *i;
 		const byte *srcP = (const byte *)getBasePtr(r.left, r.top);
-		g_system->copyRectToScreen(srcP, _surface.pitch, r.left, r.top,
+		g_system->copyRectToScreen(srcP, _surface.getPitch(), r.left, r.top,
 			r.width(), r.height());
 	}
 
@@ -124,7 +126,7 @@ void Screen::fadeToBlack(int speed) {
 	}
 
 	setPalette(tempPalette);
-	fillRect(Common::Rect(0, 0, _surface.w, _surface.h), 0);
+	fillRect(Common::Rect(_surface.getWidth(), _surface.getHeight()), 0);
 }
 
 void Screen::fadeIn(const byte palette[PALETTE_SIZE], int speed) {
@@ -188,7 +190,7 @@ void Screen::randomTransition() {
 		if (idx != 0 && (idx % 300) == 0) {
 			// Ensure there's a full screen dirty rect for the next frame update
 			if (_dirtyRects.empty())
-				addDirtyRect(Common::Rect(0, 0, _surface.w, _surface.h));
+				addDirtyRect(Common::Rect(_surface.getWidth(), _surface.getHeight()));
 
 			events.pollEvents();
 			events.delay(1);
@@ -262,7 +264,7 @@ void Screen::slamRect(const Common::Rect &r) {
 void Screen::flushImage(ImageFrame *frame, const Common::Point &pt, int16 *xp, int16 *yp, 
 		int16 *width, int16 *height) {
 	Common::Point imgPos = pt + frame->_offset;
-	Common::Rect newBounds(imgPos.x, imgPos.y, imgPos.x + frame->_frame.w, imgPos.y + frame->_frame.h);
+	Common::Rect newBounds(imgPos.x, imgPos.y, imgPos.x + frame->_frame.getWidth(), imgPos.y + frame->_frame.getHeight());
 	Common::Rect oldBounds(*xp, *yp, *xp + *width, *yp + *height);
 
 	if (!_flushScreen) {
@@ -387,8 +389,7 @@ void Screen::vgaBar(const Common::Rect &r, int color) {
 }
 
 void Screen::setDisplayBounds(const Common::Rect &r) {
-	_sceneSurface.setPixels(_backBuffer1.getBasePtr(r.left, r.top), r.width(), r.height(), _backBuffer1.getPixelFormat());
-
+	_sceneSurface.getRawSurface() = _backBuffer1.getRawSurface().getSubArea(r);
 	_backBuffer = &_sceneSurface;
 }
 

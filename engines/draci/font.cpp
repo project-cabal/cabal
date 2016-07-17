@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/file.h"
 
@@ -137,11 +139,11 @@ void Font::drawChar(Surface *dst, uint8 chr, int tx, int ty, int with_color) con
 	const int charOffset = charIndex * _fontHeight * _maxCharWidth;
 
 	// Determine how many pixels to draw horizontally (to prevent overflow)
-	int xSpaceLeft = dst->w - tx - 1;
+	int xSpaceLeft = dst->getWidth() - tx - 1;
 	int xPixelsToDraw = (currentWidth < xSpaceLeft) ? currentWidth : xSpaceLeft;
 
 	// Determine how many pixels to draw vertically
-	int ySpaceLeft = dst->h - ty - 1;
+	int ySpaceLeft = dst->getHeight() - ty - 1;
 	int yPixelsToDraw = (_fontHeight < ySpaceLeft) ? _fontHeight : ySpaceLeft;
 
 	int _transparent = dst->getTransparentColor();
@@ -180,7 +182,7 @@ void Font::drawChar(Surface *dst, uint8 chr, int tx, int ty, int with_color) con
 		}
 
 		// Advance to next row
-		ptr += dst->pitch;
+		ptr += dst->getPitch();
 	}
 }
 
@@ -231,7 +233,7 @@ void Font::drawString(Surface *dst, const Common::String &str,
 		}
 
 		// Break early if there's no more space on the screen
-		if (curx >= dst->w - 1 || cury >= dst->h - 1) {
+		if (curx >= dst->getWidth() - 1 || cury >= dst->getHeight() - 1) {
 			break;
 		}
 

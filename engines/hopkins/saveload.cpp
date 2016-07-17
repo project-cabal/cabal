@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "hopkins/saveload.h"
 
@@ -288,7 +290,7 @@ void SaveLoadManager::syncCharacterLocation(Common::Serializer &s, CharacterLoca
 }
 
 void SaveLoadManager::convertThumb16To8(Graphics::Surface *thumb16, Graphics::Surface *thumb8) {
-	thumb8->create(thumb16->w, thumb16->h, Graphics::PixelFormat::createFormatCLUT8());
+	thumb8->create(thumb16->getWidth(), thumb16->getHeight(), Graphics::PixelFormat::createFormatCLUT8());
 	Graphics::PixelFormat pixelFormat16(2, 5, 6, 5, 0, 11, 5, 0, 0);
 
 	byte paletteR[PALETTE_SIZE];
@@ -302,11 +304,11 @@ void SaveLoadManager::convertThumb16To8(Graphics::Surface *thumb16, Graphics::Su
 	const uint16 *srcP = (const uint16 *)thumb16->getPixels();
 	byte *destP = (byte *)thumb8->getPixels();
 
-	for (int yp = 0; yp < thumb16->h; ++yp) {
+	for (int yp = 0; yp < thumb16->getHeight(); ++yp) {
 		const uint16 *lineSrcP = srcP;
 		byte *lineDestP = destP;
 
-		for (int xp = 0; xp < thumb16->w; ++xp) {
+		for (int xp = 0; xp < thumb16->getWidth(); ++xp) {
 			byte r, g, b;
 			pixelFormat16.colorToRGB(*lineSrcP++, r, g, b);
 
@@ -332,8 +334,8 @@ void SaveLoadManager::convertThumb16To8(Graphics::Surface *thumb16, Graphics::Su
 		}
 
 		// Move to the start of the next line
-		srcP += thumb16->w;
-		destP += thumb16->w;
+		srcP += thumb16->getWidth();
+		destP += thumb16->getWidth();
 	}
 }
 

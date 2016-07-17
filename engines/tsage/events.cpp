@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/events.h"
 #include "common/singleton.h"
@@ -283,7 +285,7 @@ void EventsClass::setCursor(CursorType cursorType) {
 
 	Graphics::Surface surface = s.lockSurface();
 	const byte *cursorData = (const byte *)surface.getPixels();
-	CursorMan.replaceCursor(cursorData, surface.w, surface.h, s._centroid.x, s._centroid.y, s._transColor);
+	CursorMan.replaceCursor(cursorData, surface.getWidth(), surface.getHeight(), s._centroid.x, s._centroid.y, s._transColor);
 	s.unlockSurface();
 
 	if (delFlag)
@@ -339,7 +341,7 @@ void EventsClass::pushCursor(CursorType cursorType) {
 
 	Graphics::Surface surface = s.lockSurface();
 	const byte *cursorData = (const byte *)surface.getPixels();
-	CursorMan.pushCursor(cursorData, surface.w, surface.h, s._centroid.x, s._centroid.y, s._transColor);
+	CursorMan.pushCursor(cursorData, surface.getWidth(), surface.getHeight(), s._centroid.x, s._centroid.y, s._transColor);
 	s.unlockSurface();
 
 	if (delFlag)
@@ -352,7 +354,7 @@ void EventsClass::popCursor() {
 
 void EventsClass::setCursor(Graphics::Surface &cursor, int transColor, const Common::Point &hotspot, CursorType cursorId) {
 	const byte *cursorData = (const byte *)cursor.getPixels();
-	CursorMan.replaceCursor(cursorData, cursor.w, cursor.h, hotspot.x, hotspot.y, transColor);
+	CursorMan.replaceCursor(cursorData, cursor.getWidth(), cursor.getHeight(), hotspot.x, hotspot.y, transColor);
 
 	_currentCursor = cursorId;
 }

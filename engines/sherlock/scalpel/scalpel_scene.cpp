@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/scalpel/scalpel_scene.h"
 #include "sherlock/scalpel/scalpel_map.h"
@@ -160,7 +162,7 @@ void ScalpelScene::checkBgShapes() {
 		Object &obj = *_canimShapes[idx];
 		if (obj._type == STATIC_BG_SHAPE || obj._type == ACTIVE_BG_SHAPE) {
 			if ((obj._flags & 5) == 1) {
-				obj._misc = (pt.y < (obj._position.y + obj._imageFrame->_frame.h - 1)) ?
+				obj._misc = (pt.y < (obj._position.y + obj._imageFrame->_frame.getHeight() - 1)) ?
 				NORMAL_FORWARD : NORMAL_BEHIND;
 			} else if (!(obj._flags & 1)) {
 				obj._misc = BEHIND;
@@ -338,14 +340,14 @@ void ScalpelScene::doBgAnim() {
 	// Draw the player if he's active and his walk has been loaded into memory
 	if (people[HOLMES]._type == CHARACTER && people[HOLMES]._walkLoaded && people._holmesOn) {
 		// If Holmes is too far to the right, move him back so he's on-screen
-		int xRight = SHERLOCK_SCREEN_WIDTH - 2 - people[HOLMES]._imageFrame->_frame.w;
+		int xRight = SHERLOCK_SCREEN_WIDTH - 2 - people[HOLMES]._imageFrame->_frame.getWidth();
 		int tempX = MIN(people[HOLMES]._position.x / FIXED_INT_MULTIPLIER, xRight);
 
 		bool flipped = people[HOLMES]._sequenceNumber == WALK_LEFT || people[HOLMES]._sequenceNumber == STOP_LEFT ||
 			people[HOLMES]._sequenceNumber == WALK_UPLEFT || people[HOLMES]._sequenceNumber == STOP_UPLEFT ||
 			people[HOLMES]._sequenceNumber == WALK_DOWNRIGHT || people[HOLMES]._sequenceNumber == STOP_DOWNRIGHT;
 		screen._backBuffer->transBlitFrom(*people[HOLMES]._imageFrame,
-			Common::Point(tempX, people[HOLMES]._position.y / FIXED_INT_MULTIPLIER - people[HOLMES]._imageFrame->_frame.h), flipped);
+			Common::Point(tempX, people[HOLMES]._position.y / FIXED_INT_MULTIPLIER - people[HOLMES]._imageFrame->_frame.getHeight()), flipped);
 	}
 
 	// Draw all static and active shapes are NORMAL and are in front of the person

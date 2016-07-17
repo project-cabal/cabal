@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "mads/scene_data.h"
@@ -241,7 +243,7 @@ void SceneInfo::load(int sceneId, int variant, const Common::String &resName,
 	int width = _width;
 	int height = _height;
 
-	if (!bgSurface.getPixels() || (bgSurface.w != width) || (bgSurface.h != height)) {
+	if (!bgSurface.getPixels() || (bgSurface.getWidth() != width) || (bgSurface.getHeight() != height)) {
 		bgSurface.setSize(width, height);
 	}
 
@@ -368,9 +370,9 @@ void SceneInfo::loadMadsV1Background(int sceneId, const Common::String &resName,
 	MadsPack artResource(&artFile);
 
 	// Read inhh the background surface data
-	assert(_width  && _height == bgSurface.h);
+	assert(_width  && _height == bgSurface.getHeight());
 	stream = artResource.getItemStream(1);
-	stream->read(bgSurface.getPixels(), bgSurface.w * bgSurface.h);
+	stream->read(bgSurface.getPixels(), bgSurface.getWidth() * bgSurface.getHeight());
 	delete stream;
 
 	if (flags & SCENEFLAG_TRANSLATE) {
@@ -446,15 +448,15 @@ void SceneInfo::loadMadsV2Background(int sceneId, const Common::String &resName,
 	assert(screenHeight <= _height);
 
 	// Resize the background surface to hold all of the tiles
-	uint16 newWidth = bgSurface.w;
-	uint16 newHeight = bgSurface.h;
+	uint16 newWidth = bgSurface.getWidth();
+	uint16 newHeight = bgSurface.getHeight();
 
-	if (tileWidth < screenWidth && bgSurface.w != tileCount * tileWidth)
+	if (tileWidth < screenWidth && bgSurface.getWidth() != tileCount * tileWidth)
 		newWidth = tileCount * tileWidth;
-	if (tileHeight < screenHeight && bgSurface.h != tileCount * tileHeight)
+	if (tileHeight < screenHeight && bgSurface.getHeight() != tileCount * tileHeight)
 		newHeight = tileCount * tileHeight;
 
-	if (bgSurface.w != newWidth || bgSurface.h != newHeight)
+	if (bgSurface.getWidth() != newWidth || bgSurface.getHeight() != newHeight)
 		bgSurface.setSize(newWidth, newHeight);
 
 	// --------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/endian.h"
 #include "common/system.h"
@@ -162,7 +164,7 @@ void AGOSEngine::animateSprites() {
 			_wallOn--;
 
 			VC10_state state;
-			state.srcPtr = getBackGround() + 3 * _backGroundBuf->pitch + 3 * 16;
+			state.srcPtr = getBackGround() + 3 * _backGroundBuf->getPitch() + 3 * 16;
 			state.height = state.draw_height = 127;
 			state.width = state.draw_width = 14;
 			state.y = 0;
@@ -495,7 +497,7 @@ void AGOSEngine::saveBackGround(VgaSprite *vsp) {
 	} else {
 		int xoffs = (_videoWindows[vsp->windowNum * 4 + 0] * 2 + x) * 8;
 		int yoffs = (_videoWindows[vsp->windowNum * 4 + 1] + y);
-		animTable->srcPtr = getBackGround() + yoffs * _backGroundBuf->pitch + xoffs;
+		animTable->srcPtr = getBackGround() + yoffs * _backGroundBuf->getPitch() + xoffs;
 	}
 
 	animTable->x = x;
@@ -567,39 +569,39 @@ void AGOSEngine::displayBoxStars() {
 
 				dst = (byte *)screen->getPixels();
 
-				dst += (((screen->pitch / 4) * y_) * 4) + x_;
+				dst += (((screen->getPitch() / 4) * y_) * 4) + x_;
 
 				dst[4] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[1] = color;
 				dst[4] = color;
 				dst[7] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[2] = color;
 				dst[4] = color;
 				dst[6] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[3] = color;
 				dst[5] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[0] = color;
 				dst[1] = color;
 				dst[2] = color;
 				dst[6] = color;
 				dst[7] = color;
 				dst[8] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[3] = color;
 				dst[5] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[2] = color;
 				dst[4] = color;
 				dst[6] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[1] = color;
 				dst[4] = color;
 				dst[7] = color;
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				dst[4] = color;
 			}
 		} while (ha++, --count);
@@ -641,7 +643,7 @@ void AGOSEngine::scrollScreen() {
 		}
 
 		src = _scrollImage + y / 2;
-		decodeRow(dst, src + readUint32Wrapper(src), _scrollWidth, _backGroundBuf->pitch);
+		decodeRow(dst, src + readUint32Wrapper(src), _scrollWidth, _backGroundBuf->getPitch());
 
 		_scrollY += _scrollFlag;
 		vcWriteVar(250, _scrollY);
@@ -666,7 +668,7 @@ void AGOSEngine::scrollScreen() {
 			src = _scrollImage + x / 2;
 		else
 			src = _scrollImage + x * 4;
-		decodeColumn(dst, src + readUint32Wrapper(src), _scrollHeight, _backGroundBuf->pitch);
+		decodeColumn(dst, src + readUint32Wrapper(src), _scrollHeight, _backGroundBuf->getPitch());
 
 		_scrollX += _scrollFlag;
 		vcWriteVar(251, _scrollX);
@@ -676,8 +678,8 @@ void AGOSEngine::scrollScreen() {
 			dst = (byte *)_window4BackScn->getPixels();
 			for (int i = 0; i < _scrollHeight; i++) {
 				memcpy(dst, src, _screenWidth);
-				src += _backGroundBuf->pitch;
-				dst += _window4BackScn->pitch;
+				src += _backGroundBuf->getPitch();
+				dst += _window4BackScn->getPitch();
 			}
 		} else {
 			fillBackFromBackGround(_scrollHeight, _screenWidth);
@@ -709,7 +711,7 @@ void AGOSEngine::clearSurfaces() {
 	_system->fillScreen(0);
 
 	if (_backBuf) {
-		memset(getBackBuf(), 0, _backBuf->h * _backBuf->pitch);
+		memset(getBackBuf(), 0, _backBuf->getHeight() * _backBuf->getPitch());
 	}
 }
 
@@ -718,8 +720,8 @@ void AGOSEngine::fillBackFromBackGround(uint16 height, uint16 width) {
 	byte *dst = getBackBuf();
 	for (int i = 0; i < height; i++) {
 		memcpy(dst, src, width);
-		src += _backGroundBuf->pitch;
-		dst += _backBuf->pitch;
+		src += _backGroundBuf->getPitch();
+		dst += _backBuf->getPitch();
 	}
 }
 
@@ -730,8 +732,8 @@ void AGOSEngine::fillBackFromFront() {
 
 	for (int i = 0; i < _screenHeight; i++) {
 		memcpy(dst, src, _screenWidth);
-		src += screen->pitch;
-		dst += _backBuf->pitch;
+		src += screen->getPitch();
+		dst += _backBuf->getPitch();
 	}
 	_system->unlockScreen();
 }
@@ -741,8 +743,8 @@ void AGOSEngine::fillBackGroundFromBack() {
 	byte *dst = getBackGround();
 	for (int i = 0; i < _screenHeight; i++) {
 		memcpy(dst, src, _screenWidth);
-		src += _backBuf->pitch;
-		dst += _backGroundBuf->pitch;
+		src += _backBuf->getPitch();
+		dst += _backGroundBuf->getPitch();
 	}
 }
 
@@ -753,8 +755,8 @@ void AGOSEngine::fillBackGroundFromFront() {
 
 	for (int i = 0; i < _screenHeight; i++) {
 		memcpy(dst, src, _screenWidth);
-		src += screen->pitch;
-		dst += _backGroundBuf->pitch;
+		src += screen->getPitch();
+		dst += _backGroundBuf->getPitch();
 	}
 	_system->unlockScreen();
 }
@@ -788,8 +790,8 @@ void AGOSEngine::displayScreen() {
 		byte *dst = (byte *)screen->getPixels();
 		for (int i = 0; i < _screenHeight; i++) {
 			memcpy(dst, src, _screenWidth);
-			src += _backBuf->pitch;
-			dst += screen->pitch;
+			src += _backBuf->getPitch();
+			dst += screen->getPitch();
 		}
 		if (getGameId() != GID_DIMP)
 			fillBackFromBackGround(_screenHeight, _screenWidth);
@@ -805,7 +807,7 @@ void AGOSEngine::displayScreen() {
 				src = getBackGround();
 			}
 
-			dst += (_moveYMin + _videoWindows[17]) * screen->pitch;
+			dst += (_moveYMin + _videoWindows[17]) * screen->getPitch();
 			dst += (_videoWindows[16] * 16) + _moveXMin;
 
 			src += (_videoWindows[18] * 16 * _moveYMin);
@@ -818,7 +820,7 @@ void AGOSEngine::displayScreen() {
 
 			for (; height > 0; height--) {
 				memcpy(dst, src, width);
-				dst += screen->pitch;
+				dst += screen->getPitch();
 				src += srcWidth;
 			}
 
@@ -834,9 +836,9 @@ void AGOSEngine::displayScreen() {
 			byte *src = (byte *)_window6BackScn->getPixels();
 			byte *dst = (byte *)screen->getBasePtr(0, 51);
 			for (int i = 0; i < 80; i++) {
-				memcpy(dst, src, _window6BackScn->w);
-				dst += screen->pitch;
-				src += _window6BackScn->pitch;
+				memcpy(dst, src, _window6BackScn->getWidth());
+				dst += screen->getPitch();
+				src += _window6BackScn->getPitch();
 			}
 		}
 	}

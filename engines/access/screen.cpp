@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/algorithm.h"
 #include "common/endian.h"
@@ -54,8 +56,8 @@ Screen::Screen(AccessEngine *vm) : _vm(vm) {
 	_screenYOff = 0;
 	_screenChangeFlag = false;
 
-	_bufferBytesWide = _vWindowBytesWide = this->w;
-	_vWindowLinesTall = this->h;
+	_bufferBytesWide = _vWindowBytesWide = getWidth();
+	_vWindowLinesTall = getHeight();
 	_vWindowWidth = _vWindowHeight = 0;
 	_clipWidth = _vWindowBytesWide - 1;
 	_clipHeight = _vWindowLinesTall - 1;
@@ -69,12 +71,12 @@ void Screen::clearScreen() {
 	if (_vesaMode)
 		_vm->_clearSummaryFlag = true;
 
-	addDirtyRect(Common::Rect(0, 0, this->w, this->h));
+	addDirtyRect(Common::Rect(getWidth(), getHeight()));
 }
 
 void Screen::setDisplayScan() {
-	_clipWidth = this->w - 1;
-	_clipHeight = this->h - 1;
+	_clipWidth = getWidth() - 1;
+	_clipHeight = getHeight() - 1;
 	_windowXAdd = _windowYAdd = 0;
 	_vm->_scrollX = _vm->_scrollY = 0;
 	_vm->_scrollCol = _vm->_scrollRow = 0;
@@ -102,7 +104,7 @@ void Screen::updateScreen() {
 	for (i = _dirtyRects.begin(); i != _dirtyRects.end(); ++i) {
 		const Common::Rect &r = *i;
 		const byte *srcP = (const byte *)getBasePtr(r.left, r.top);
-		g_system->copyRectToScreen(srcP, this->pitch, r.left, r.top,
+		g_system->copyRectToScreen(srcP, getPitch(), r.left, r.top,
 			r.width(), r.height());
 	}
 
@@ -219,8 +221,8 @@ void Screen::forceFadeIn() {
 
 void Screen::copyBuffer(const byte *data) {
 	byte *destP = (byte *)getPixels();
-	Common::copy(data, data + (h * w), destP);
-	g_system->copyRectToScreen(destP, w, 0, 0, w, h);
+	Common::copy(data, data + (getHeight() * getWidth()), destP);
+	g_system->copyRectToScreen(destP, getWidth(), 0, 0, getWidth(), getHeight());
 }
 
 void Screen::setBufferScan() {
@@ -292,7 +294,7 @@ void Screen::drawBox() {
 }
 
 void Screen::transBlitFrom(ASurface *src, const Common::Point &destPos) {
-	addDirtyRect(Common::Rect(destPos.x, destPos.y, destPos.x + src->w, destPos.y + src->h));
+	addDirtyRect(Common::Rect(destPos.x, destPos.y, destPos.x + src->getWidth(), destPos.y + src->getHeight()));
 	ASurface::transBlitFrom(src, destPos);
 }
 
@@ -302,12 +304,12 @@ void Screen::transBlitFrom(ASurface *src, const Common::Rect &bounds) {
 }
 
 void Screen::blitFrom(const Graphics::Surface &src) {
-	addDirtyRect(Common::Rect(0, 0, src.w, src.h));
+	addDirtyRect(Common::Rect(src.getWidth(), src.getHeight()));
 	ASurface::blitFrom(src);
 }
 
 void Screen::copyBuffer(Graphics::Surface *src) {
-	addDirtyRect(Common::Rect(0, 0, src->w, src->h));
+	addDirtyRect(Common::Rect(src->getWidth(), src->getHeight()));
 	ASurface::copyBuffer(src);
 }
 

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "access/access.h"
@@ -164,7 +166,7 @@ void Scripts::charLoop() {
 	_sequence = 2000;
 	searchForSequence();
 	_vm->_images.clear();
-	_vm->_buffer2.copyBlock(&_vm->_buffer1, Common::Rect(0, 0, _vm->_buffer2.w, _vm->_buffer2.h));
+	_vm->_buffer2.copyBlock(&_vm->_buffer1, Common::Rect(_vm->_buffer2.getWidth(), _vm->_buffer2.getHeight()));
 	_vm->_newRects.clear();
 
 	executeScript();

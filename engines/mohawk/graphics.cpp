@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mohawk/mohawk.h"
 #include "mohawk/resource.h"
@@ -53,7 +55,7 @@ MohawkSurface::~MohawkSurface() {
 void MohawkSurface::convertToTrueColor() {
 	assert(_surface);
 
-	if (_surface->format.bytesPerPixel > 1)
+	if (_surface->getFormat().bytesPerPixel > 1)
 		return;
 
 	assert(_palette);
@@ -131,8 +133,8 @@ void GraphicsManager::setPalette(uint16 id) {
 void GraphicsManager::copyAnimImageToScreen(uint16 image, int left, int top) {
 	Graphics::Surface *surface = findImage(image)->getSurface();
 
-	Common::Rect srcRect(0, 0, surface->w, surface->h);
-	Common::Rect dstRect(left, top, left + surface->w, top + surface->h);
+	Common::Rect srcRect(surface->getWidth(), surface->getHeight());
+	Common::Rect dstRect(left, top, left + surface->getWidth(), top + surface->getHeight());
 	copyAnimImageSectionToScreen(image, srcRect, dstRect);
 }
 
@@ -147,8 +149,8 @@ void GraphicsManager::copyAnimSubImageToScreen(uint16 image, uint16 subimage, in
 
 	Graphics::Surface *surface = images[subimage]->getSurface();
 
-	Common::Rect srcRect(0, 0, surface->w, surface->h);
-	Common::Rect dstRect(left, top, left + surface->w, top + surface->h);
+	Common::Rect srcRect(surface->getWidth(), surface->getHeight());
+	Common::Rect dstRect(left, top, left + surface->getWidth(), top + surface->getHeight());
 	copyAnimImageSectionToScreen(images[subimage], srcRect, dstRect);
 }
 
@@ -158,8 +160,8 @@ void GraphicsManager::getSubImageSize(uint16 image, uint16 subimage, uint16 &wid
 	Common::Array<MohawkSurface *> &images = _subImageCache[image];
 
 	Graphics::Surface *surface = images[subimage]->getSurface();
-	width = surface->w;
-	height = surface->h;
+	width = surface->getWidth();
+	height = surface->getHeight();
 }
 
 void GraphicsManager::copyAnimImageSectionToScreen(MohawkSurface *image, Common::Rect srcRect, Common::Rect dstRect) {
@@ -186,19 +188,19 @@ void GraphicsManager::copyAnimImageSectionToScreen(MohawkSurface *image, Common:
 		return;
 
 	Graphics::Surface *surface = image->getSurface();
-	if (startX >= surface->w)
+	if (startX >= surface->getWidth())
 		return;
-	if (startY >= surface->h)
+	if (startY >= surface->getHeight())
 		return;
 
-	if (srcRect.left > surface->w)
+	if (srcRect.left > surface->getWidth())
 		return;
-	if (srcRect.top > surface->h)
+	if (srcRect.top > surface->getHeight())
 		return;
-	if (srcRect.right > surface->w)
-		srcRect.right = surface->w;
-	if (srcRect.bottom > surface->h)
-		srcRect.bottom = surface->h;
+	if (srcRect.right > surface->getWidth())
+		srcRect.right = surface->getWidth();
+	if (srcRect.bottom > surface->getHeight())
+		srcRect.bottom = surface->getHeight();
 
 	uint16 width = MIN<int>(srcRect.right - srcRect.left - startX, getVM()->_system->getWidth() - dstRect.left);
 	uint16 height = MIN<int>(srcRect.bottom - srcRect.top - startY, getVM()->_system->getHeight() - dstRect.top);
@@ -217,7 +219,7 @@ void GraphicsManager::copyAnimImageSectionToScreen(MohawkSurface *image, Common:
 			src++;
 			dest++;
 		}
-		surf += surface->pitch;
+		surf += surface->getPitch();
 	}
 
 	getVM()->_system->unlockScreen();

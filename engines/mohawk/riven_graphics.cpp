@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mohawk/resource.h"
 #include "mohawk/riven.h"
@@ -69,11 +71,12 @@ void RivenGraphics::copyImageToScreen(uint16 image, uint32 left, uint32 top, uin
 	Graphics::Surface *surface = findImage(image)->getSurface();
 
 	// Clip the width to fit on the screen. Fixes some images.
-	if (left + surface->w > 608)
-		surface->w = 608 - left;
+	uint16 width = surface->getWidth();
+	if (left + width > 608)
+		width = 608 - left;
 
-	for (uint16 i = 0; i < surface->h; i++)
-		memcpy(_mainScreen->getBasePtr(left, i + top), surface->getBasePtr(0, i), surface->w * surface->format.bytesPerPixel);
+	for (uint16 i = 0; i < surface->getHeight(); i++)
+		memcpy(_mainScreen->getBasePtr(left, i + top), surface->getBasePtr(0, i), width * surface->getFormat().bytesPerPixel);
 
 	_dirtyScreen = true;
 }
@@ -115,7 +118,7 @@ void RivenGraphics::updateScreen(Common::Rect updateRect) {
 
 			// Copy to screen if there's no transition. Otherwise transition. ;)
 			if (_scheduledTransition < 0)
-				_vm->_system->copyRectToScreen(_mainScreen->getBasePtr(updateRect.left, updateRect.top), _mainScreen->pitch, updateRect.left, updateRect.top, updateRect.width(), updateRect.height());
+				_vm->_system->copyRectToScreen(_mainScreen->getBasePtr(updateRect.left, updateRect.top), _mainScreen->getPitch(), updateRect.left, updateRect.top, updateRect.width(), updateRect.height());
 			else
 				runScheduledTransition();
 
@@ -255,7 +258,7 @@ void RivenGraphics::runScheduledTransition() {
 	}
 
 	// For now, just copy the image to screen without doing any transition.
-	_vm->_system->copyRectToScreen(_mainScreen->getPixels(), _mainScreen->pitch, 0, 0, _mainScreen->w, _mainScreen->h);
+	_vm->_system->copyRectToScreen(_mainScreen->getPixels(), _mainScreen->getPitch(), 0, 0, _mainScreen->getWidth(), _mainScreen->getHeight());
 	_vm->_system->updateScreen();
 
 	_scheduledTransition = -1; // Clear scheduled transition
@@ -345,7 +348,7 @@ void RivenGraphics::drawInventoryImage(uint16 id, const Common::Rect *rect) {
 	mhkSurface->convertToTrueColor();
 	Graphics::Surface *surface = mhkSurface->getSurface();
 
-	_vm->_system->copyRectToScreen(surface->getPixels(), surface->pitch, rect->left, rect->top, surface->w, surface->h);
+	_vm->_system->copyRectToScreen(surface->getPixels(), surface->getPitch(), rect->left, rect->top, surface->getWidth(), surface->getHeight());
 
 	delete mhkSurface;
 }
@@ -369,7 +372,7 @@ void RivenGraphics::drawImageRect(uint16 id, Common::Rect srcRect, Common::Rect 
 	assert(srcRect.width() == dstRect.width() && srcRect.height() == dstRect.height());
 
 	for (uint16 i = 0; i < srcRect.height(); i++)
-		memcpy(_mainScreen->getBasePtr(dstRect.left, i + dstRect.top), surface->getBasePtr(srcRect.left, i + srcRect.top), srcRect.width() * surface->format.bytesPerPixel);
+		memcpy(_mainScreen->getBasePtr(dstRect.left, i + dstRect.top), surface->getBasePtr(srcRect.left, i + srcRect.top), srcRect.width() * surface->getFormat().bytesPerPixel);
 
 	_dirtyScreen = true;
 }
@@ -379,10 +382,10 @@ void RivenGraphics::drawExtrasImage(uint16 id, Common::Rect dstRect) {
 	mhkSurface->convertToTrueColor();
 	Graphics::Surface *surface = mhkSurface->getSurface();
 
-	assert(dstRect.width() == surface->w);
+	assert(dstRect.width() == surface->getWidth());
 
-	for (uint16 i = 0; i < surface->h; i++)
-		memcpy(_mainScreen->getBasePtr(dstRect.left, i + dstRect.top), surface->getBasePtr(0, i), surface->pitch);
+	for (uint16 i = 0; i < surface->getHeight(); i++)
+		memcpy(_mainScreen->getBasePtr(dstRect.left, i + dstRect.top), surface->getBasePtr(0, i), surface->getPitch());
 
 	delete mhkSurface;
 	_dirtyScreen = true;
@@ -413,31 +416,31 @@ void RivenGraphics::updateCredits() {
 
 		Graphics::Surface *frame = findImage(_creditsImage++)->getSurface();
 
-		for (int y = 0; y < frame->h; y++)
-			memcpy(_mainScreen->getBasePtr(124, y), frame->getBasePtr(0, y), frame->pitch);
+		for (int y = 0; y < frame->getHeight(); y++)
+			memcpy(_mainScreen->getBasePtr(124, y), frame->getBasePtr(0, y), frame->getPitch());
 
 		runScheduledTransition();
 	} else {
 		// Otheriwse, we're scrolling
 		// Move the screen up one row
-		memmove(_mainScreen->getPixels(), _mainScreen->getBasePtr(0, 1), _mainScreen->pitch * (_mainScreen->h - 1));
+		memmove(_mainScreen->getPixels(), _mainScreen->getBasePtr(0, 1), _mainScreen->getPitch() * (_mainScreen->getHeight() - 1));
 
 		// Only update as long as we're not before the last frame
 		// Otherwise, we're just moving up a row (which we already did)
 		if (_creditsImage <= 320) {
 			// Copy the next row to the bottom of the screen
 			Graphics::Surface *frame = findImage(_creditsImage)->getSurface();
-			memcpy(_mainScreen->getBasePtr(124, _mainScreen->h - 1), frame->getBasePtr(0, _creditsPos), frame->pitch);
+			memcpy(_mainScreen->getBasePtr(124, _mainScreen->getHeight() - 1), frame->getBasePtr(0, _creditsPos), frame->getPitch());
 			_creditsPos++;
 
-			if (_creditsPos == _mainScreen->h) {
+			if (_creditsPos == _mainScreen->getHeight()) {
 				_creditsImage++;
 				_creditsPos = 0;
 			}
 		}
 
 		// Now flush the new screen
-		_vm->_system->copyRectToScreen(_mainScreen->getPixels(), _mainScreen->pitch, 0, 0, _mainScreen->w, _mainScreen->h);
+		_vm->_system->copyRectToScreen(_mainScreen->getPixels(), _mainScreen->getPitch(), 0, 0, _mainScreen->getWidth(), _mainScreen->getHeight());
 		_vm->_system->updateScreen();
 	}
 }

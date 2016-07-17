@@ -140,7 +140,7 @@ int MacFont::getCharWidth(uint32 chr) const {
 
 void MacFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) const {
 	assert(dst);
-	assert(dst->format.bytesPerPixel == 1 || dst->format.bytesPerPixel == 2 || dst->format.bytesPerPixel == 4);
+	assert(dst->getFormat().bytesPerPixel == 1 || dst->getFormat().bytesPerPixel == 2 || dst->getFormat().bytesPerPixel == 4);
 
 	const Glyph *glyph = findGlyph(chr);
 	if (!glyph || glyph->width == 0)
@@ -155,11 +155,11 @@ void MacFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) con
 			uint16 bitmapOffset = glyph->bitmapOffset + j;
 
 			if (srcRow[bitmapOffset / 8] & (1 << (7 - (bitmapOffset % 8)))) {
-				if (dst->format.bytesPerPixel == 1)
+				if (dst->getFormat().bytesPerPixel == 1)
 					*((byte *)dst->getBasePtr(x + j, y + i)) = color;
-				else if (dst->format.bytesPerPixel == 2)
+				else if (dst->getFormat().bytesPerPixel == 2)
 					*((uint16 *)dst->getBasePtr(x + j, y + i)) = color;
-				else if (dst->format.bytesPerPixel == 4)
+				else if (dst->getFormat().bytesPerPixel == 4)
 					*((uint32 *)dst->getBasePtr(x + j, y + i)) = color;
 			}
 		}

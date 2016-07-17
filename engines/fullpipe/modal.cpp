@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "fullpipe/fullpipe.h"
 #include "fullpipe/messages.h"
@@ -250,7 +252,7 @@ void ModalVideoPlayer::play(const char *filename) {
 		if (aviDecoder->needsUpdate()) {
 			const Graphics::Surface *frame = aviDecoder->decodeNextFrame();
 			if (frame) {
-				g_fp->_system->copyRectToScreen(frame->getPixels(), frame->pitch, x, y, frame->w, frame->h);
+				g_fp->_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), x, y, frame->getWidth(), frame->getHeight());
 
 				if (aviDecoder->hasDirtyPalette())
 					g_fp->_system->getPaletteManager()->setPalette(aviDecoder->getPalette(), 0, 256);

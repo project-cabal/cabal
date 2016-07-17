@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/memstream.h"
 #include "common/ptr.h"
@@ -282,7 +284,7 @@ void Inventory::Item::free() {
 void Inventory::Item::backgroundEffect(Graphics::Surface *s) {
 	uint w = _rect.right - _rect.left, h = _rect.bottom - _rect.top;
 	byte *line = (byte *)s->getBasePtr(_rect.left, _rect.top);
-	for (uint y = 0; y < h; ++y, line += s->pitch) {
+	for (uint y = 0; y < h; ++y, line += s->getPitch()) {
 		byte *dst = line;
 		for (uint x = 0; x < w; ++x, ++dst) {
 			*dst = (*dst == 232) ? 214 : 224;

@@ -246,7 +246,7 @@ Graphics::Surface *GraphicsManager::getBitmap(Common::SeekableReadStream *stream
 	delete stream;
 
 	// Convert to the screen format, if required
-	if (decoder.getSurface()->format != g_system->getScreenFormat()) {
+	if (decoder.getSurface()->getFormat() != g_system->getScreenFormat()) {
 		assert(_vm->isTrueColor());
 		return decoder.getSurface()->convertTo(g_system->getScreenFormat(), decoder.getPalette());
 	}
@@ -304,7 +304,7 @@ void GraphicsManager::updateScreen(bool drawWindows) {
 			_vm->_mainWindow->updateWindow();
 
 		// Copy just that rect
-		g_system->copyRectToScreen(_screen->getBasePtr(_dirtyRect.left, _dirtyRect.top), _screen->pitch, _dirtyRect.left, _dirtyRect.top, _dirtyRect.width(), _dirtyRect.height());
+		g_system->copyRectToScreen(_screen->getBasePtr(_dirtyRect.left, _dirtyRect.top), _screen->getPitch(), _dirtyRect.left, _dirtyRect.top, _dirtyRect.width(), _dirtyRect.height());
 
 		// Empty out the dirty rect
 		_dirtyRect = Common::Rect();
@@ -320,27 +320,27 @@ void GraphicsManager::updateScreen(bool drawWindows) {
 }
 
 void GraphicsManager::blit(const Graphics::Surface *surface, int x, int y) {
-	assert(surface->format.bytesPerPixel == _screen->format.bytesPerPixel);
+	assert(surface->getFormat().bytesPerPixel == _screen->getFormat().bytesPerPixel);
 
-	for (int i = 0; i < surface->h; i++)
-		memcpy(_screen->getBasePtr(x, y + i), surface->getBasePtr(0, i), surface->w * surface->format.bytesPerPixel);
+	for (int i = 0; i < surface->getHeight(); i++)
+		memcpy(_screen->getBasePtr(x, y + i), surface->getBasePtr(0, i), surface->getWidth() * surface->getFormat().bytesPerPixel);
 }
 
 void GraphicsManager::blit(const Graphics::Surface *surface, int x, int y, int width, int height) {
-	assert(surface->format.bytesPerPixel == _screen->format.bytesPerPixel);
+	assert(surface->getFormat().bytesPerPixel == _screen->getFormat().bytesPerPixel);
 
 	for (int i = 0; i < height; i++)
-		memcpy(_screen->getBasePtr(x, y + i), surface->getBasePtr(0, i), width * surface->format.bytesPerPixel);
+		memcpy(_screen->getBasePtr(x, y + i), surface->getBasePtr(0, i), width * surface->getFormat().bytesPerPixel);
 }
 
 void GraphicsManager::blit(const Graphics::Surface *surface, const Common::Rect &srcRect, const Common::Rect &dstRect) {
-	assert(surface->format.bytesPerPixel == _screen->format.bytesPerPixel);
+	assert(surface->getFormat().bytesPerPixel == _screen->getFormat().bytesPerPixel);
 
 	int width = MIN(srcRect.width(), dstRect.width());
 	int height = MIN(srcRect.height(), dstRect.height());
 
 	for (int i = 0; i < height; i++)
-		memcpy(_screen->getBasePtr(dstRect.left, dstRect.top + i), surface->getBasePtr(srcRect.left, srcRect.top + i), width * surface->format.bytesPerPixel);
+		memcpy(_screen->getBasePtr(dstRect.left, dstRect.top + i), surface->getBasePtr(srcRect.left, srcRect.top + i), width * surface->getFormat().bytesPerPixel);
 }
 
 void GraphicsManager::fillRect(const Common::Rect &rect, uint32 color) {
@@ -352,12 +352,12 @@ void GraphicsManager::opaqueTransparentBlit(Graphics::Surface *dst, int xDst, in
 		uint32 transColor = getColor(rTrans, gTrans, bTrans);
 
 		for (int y = 0; y < h; y++) {
-			if (y + yDst < dst->h && y + yDst >= 0) {
+			if (y + yDst < dst->getHeight() && y + yDst >= 0) {
 				for (int x = 0; x < w; x++) {
-					if (x + xDst < dst->w && x + xDst >= 0) {
+					if (x + xDst < dst->getWidth() && x + xDst >= 0) {
 						uint32 srcColor;
 
-						if (src->format.bytesPerPixel == 2)
+						if (src->getFormat().bytesPerPixel == 2)
 							srcColor = *((const uint16 *)src->getBasePtr(x + xSrc, y + ySrc));
 						else
 							srcColor = *((const uint32 *)src->getBasePtr(x + xSrc, y + ySrc));
@@ -385,7 +385,7 @@ void GraphicsManager::opaqueTransparentBlit(Graphics::Surface *dst, int xDst, in
 						g_system->getScreenFormat().colorToRGB(srcColor, rSrc, gSrc, bSrc);
 
 						uint32 dstColor;
-						if (dst->format.bytesPerPixel == 2)
+						if (dst->getFormat().bytesPerPixel == 2)
 							dstColor = *((uint16 *)dst->getBasePtr(x + xDst, y + yDst));
 						else
 							dstColor = *((uint32 *)dst->getBasePtr(x + xDst, y + yDst));
@@ -398,7 +398,7 @@ void GraphicsManager::opaqueTransparentBlit(Graphics::Surface *dst, int xDst, in
 						byte b = (((int)bSrc * srcCycles) + ((int)bDst * dstCycles)) / (srcCycles + dstCycles);
 						uint32 color = g_system->getScreenFormat().RGBToColor(r, g, b);
 
-						if (dst->format.bytesPerPixel == 2)
+						if (dst->getFormat().bytesPerPixel == 2)
 							*((uint16 *)dst->getBasePtr(x + xDst, y + yDst)) = color;
 						else
 							*((uint32 *)dst->getBasePtr(x + xDst, y + yDst)) = color;
@@ -419,9 +419,9 @@ void GraphicsManager::opaqueTransparentBlit(Graphics::Surface *dst, int xDst, in
 		assert(paletteIndex >= 0);
 
 		for (int y = 0; y < h; y++) {
-			if (y + yDst < dst->h && y + yDst >= 0) {
+			if (y + yDst < dst->getHeight() && y + yDst >= 0) {
 				for (int x = 0; x < w; x++) {
-					if (x + xDst < dst->w && x + xDst >= 0) {
+					if (x + xDst < dst->getWidth() && x + xDst >= 0) {
 						byte color = *((const byte *)src->getBasePtr(x + xSrc, y + ySrc));
 
 						if (color == paletteIndex)
@@ -440,7 +440,7 @@ bool GraphicsManager::checkPointAgainstMaskedBitmap(const Graphics::Surface *bit
 		uint32 transColor = getColor(rTrans, gTrans, bTrans);
 		uint32 color;
 
-		if (bitmap->format.bytesPerPixel == 2)
+		if (bitmap->getFormat().bytesPerPixel == 2)
 			color = *((const uint16 *)bitmap->getBasePtr(point.x - x, point.y - y));
 		else
 			color = *((const uint32 *)bitmap->getBasePtr(point.x - x, point.y - y));
@@ -544,10 +544,10 @@ Graphics::Surface *GraphicsManager::remapPalettedFrame(const Graphics::Surface *
 	}
 
 	Graphics::Surface *convertedSurface = new Graphics::Surface();
-	convertedSurface->create(frame->w, frame->h, frame->format);
+	convertedSurface->create(frame->getWidth(), frame->getHeight(), frame->getFormat());
 
-	for (int y = 0; y < frame->h; y++)
-		for (int x = 0; x < frame->w; x++)
+	for (int y = 0; y < frame->getHeight(); y++)
+		for (int x = 0; x < frame->getWidth(); x++)
 			*((byte *)convertedSurface->getBasePtr(x, y)) = palMap[*((const byte *)frame->getBasePtr(x, y))];
 
 	return convertedSurface;
@@ -584,10 +584,10 @@ int GraphicsManager::computeVPushOffset(int speed) {
 }
 
 void GraphicsManager::crossBlit(Graphics::Surface *dst, int xDst, int yDst, int w, int h, const Graphics::Surface *src, int xSrc, int ySrc) {
-	assert(dst->format.bytesPerPixel == src->format.bytesPerPixel);
+	assert(dst->getFormat().bytesPerPixel == src->getFormat().bytesPerPixel);
 
 	for (int y = 0; y < h; y++)
-		memcpy(dst->getBasePtr(xDst, yDst + y), src->getBasePtr(xSrc, ySrc + y), w * src->format.bytesPerPixel);
+		memcpy(dst->getBasePtr(xDst, yDst + y), src->getBasePtr(xSrc, ySrc + y), w * src->getFormat().bytesPerPixel);
 }
 
 Graphics::Font *GraphicsManager::createMSGothicFont(int size, bool bold) const {

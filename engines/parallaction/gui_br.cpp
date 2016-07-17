@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/textconsole.h"
@@ -493,10 +495,10 @@ public:
 		_font->setColor(0);
 		int x = (w - questionW)/2;
 		int y = 13;
-		_font->drawString((byte *)surf->getBasePtr(x, y), surf->pitch, question);
+		_font->drawString((byte *)surf->getBasePtr(x, y), surf->getPitch(), question);
 		x = (w - optionW)/2;
 		y = 13 + _font->height()*2;
-		_font->drawString((byte *)surf->getBasePtr(x,y), surf->pitch, option);
+		_font->drawString((byte *)surf->getBasePtr(x,y), surf->getPitch(), option);
 
 		_obj = new GfxObj(kGfxObjTypeMenu, new SurfaceToFrames(surf), "quitdialog");
 		assert(_obj);

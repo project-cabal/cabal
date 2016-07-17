@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "graphics/cursorman.h"
@@ -92,35 +94,35 @@ void EventsManager::waitCursor() {
 void EventsManager::changeCursor() {
 	if (_cursorSprites) {
 		MSprite *cursor = _cursorSprites->getFrame(_cursorId - 1);
-		assert(cursor->w == cursor->h);
+		assert(cursor->getWidth() == cursor->getHeight());
 		byte transIndex = cursor->getTransparencyIndex();
 
 		// Check for hotspot indication pixels along the right-hand and bottom
 		// row. Put together, these give the cursor's hotspot x,y
 		int hotspotX = 0, hotspotY = 0;
 		byte *cursorData = cursor->getData();
-		for (int idx = 0; idx < cursor->w; ++idx) {
-			if (cursorData[(cursor->h - 1) * cursor->w + idx] != transIndex)
+		for (int idx = 0; idx < cursor->getWidth(); ++idx) {
+			if (cursorData[(cursor->getHeight() - 1) * cursor->getWidth() + idx] != transIndex)
 				hotspotX = idx;
 
-			if (cursorData[(idx + 1) * cursor->w - 1] != transIndex)
+			if (cursorData[(idx + 1) * cursor->getWidth() - 1] != transIndex)
 				hotspotY = idx;
 		}
 
 		// Reduce the cursor data to remove the last column from each row, since
 		// the cursor routines don't have a pitch option
-		byte *destCursor = new byte[(cursor->w - 1) * (cursor->h - 1)];
+		byte *destCursor = new byte[(cursor->getWidth() - 1) * (cursor->getHeight() - 1)];
 		byte *srcP = cursorData;
 		byte *destP = destCursor;
 
-		for (int idx = 0; idx < (cursor->h - 1); ++idx) {
-			Common::copy(srcP, srcP + cursor->w - 1, destP);
-			srcP += cursor->w;
-			destP += cursor->w - 1;
+		for (int idx = 0; idx < (cursor->getHeight() - 1); ++idx) {
+			Common::copy(srcP, srcP + cursor->getWidth() - 1, destP);
+			srcP += cursor->getWidth();
+			destP += cursor->getWidth() - 1;
 		}
 
 		// Set the raw cursor data to use
-		CursorMan.replaceCursor(destCursor, cursor->w - 1, cursor->h - 1,
+		CursorMan.replaceCursor(destCursor, cursor->getWidth() - 1, cursor->getHeight() - 1,
 			hotspotX, hotspotY, transIndex);
 		showCursor();
 		delete[] destCursor;

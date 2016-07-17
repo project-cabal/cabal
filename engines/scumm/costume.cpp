@@ -161,7 +161,7 @@ byte ClassicCostumeRenderer::mainRoutine(int xmoveCur, int ymoveCur) {
 
 			_scaleIndexX = startScaleIndexX;
 			for (i = 0; i < _width; i++) {
-				if (rect.left >= _out.w) {
+				if (rect.left >= _out.getWidth()) {
 					startScaleIndexX = _scaleIndexX;
 					skip++;
 				}
@@ -223,10 +223,10 @@ byte ClassicCostumeRenderer::mainRoutine(int xmoveCur, int ymoveCur) {
 	else
 		_vm->markRectAsDirty(kMainVirtScreen, rect.left, rect.right + 1, rect.top, rect.bottom, _actorID);
 
-	if (rect.top >= _out.h || rect.bottom <= 0)
+	if (rect.top >= _out.getHeight() || rect.bottom <= 0)
 		return 0;
 
-	if (rect.left >= _out.w || rect.right <= 0)
+	if (rect.left >= _out.getWidth() || rect.right <= 0)
 		return 0;
 
 	v1.replen = 0;
@@ -241,7 +241,7 @@ byte ClassicCostumeRenderer::mainRoutine(int xmoveCur, int ymoveCur) {
 				v1.x = 0;
 			}
 		} else {
-			skip = rect.right - _out.w;
+			skip = rect.right - _out.getWidth();
 			if (skip <= 0) {
 				drawFlag = 2;
 			} else {
@@ -250,12 +250,12 @@ byte ClassicCostumeRenderer::mainRoutine(int xmoveCur, int ymoveCur) {
 		}
 	} else {
 		if (!use_scaling)
-			skip = rect.right - _out.w;
+			skip = rect.right - _out.getWidth();
 		if (skip > 0) {
 			if (!newAmiCost && !pcEngCost && _loaded._format != 0x57) {
 				v1.skip_width -= skip;
 				codec1_ignorePakCols(v1, skip);
-				v1.x = _out.w - 1;
+				v1.x = _out.getWidth() - 1;
 			}
 		} else {
 			// V1 games uses 8 x 8 pixels for actors
@@ -279,11 +279,11 @@ byte ClassicCostumeRenderer::mainRoutine(int xmoveCur, int ymoveCur) {
 	if (rect.top < 0)
 		rect.top = 0;
 
-	if (rect.top > _out.h)
-		rect.top = _out.h;
+	if (rect.top > _out.getHeight())
+		rect.top = _out.getHeight();
 
-	if (rect.bottom > _out.h)
-		rect.bottom = _out.h;
+	if (rect.bottom > _out.getHeight())
+		rect.bottom = _out.getHeight();
 
 	if (_draw_top > rect.top)
 		_draw_top = rect.top;
@@ -379,14 +379,14 @@ void ClassicCostumeRenderer::procC64(Codec1 &v1, int actor) {
 			if (!rep)
 				color = *src++;
 
-			if (0 <= y && y < _out.h && 0 <= v1.x && v1.x < _out.w) {
+			if (0 <= y && y < _out.getHeight() && 0 <= v1.x && v1.x < _out.getWidth()) {
 				if (!_mirror) {
 					LINE(0, 0); LINE(2, 2); LINE(4, 4); LINE(6, 6);
 				} else {
 					LINE(6, 0); LINE(4, 2); LINE(2, 4); LINE(0, 6);
 				}
 			}
-			dst += _out.pitch;
+			dst += _out.getPitch();
 			y++;
 			mask += _numStrips;
 			if (!--height) {
@@ -395,7 +395,7 @@ void ClassicCostumeRenderer::procC64(Codec1 &v1, int actor) {
 				height = _height;
 				y = v1.y;
 				v1.x += 8 * v1.scaleXstep;
-				if (v1.x < 0 || v1.x >= _out.w)
+				if (v1.x < 0 || v1.x >= _out.getWidth())
 					return;
 				mask = v1.mask_ptr;
 				v1.destptr += 8 * v1.scaleXstep;
@@ -479,7 +479,7 @@ void ClassicCostumeRenderer::proc3(Codec1 &v1) {
 
 		do {
 			if (_scaleY == 255 || v1.scaletable[scaleIndexY++] < _scaleY) {
-				masked = (y < 0 || y >= _out.h) || (v1.x < 0 || v1.x >= _out.w) || (v1.mask_ptr && (mask[0] & maskbit));
+				masked = (y < 0 || y >= _out.getHeight()) || (v1.x < 0 || v1.x >= _out.getWidth()) || (v1.mask_ptr && (mask[0] & maskbit));
 
 				if (color && !masked) {
 					if (_shadow_mode & 0x20) {
@@ -491,7 +491,7 @@ void ClassicCostumeRenderer::proc3(Codec1 &v1) {
 					}
 					*dst = pcolor;
 				}
-				dst += _out.pitch;
+				dst += _out.getPitch();
 				mask += _numStrips;
 				y++;
 			}
@@ -505,7 +505,7 @@ void ClassicCostumeRenderer::proc3(Codec1 &v1) {
 
 				if (_scaleX == 255 || v1.scaletable[_scaleIndexX] < _scaleX) {
 					v1.x += v1.scaleXstep;
-					if (v1.x < 0 || v1.x >= _out.w)
+					if (v1.x < 0 || v1.x >= _out.getWidth())
 						return;
 					maskbit = revBitMask(v1.x & 7);
 					v1.destptr += v1.scaleXstep;
@@ -553,7 +553,7 @@ void ClassicCostumeRenderer::proc3_ami(Codec1 &v1) {
 			len = *src++;
 		do {
 			if (_scaleY == 255 || v1.scaletable[_scaleIndexY] < _scaleY) {
-				masked = (y < 0 || y >= _out.h) || (v1.x < 0 || v1.x >= _out.w) || (v1.mask_ptr && (mask[0] & maskbit));
+				masked = (y < 0 || y >= _out.getHeight()) || (v1.x < 0 || v1.x >= _out.getWidth()) || (v1.mask_ptr && (mask[0] & maskbit));
 
 				if (color && !masked) {
 					if (amigaMap)
@@ -574,11 +574,11 @@ void ClassicCostumeRenderer::proc3_ami(Codec1 &v1) {
 				if (!--height)
 					return;
 
-				if (y >= _out.h)
+				if (y >= _out.getHeight())
 					return;
 
 				if (v1.x != oldXpos) {
-					dst += _out.pitch - (v1.x - oldXpos);
+					dst += _out.getPitch() - (v1.x - oldXpos);
 					v1.mask_ptr += _numStrips;
 					mask = v1.mask_ptr + oldXpos / 8;
 					maskbit = revBitMask(oldXpos & 7);
@@ -659,13 +659,13 @@ void ClassicCostumeRenderer::procPCEngine(Codec1 &v1) {
 			for (int row = 0; row < 16; ++row) {
 				xPos = xStep * x * 16;
 				for (int col = 0; col < 16; ++col) {
-					dst = v1.destptr + yPos * _out.pitch + xPos * _vm->_bytesPerPixel;
+					dst = v1.destptr + yPos * _out.getPitch() + xPos * _vm->_bytesPerPixel;
 					mask = v1.mask_ptr + yPos * _numStrips + (v1.x + xPos) / 8;
 					maskbit = revBitMask((v1.x + xPos) % 8);
 
 					pcolor = block[row][col];
-					masked = (v1.y + yPos < 0 || v1.y + yPos >= _out.h) ||
-					         (v1.x + xPos < 0 || v1.x + xPos >= _out.w) ||
+					masked = (v1.y + yPos < 0 || v1.y + yPos >= _out.getHeight()) ||
+					         (v1.x + xPos < 0 || v1.x + xPos >= _out.getWidth()) ||
 							 (v1.mask_ptr && (mask[0] & maskbit));
 
 					if (pcolor && !masked) {
@@ -804,9 +804,9 @@ byte NESCostumeRenderer::drawLimb(const Actor *a, int limb) {
 		top = MIN(top, _actorY + y);
 		bottom = MAX(bottom, _actorY + y + 8);
 
-		if ((_actorX + x < 0) || (_actorX + x + 8 >= _out.w))
+		if ((_actorX + x < 0) || (_actorX + x + 8 >= _out.getWidth()))
 			continue;
-		if ((_actorY + y < 0) || (_actorY + y + 8 >= _out.h))
+		if ((_actorY + y < 0) || (_actorY + y + 8 >= _out.getHeight()))
 			continue;
 
 		for (int ty = 0; ty < 8; ty++) {
@@ -1236,7 +1236,7 @@ byte V0CostumeRenderer::drawLimb(const Actor *a, int limb) {
 			int destX = xpos + (a0->_limb_flipped[limb] ? -(x + 1) : x) * 8;
 			int destY = ypos + y;
 
-			if (destY >= 0 && destY < _out.h && destX >= 0 && destX < _out.w) {
+			if (destY >= 0 && destY < _out.getHeight() && destX >= 0 && destX < _out.getWidth()) {
 				byte *dst = (byte *)_out.getBasePtr(destX, destY);
 				byte *mask = _vm->getMaskBuffer(0, destY, _zbuf);
 				if (a0->_limb_flipped[limb]) {

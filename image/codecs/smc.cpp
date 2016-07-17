@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,8 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 // Based off ffmpeg's SMC decoder
 
 #include "image/codecs/smc.h"
@@ -34,9 +36,9 @@ namespace Image {
 #define ADVANCE_BLOCK() \
 { \
 	pixelPtr += 4; \
-	if (pixelPtr >= _surface->w) { \
+	if (pixelPtr >= _surface->getWidth()) { \
 		pixelPtr = 0; \
-		rowPtr += _surface->w * 4; \
+		rowPtr += _surface->getWidth() * 4; \
 	} \
 	totalBlocks--; \
 	if (totalBlocks < 0) { \
@@ -63,7 +65,7 @@ const Graphics::Surface *SMCDecoder::decodeFrame(Common::SeekableReadStream &str
 	uint32 colorFlagsA = 0;
 	uint32 colorFlagsB = 0;
 
-	const uint16 rowInc = _surface->w - 4;
+	const uint16 rowInc = _surface->getWidth() - 4;
 	int32 rowPtr = 0;
 	int32 pixelPtr = 0;
 	uint32 blockPtr = 0;
@@ -81,7 +83,7 @@ const Graphics::Surface *SMCDecoder::decodeFrame(Common::SeekableReadStream &str
 	if (chunkSize != stream.size())
 		warning("MOV chunk size != SMC chunk size (%d != %d); ignoring SMC chunk size", chunkSize, stream.size());
 
-	int32 totalBlocks = ((_surface->w + 3) / 4) * ((_surface->h + 3) / 4);
+	int32 totalBlocks = ((_surface->getWidth() + 3) / 4) * ((_surface->getHeight() + 3) / 4);
 
 	// traverse through the blocks
 	while (totalBlocks != 0) {
@@ -94,8 +96,8 @@ const Graphics::Surface *SMCDecoder::decodeFrame(Common::SeekableReadStream &str
 		}
 
 		// make sure the row pointer hasn't gone wild
-		if (rowPtr >= _surface->w * _surface->h) {
-			warning("SMC decoder just went out of bounds (row ptr = %d, size = %d)", rowPtr, _surface->w * _surface->h);
+		if (rowPtr >= _surface->getWidth() * _surface->getHeight()) {
+			warning("SMC decoder just went out of bounds (row ptr = %d, size = %d)", rowPtr, _surface->getWidth() * _surface->getHeight());
 			return _surface;
 		}
 
@@ -124,7 +126,7 @@ const Graphics::Surface *SMCDecoder::decodeFrame(Common::SeekableReadStream &str
 
 			// figure out where the previous block started
 			if (pixelPtr == 0)
-				prevBlockPtr1 = (rowPtr - _surface->w * 4) + _surface->w - 4;
+				prevBlockPtr1 = (rowPtr - _surface->getWidth() * 4) + _surface->getWidth() - 4;
 			else
 				prevBlockPtr1 = rowPtr + pixelPtr - 4;
 
@@ -155,14 +157,14 @@ const Graphics::Surface *SMCDecoder::decodeFrame(Common::SeekableReadStream &str
 
 			// figure out where the previous 2 blocks started
 			if (pixelPtr == 0)
-				prevBlockPtr1 = (rowPtr - _surface->w * 4) + _surface->w - 4 * 2;
+				prevBlockPtr1 = (rowPtr - _surface->getWidth() * 4) + _surface->getWidth() - 4 * 2;
 			else if (pixelPtr == 4)
-				prevBlockPtr1 = (rowPtr - _surface->w * 4) + rowInc;
+				prevBlockPtr1 = (rowPtr - _surface->getWidth() * 4) + rowInc;
 			else
 				prevBlockPtr1 = rowPtr + pixelPtr - 4 * 2;
 
 			if (pixelPtr == 0)
-				prevBlockPtr2 = (rowPtr - _surface->w * 4) + rowInc;
+				prevBlockPtr2 = (rowPtr - _surface->getWidth() * 4) + rowInc;
 			else
 				prevBlockPtr2 = rowPtr + pixelPtr - 4;
 

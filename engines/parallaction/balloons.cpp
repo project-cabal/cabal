@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "parallaction/graphics.h"
 #include "parallaction/parallaction.h"
@@ -181,7 +183,7 @@ protected:
 
 		byte *dst = (byte *)_surf->getBasePtr(rx, ry);
 		_font->setColor(_color);
-		_font->drawString(dst, _surf->w, _line.c_str());
+		_font->drawString(dst, _surf->getWidth(), _line.c_str());
 	}
 
 	virtual void end() {
@@ -491,12 +493,12 @@ protected:
 		if (_line.empty()) {
 			return;
 		}
-		uint16 rx = _x + (_surf->w - _lineWidth) / 2;
+		uint16 rx = _x + (_surf->getWidth() - _lineWidth) / 2;
 		uint16 ry = _y + _lines * _font->height();	// y
 
 		byte *dst = (byte *)_surf->getBasePtr(rx, ry);
 		_font->setColor(_color);
-		_font->drawString(dst, _surf->w, _line.c_str());
+		_font->drawString(dst, _surf->getWidth(), _line.c_str());
 	}
 
 	virtual void end() {
@@ -515,7 +517,7 @@ public:
 		_surf = surf;
 
 		_x = 0;
-		_y = (_surf->h - _height) / 2;
+		_y = (_surf->getHeight() - _height) / 2;
 		calc(text, maxWidth);
 	}
 

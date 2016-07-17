@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "draci/screen.h"
 #include "draci/surface.h"
@@ -42,7 +44,7 @@ Surface::~Surface() {
 void Surface::markDirtyRect(Common::Rect r) {
 	Common::List<Common::Rect>::iterator it;
 
-	r.clip(w, h);
+	r.clip(getWidth(), getHeight());
 
 	if (r.isEmpty())
 		return;
@@ -82,7 +84,7 @@ void Surface::markClean() {
 void Surface::fill(uint color) {
 	byte *ptr = (byte *)getPixels();
 
-	memset(ptr, color, (uint)(w * h));
+	memset(ptr, color, (uint)(getWidth() * getHeight()));
 }
 
 /**
@@ -96,8 +98,8 @@ void Surface::fill(uint color) {
 uint Surface::centerOnX(int x, int width) const {
 	int newX = x - width / 2;
 
-	if (newX + width > w)
-		newX = w - width;
+	if (newX + width > getWidth())
+		newX = getWidth() - width;
 
 	if (newX < 0)
 		newX = 0;
@@ -116,8 +118,8 @@ uint Surface::centerOnX(int x, int width) const {
 uint Surface::putAboveY(int y, int height) const {
 	int newY = y - height;
 
-	if (newY + height > h)
-		newY = h - height;
+	if (newY + height > getHeight())
+		newY = getHeight() - height;
 
 	if (newY < 0)
 		newY = 0;

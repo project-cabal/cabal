@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on Broken Sword 2.5 engine
@@ -44,17 +46,17 @@ bool Screenshot::saveToFile(Graphics::Surface *data, Common::WriteStream *stream
 
 	// Write our own custom header
 	stream->writeUint32BE(MKTAG('S','C','R','N'));	// SCRN, short for "Screenshot"
-	stream->writeUint16LE(data->w);
-	stream->writeUint16LE(data->h);
+	stream->writeUint16LE(data->getWidth());
+	stream->writeUint16LE(data->getHeight());
 	stream->writeByte(THUMBNAIL_VERSION);
 
-	for (uint y = 0; y < data->h; y++) {
-		for (uint x = 0; x < data->w; x++) {
+	for (uint y = 0; y < data->getHeight(); y++) {
+		for (uint x = 0; x < data->getWidth(); x++) {
 			// This is only called by createThumbnail below, which
 			// provides a fake 'surface' with LE data in it.
 			byte a, r, g, b;
 
-			data->format.colorToARGB(*pSrc++, a, r, g, b);
+			data->getFormat().colorToARGB(*pSrc++, a, r, g, b);
 			stream->writeByte(r);
 			stream->writeByte(g);
 			stream->writeByte(b);
@@ -73,7 +75,7 @@ Common::SeekableReadStream *Screenshot::createThumbnail(Graphics::Surface *data)
 	// generates a pixel of the target image. Finally, the result as a PNG file is stored as a file.
 
 	// The source image must be 800x600.
-	if (data->w != 800 || data->h != 600 || data->format.bytesPerPixel != 4) {
+	if (data->getWidth() != 800 || data->getHeight() != 600 || data->getFormat().bytesPerPixel != 4) {
 		error("The sreenshot dimensions have to be 800x600 in order to be saved as a thumbnail.");
 		return 0;
 	}
@@ -86,7 +88,7 @@ Common::SeekableReadStream *Screenshot::createThumbnail(Graphics::Surface *data)
 	uint x, y;
 	x = y = 0;
 
-	for (uint32 *pDest = (uint32 *)thumbnail.getPixels(); pDest < thumbnail.getBasePtr(0, thumbnail.h); ) {
+	for (uint32 *pDest = (uint32 *)thumbnail.getPixels(); pDest < thumbnail.getBasePtr(0, thumbnail.getHeight()); ) {
 		// Get an average over a 4x4 pixel block in the source image
 		int alpha, red, green, blue;
 		alpha = red = green = blue = 0;
@@ -94,7 +96,7 @@ Common::SeekableReadStream *Screenshot::createThumbnail(Graphics::Surface *data)
 			const uint32 *srcP = (const uint32 *)data->getBasePtr(x * 4, y * 4 + j + 50);
 			for (int i = 0; i < 4; ++i) {
 				byte a, r, g, b;
-				data->format.colorToARGB(*(srcP + i), a, r, g, b);
+				data->getFormat().colorToARGB(*(srcP + i), a, r, g, b);
 				alpha += a;
 				red += r;
 				green += g;
@@ -102,11 +104,11 @@ Common::SeekableReadStream *Screenshot::createThumbnail(Graphics::Surface *data)
 			}
 		}
 
-		*pDest++ = thumbnail.format.ARGBToColor(alpha / 16, red / 16, green / 16, blue / 16);
+		*pDest++ = thumbnail.getFormat().ARGBToColor(alpha / 16, red / 16, green / 16, blue / 16);
 
 		// Move to next block
 		++x;
-		if (x == thumbnail.w) {
+		if (x == thumbnail.getWidth()) {
 			x = 0;
 			++y;
 		}

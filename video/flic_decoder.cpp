@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "video/flic_decoder.h"
 #include "common/endian.h"
@@ -138,15 +140,15 @@ bool FlicDecoder::FlicVideoTrack::rewind() {
 }
 
 uint16 FlicDecoder::FlicVideoTrack::getWidth() const {
-	return _surface->w;
+	return _surface->getWidth();
 }
 
 uint16 FlicDecoder::FlicVideoTrack::getHeight() const {
-	return _surface->h;
+	return _surface->getHeight();
 }
 
 Graphics::PixelFormat FlicDecoder::FlicVideoTrack::getPixelFormat() const {
-	return _surface->format;
+	return _surface->getFormat();
 }
 
 #define FLI_SETPAL 4
@@ -178,13 +180,10 @@ const Graphics::Surface *FlicDecoder::FlicVideoTrack::decodeNextFrame() {
 
 			if ((newWidth != 0) || (newHeight != 0)) {
 				if (newWidth == 0)
-					newWidth = _surface->w;
+					newWidth = _surface->getWidth();
 				if (newHeight == 0)
-					newHeight = _surface->h;
+					newHeight = _surface->getHeight();
 
-				_surface->free();
-				delete _surface;
-				_surface = new Graphics::Surface();
 				_surface->create(newWidth, newHeight, Graphics::PixelFormat::createFormatCLUT8());
 			}
 		}

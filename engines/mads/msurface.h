@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef MADS_MSURFACE_H
 #define MADS_MSURFACE_H
@@ -53,7 +55,6 @@ struct SpriteInfo {
 class MSurface : public Graphics::Surface {
 protected:
 	static MADSEngine *_vm;
-	bool _freeFlag;
 public:
 	/**
 	 * Sets the engine refrence used all surfaces
@@ -113,20 +114,10 @@ public:
 	void drawSprite(const Common::Point &pt, SpriteInfo &info, const Common::Rect &clipRect);
 
 	/**
-	 * Returns the width of the surface
-	 */
-	int getWidth() const { return w; }
-
-	/**
-	 * Returns the height of the surface
-	 */
-	int getHeight() const { return h; }
-
-	/**
 	 * Returns the size of the surface as a Rect
 	 */
 	Common::Rect getBounds() const {
-		return Common::Rect(0, 0, w, h);
+		return Common::Rect(getWidth(), getHeight());
 	}
 
 	/**
@@ -176,14 +167,14 @@ public:
 	 * Copies the surface to a given destination surface
 	 */
 	void copyTo(MSurface *dest, int transparentColor = -1) {
-		dest->copyFrom(this, Common::Rect(w, h), Common::Point(), transparentColor);
+		dest->copyFrom(this, Common::Rect(getWidth(), getHeight()), Common::Point(), transparentColor);
 	}
 
 	/**
 	 * Copies the surface to a given destination surface
 	 */
 	void copyTo(MSurface *dest, const Common::Point &pt, int transparentColor = -1) {
-		dest->copyFrom(this, Common::Rect(w, h), pt, transparentColor);
+		dest->copyFrom(this, Common::Rect(getWidth(), getHeight()), pt, transparentColor);
 	}
 
 	/**

@@ -454,7 +454,7 @@ Common::Rect TTFFont::getBoundingBox(uint32 chr) const {
 		const int xOffset = glyphEntry->_value.xOffset;
 		const int yOffset = glyphEntry->_value.yOffset;
 		const Graphics::Surface &image = glyphEntry->_value.image;
-		return Common::Rect(xOffset, yOffset, xOffset + image.w, yOffset + image.h);
+		return Common::Rect(xOffset, yOffset, xOffset + image.getWidth(), yOffset + image.getHeight());
 	}
 }
 
@@ -507,13 +507,13 @@ void TTFFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) con
 	x += glyph.xOffset;
 	y += glyph.yOffset;
 
-	if (x > dst->w)
+	if (x > dst->getWidth())
 		return;
-	if (y > dst->h)
+	if (y > dst->getHeight())
 		return;
 
-	int w = glyph.image.w;
-	int h = glyph.image.h;
+	int w = glyph.image.getWidth();
+	int h = glyph.image.getHeight();
 
 	const uint8 *srcPos = (const uint8 *)glyph.image.getPixels();
 
@@ -524,27 +524,27 @@ void TTFFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) con
 		x = 0;
 	}
 
-	if (x + w > dst->w)
-		w = dst->w - x;
+	if (x + w > dst->getWidth())
+		w = dst->getWidth() - x;
 
 	if (w <= 0)
 		return;
 
 	if (y < 0) {
-		srcPos -= y * glyph.image.pitch;
+		srcPos -= y * glyph.image.getPitch();
 		h += y;
 		y = 0;
 	}
 
-	if (y + h > dst->h)
-		h = dst->h - y;
+	if (y + h > dst->getHeight())
+		h = dst->getHeight() - y;
 
 	if (h <= 0)
 		return;
 
 	uint8 *dstPos = (uint8 *)dst->getBasePtr(x, y);
 
-	if (dst->format.bytesPerPixel == 1) {
+	if (dst->getFormat().bytesPerPixel == 1) {
 		for (int cy = 0; cy < h; ++cy) {
 			uint8 *rDst = dstPos;
 			const uint8 *src = srcPos;
@@ -559,13 +559,13 @@ void TTFFont::drawChar(Surface *dst, uint32 chr, int x, int y, uint32 color) con
 				++src;
 			}
 
-			dstPos += dst->pitch;
-			srcPos += glyph.image.pitch;
+			dstPos += dst->getPitch();
+			srcPos += glyph.image.getPitch();
 		}
-	} else if (dst->format.bytesPerPixel == 2) {
-		renderGlyph<uint16>(dstPos, dst->pitch, srcPos, glyph.image.pitch, w, h, color, dst->format);
-	} else if (dst->format.bytesPerPixel == 4) {
-		renderGlyph<uint32>(dstPos, dst->pitch, srcPos, glyph.image.pitch, w, h, color, dst->format);
+	} else if (dst->getFormat().bytesPerPixel == 2) {
+		renderGlyph<uint16>(dstPos, dst->getPitch(), srcPos, glyph.image.getPitch(), w, h, color, dst->getFormat());
+	} else if (dst->getFormat().bytesPerPixel == 4) {
+		renderGlyph<uint32>(dstPos, dst->getPitch(), srcPos, glyph.image.getPitch(), w, h, color, dst->getFormat());
 	}
 }
 
@@ -604,7 +604,7 @@ bool TTFFont::cacheGlyph(Glyph &glyph, uint32 chr) const {
 	}
 
 	uint8 *dst = (uint8 *)glyph.image.getPixels();
-	memset(dst, 0, glyph.image.h * glyph.image.pitch);
+	memset(dst, 0, glyph.image.getHeight() * glyph.image.getPitch());
 
 	switch (bitmap.pixel_mode) {
 	case FT_PIXEL_MODE_MONO:
@@ -630,7 +630,7 @@ bool TTFFont::cacheGlyph(Glyph &glyph, uint32 chr) const {
 	case FT_PIXEL_MODE_GRAY:
 		for (int y = 0; y < (int)bitmap.rows; ++y) {
 			memcpy(dst, src, bitmap.width);
-			dst += glyph.image.pitch;
+			dst += glyph.image.getPitch();
 			src += srcPitch;
 		}
 		break;

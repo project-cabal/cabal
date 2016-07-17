@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // QuickTime RLE Decoder
 // Based off ffmpeg's QuickTime RLE decoder (written by Mike Melanson)
@@ -71,8 +73,8 @@ QTRLEDecoder::~QTRLEDecoder() {
 
 #define CHECK_PIXEL_PTR(n) \
 	do { \
-		if ((int32)pixelPtr + n > (int)_paddedWidth * _surface->h) { \
-			warning("QTRLE Problem: pixel ptr = %d, pixel limit = %d", pixelPtr + n, _paddedWidth * _surface->h); \
+		if ((int32)pixelPtr + n > (int)_paddedWidth * _surface->getHeight()) { \
+			warning("QTRLE Problem: pixel ptr = %d, pixel limit = %d", pixelPtr + n, _paddedWidth * _surface->getHeight()); \
 			return; \
 		} \
 	} while (0)
@@ -286,7 +288,7 @@ void QTRLEDecoder::decode24(Common::SeekableReadStream &stream, uint32 rowPtr, u
 				byte r = stream.readByte();
 				byte g = stream.readByte();
 				byte b = stream.readByte();
-				uint32 color = _surface->format.RGBToColor(r, g, b);
+				uint32 color = _surface->getFormat().RGBToColor(r, g, b);
 
 				CHECK_PIXEL_PTR(rleCode);
 
@@ -301,7 +303,7 @@ void QTRLEDecoder::decode24(Common::SeekableReadStream &stream, uint32 rowPtr, u
 					byte r = stream.readByte();
 					byte g = stream.readByte();
 					byte b = stream.readByte();
-					rgb[pixelPtr++] = _surface->format.RGBToColor(r, g, b);
+					rgb[pixelPtr++] = _surface->getFormat().RGBToColor(r, g, b);
 				}
 			}
 		}
@@ -398,7 +400,7 @@ void QTRLEDecoder::decode32(Common::SeekableReadStream &stream, uint32 rowPtr, u
 				byte r = stream.readByte();
 				byte g = stream.readByte();
 				byte b = stream.readByte();
-				uint32 color = _surface->format.ARGBToColor(a, r, g, b);
+				uint32 color = _surface->getFormat().ARGBToColor(a, r, g, b);
 
 				CHECK_PIXEL_PTR(rleCode);
 
@@ -414,7 +416,7 @@ void QTRLEDecoder::decode32(Common::SeekableReadStream &stream, uint32 rowPtr, u
 					byte r = stream.readByte();
 					byte g = stream.readByte();
 					byte b = stream.readByte();
-					rgb[pixelPtr++] = _surface->format.ARGBToColor(a, r, g, b);
+					rgb[pixelPtr++] = _surface->getFormat().ARGBToColor(a, r, g, b);
 				}
 			}
 		}
@@ -538,8 +540,7 @@ void QTRLEDecoder::createSurface() {
 	}	
 
 	_surface = new Graphics::Surface();
-	_surface->create(_paddedWidth, _height, getPixelFormat());
-	_surface->w = _width;
+	_surface->create(_width, _height, _paddedWidth, _height, getPixelFormat());
 }
 
 } // End of namespace Image

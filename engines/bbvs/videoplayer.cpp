@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "bbvs/bbvs.h"
 #include "engines/util.h"
@@ -60,13 +62,13 @@ void BbvsEngine::playVideo(int videoNum) {
 		if (videoDecoder->needsUpdate()) {
 			const Graphics::Surface *frame = videoDecoder->decodeNextFrame();
 			if (frame) {
-				if (frame->format.bytesPerPixel > 1) {
+				if (frame->getFormat().bytesPerPixel > 1) {
 					Graphics::Surface *frame1 = frame->convertTo(_system->getScreenFormat());
-					_system->copyRectToScreen(frame1->getPixels(), frame1->pitch, 0, 0, frame1->w, frame1->h);
+					_system->copyRectToScreen(frame1->getPixels(), frame1->getPitch(), 0, 0, frame1->getWidth(), frame1->getHeight());
 					frame1->free();
 					delete frame1;
 				} else {
-					_system->copyRectToScreen(frame->getPixels(), frame->pitch, 0, 0, frame->w, frame->h);
+					_system->copyRectToScreen(frame->getPixels(), frame->getPitch(), 0, 0, frame->getWidth(), frame->getHeight());
 				}
 				_system->updateScreen();
 			}

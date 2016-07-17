@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This file is based on WME Lite.
@@ -69,20 +71,20 @@ BaseSurfaceOSystem::~BaseSurfaceOSystem() {
 }
 
 Graphics::AlphaType hasTransparencyType(const Graphics::Surface *surf) {
-	if (surf->format.bytesPerPixel != 4) {
+	if (surf->getFormat().bytesPerPixel != 4) {
 		warning("hasTransparencyType:: non 32 bpp surface passed as argument");
 		return Graphics::ALPHA_OPAQUE;
 	}
 	uint8 r, g, b, a;
 	bool seenAlpha = false;
 	bool seenFullAlpha = false;
-	for (int i = 0; i < surf->h; i++) {
+	for (int i = 0; i < surf->getHeight(); i++) {
 		if (seenFullAlpha) {
 			break;
 		}
-		for (int j = 0; j < surf->w; j++) {
+		for (int j = 0; j < surf->getWidth(); j++) {
 			uint32 pix = *(const uint32 *)surf->getBasePtr(j, i);
-			surf->format.colorToARGB(pix, a, r, g, b);
+			surf->getFormat().colorToARGB(pix, a, r, g, b);
 			if (a != 255) {
 				seenAlpha = true;
 				if (a != 0) {
@@ -137,8 +139,8 @@ bool BaseSurfaceOSystem::finishLoad() {
 		return false;
 	}
 
-	_width = image->getSurface()->w;
-	_height = image->getSurface()->h;
+	_width = image->getSurface()->getWidth();
+	_height = image->getSurface()->getHeight();
 
 	bool isSaveGameGrayscale = _filename.matchString("savegame:*g", true);
 	if (isSaveGameGrayscale) {
@@ -151,25 +153,25 @@ bool BaseSurfaceOSystem::finishLoad() {
 
 	bool needsColorKey = false;
 	bool replaceAlpha = true;
-	if (image->getSurface()->format.bytesPerPixel == 1) {
+	if (image->getSurface()->getFormat().bytesPerPixel == 1) {
 		if (!image->getPalette()) {
 			error("Missing palette while loading 8bit image %s", _filename.c_str());
 		}
 		_surface = image->getSurface()->convertTo(g_system->getScreenFormat(), image->getPalette());
 		needsColorKey = true;
 	} else {
-		if (image->getSurface()->format != g_system->getScreenFormat()) {
+		if (image->getSurface()->getFormat() != g_system->getScreenFormat()) {
 			_surface = image->getSurface()->convertTo(g_system->getScreenFormat());
 		} else {
 			_surface = new Graphics::Surface();
 			_surface->copyFrom(*image->getSurface());
 		}
 
-		if (_filename.hasSuffix(".bmp") && image->getSurface()->format.bytesPerPixel == 4) {
+		if (_filename.hasSuffix(".bmp") && image->getSurface()->getFormat().bytesPerPixel == 4) {
 			// 32 bpp BMPs have nothing useful in their alpha-channel -> color-key
 			needsColorKey = true;
 			replaceAlpha = false;
-		} else if (image->getSurface()->format.aBits() == 0) {
+		} else if (image->getSurface()->getFormat().aBits() == 0) {
 			needsColorKey = true;
 		}
 	}
@@ -210,22 +212,22 @@ void BaseSurfaceOSystem::genAlphaMask(Graphics::Surface *surface) {
 	        SDL_GetRGB(colorKey, surface->format, &ckRed, &ckGreen, &ckBlue);
 	    } else hasColorKey = false;
 	*/
-	_alphaMask = new byte[surface->w * surface->h];
+	_alphaMask = new byte[surface->getWidth() * surface->getHeight()];
 
 	bool hasTransparency = false;
-	for (int y = 0; y < surface->h; y++) {
-		for (int x = 0; x < surface->w; x++) {
+	for (int y = 0; y < surface->getHeight(); y++) {
+		for (int x = 0; x < surface->getWidth(); x++) {
 			uint32 pixel = getPixelAt(surface, x, y);
 
 			uint8 r, g, b, a;
-			surface->format.colorToARGB(pixel, a, r, g, b);
+			surface->getFormat().colorToARGB(pixel, a, r, g, b);
 			//SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
 
 			if (hasColorKey && r == ckRed && g == ckGreen && b == ckBlue) {
 				a = 0;
 			}
 
-			_alphaMask[y * surface->w + x] = a;
+			_alphaMask[y * surface->getWidth() + x] = a;
 			if (a < 255) {
 				hasTransparency = true;
 			}
@@ -241,7 +243,7 @@ void BaseSurfaceOSystem::genAlphaMask(Graphics::Surface *surface) {
 //////////////////////////////////////////////////////////////////////////
 uint32 BaseSurfaceOSystem::getPixelAt(Graphics::Surface *surface, int x, int y) {
 	warning("BaseSurfaceOSystem::GetPixel - Not ported yet");
-	int bpp = surface->format.bytesPerPixel;
+	int bpp = surface->getFormat().bytesPerPixel;
 	/* Here p is the address to the pixel we want to retrieve */
 	uint8 *p = (uint8 *)surface->getBasePtr(x, y);
 
@@ -293,14 +295,14 @@ bool BaseSurfaceOSystem::isTransparentAt(int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////
 bool BaseSurfaceOSystem::isTransparentAtLite(int x, int y) {
-	if (x < 0 || x >= _surface->w || y < 0 || y >= _surface->h) {
+	if (x < 0 || x >= _surface->getWidth() || y < 0 || y >= _surface->getHeight()) {
 		return true;
 	}
 
-	if (_surface->format.bytesPerPixel == 4) {
+	if (_surface->getFormat().bytesPerPixel == 4) {
 		uint32 pixel = *(uint32 *)_surface->getBasePtr(x, y);
 		uint8 r, g, b, a;
-		_surface->format.colorToARGB(pixel, a, r, g, b);
+		_surface->getFormat().colorToARGB(pixel, a, r, g, b);
 		if (a <= 128) {
 			return true;
 		} else {
@@ -443,10 +445,10 @@ bool BaseSurfaceOSystem::drawSprite(int x, int y, Rect32 *rect, Rect32 *newRect,
 
 bool BaseSurfaceOSystem::putSurface(const Graphics::Surface &surface, bool hasAlpha) {
 	_loaded = true;
-	if (surface.format == _surface->format && surface.pitch == _surface->pitch && surface.h == _surface->h) {
+	if (surface.getFormat() == _surface->getFormat() && surface.getPitch() == _surface->getPitch() && surface.getHeight() == _surface->getHeight()) {
 		const byte *src = (const byte *)surface.getBasePtr(0, 0);
 		byte *dst = (byte *)_surface->getBasePtr(0, 0);
-		memcpy(dst, src, surface.pitch * surface.h);
+		memcpy(dst, src, surface.getPitch() * surface.getHeight());
 	} else {
 		_surface->free();
 		_surface->copyFrom(surface);

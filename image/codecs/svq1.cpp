@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Sorenson Video 1 Codec
 // Based off FFmpeg's SVQ1 decoder (written by Arpi and Nick Kurshev)
@@ -252,9 +254,7 @@ const Graphics::Surface *SVQ1Decoder::decodeFrame(Common::SeekableReadStream &st
 	// Now we'll create the surface
 	if (!_surface) {
 		_surface = new Graphics::Surface();
-		_surface->create(yWidth, yHeight, g_system->getScreenFormat());
-		_surface->w = _width;
-		_surface->h = _height;
+		_surface->create(_width, _height, yWidth, yHeight, g_system->getScreenFormat());
 	}
 
 	// We need to massage the chrominance data a bit to be able to be used by the converter

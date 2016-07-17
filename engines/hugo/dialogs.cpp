@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/substream.h"
 #include "gui/gui-manager.h"
@@ -135,29 +137,28 @@ void TopMenu::loadBmpArr(Common::SeekableReadStream &in) {
 			error("TopMenu::loadBmpArr(): Could not load bitmap");
 
 		const Graphics::Surface *bitmapSrc = bitmapDecoder.getSurface();
-		if (bitmapSrc->format.bytesPerPixel == 1)
+		if (bitmapSrc->getFormat().bytesPerPixel == 1)
 			error("TopMenu::loadBmpArr(): Unhandled paletted image");
 
 		_arrayBmp[i * 2] = bitmapSrc->convertTo(g_system->getOverlayFormat());
-		_arrayBmp[i * 2 + 1] = new Graphics::Surface();
-		_arrayBmp[i * 2 + 1]->create(_arrayBmp[i * 2]->w * 2, _arrayBmp[i * 2]->h * 2, g_system->getOverlayFormat());
+		_arrayBmp[i * 2 + 1] = new Graphics::Surface(_arrayBmp[i * 2]->getWidth() * 2, _arrayBmp[i * 2]->getHeight() * 2, g_system->getOverlayFormat());
 
-		for (int j = 0; j < _arrayBmp[i * 2]->h; j++) {
+		for (int j = 0; j < _arrayBmp[i * 2]->getHeight(); j++) {
 			byte *src = (byte *)_arrayBmp[i * 2]->getBasePtr(0, j);
 			byte *dst = (byte *)_arrayBmp[i * 2 + 1]->getBasePtr(0, j * 2);
-			for (int k = _arrayBmp[i * 2]->w; k > 0; k--) {
-				for (int m = _arrayBmp[i * 2]->format.bytesPerPixel; m > 0; m--) {
+			for (int k = _arrayBmp[i * 2]->getWidth(); k > 0; k--) {
+				for (int m = _arrayBmp[i * 2]->getFormat().bytesPerPixel; m > 0; m--) {
 					*dst++ = *src++;
 				}
-				src -= _arrayBmp[i * 2]->format.bytesPerPixel;
+				src -= _arrayBmp[i * 2]->getFormat().bytesPerPixel;
 
-				for (int m = _arrayBmp[i * 2]->format.bytesPerPixel; m > 0; m--) {
+				for (int m = _arrayBmp[i * 2]->getFormat().bytesPerPixel; m > 0; m--) {
 					*dst++ = *src++;
 				}
 			}
 			src = (byte *)_arrayBmp[i * 2 + 1]->getBasePtr(0, j * 2);
 			dst = (byte *)_arrayBmp[i * 2 + 1]->getBasePtr(0, j * 2 + 1);
-			for (int k = _arrayBmp[i * 2 + 1]->pitch; k > 0; k--) {
+			for (int k = _arrayBmp[i * 2 + 1]->getPitch(); k > 0; k--) {
 				*dst++ = *src++;
 			}
 		}

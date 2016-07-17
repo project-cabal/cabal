@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mohawk/resource.h"
 #include "mohawk/livingbooks.h"
@@ -69,7 +71,7 @@ bool LBGraphics::imageIsTransparentAt(uint16 image, bool useOffsets, int x, int 
 		return true;
 
 	Graphics::Surface *surface = mhkSurface->getSurface();
-	if (x >= surface->w || y >= surface->h)
+	if (x >= surface->getWidth() || y >= surface->getHeight())
 		return true;
 
 	return *(byte *)surface->getBasePtr(x, y) == 0;

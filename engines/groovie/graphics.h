@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef GROOVIE_GRAPHICS_H
 #define GROOVIE_GRAPHICS_H
@@ -39,7 +41,7 @@ public:
 	void change();
 	void mergeFgAndBg();
 	void switchToFullScreen(bool fullScreen);
-	bool isFullScreen() { return (_foreground.h == 480); }
+	bool isFullScreen() { return _foreground.getHeight() == 480; }
 	void updateScreen(Graphics::Surface *source);
 	Graphics::Surface _foreground;	// The main surface that most things are drawn to
 	Graphics::Surface _background;	// Used occasionally, mostly (only?) in puzzles

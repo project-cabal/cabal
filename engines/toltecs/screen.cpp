@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "graphics/cursorman.h"
 
@@ -648,8 +650,8 @@ void Screen::drawChar(const Font &font, byte *dest, int16 x, int16 y, byte ch, b
 
 void Screen::drawSurface(int16 x, int16 y, Graphics::Surface *surface) {
 	int16 skipX = 0;
-	int16 width = surface->w;
-	int16 height = surface->h;
+	int16 width = surface->getWidth();
+	int16 height = surface->getHeight();
 	byte *surfacePixels = (byte *)surface->getPixels();
 	byte *frontScreen;
 
@@ -665,7 +667,7 @@ void Screen::drawSurface(int16 x, int16 y, Graphics::Surface *surface) {
 
 	if (y < 0) {
 		int16 skipY = -y;
-		surfacePixels += surface->w * skipY;
+		surfacePixels += surface->getWidth() * skipY;
 		y = 0;
 		height -= skipY;
 	}
@@ -689,7 +691,7 @@ void Screen::drawSurface(int16 x, int16 y, Graphics::Surface *surface) {
 			surfacePixels++;
 		}
 		frontScreen += 640 - width;
-		surfacePixels += surface->w - width - skipX;
+		surfacePixels += surface->getWidth() - width - skipX;
 	}
 }
 

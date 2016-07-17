@@ -1,27 +1,29 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
- *
- * Additional copyright for this file:
- * Copyright (C) 1995-1997 Presto Studios, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Additional copyright for this file:
+// Copyright (C) 1995-1997 Presto Studios, Inc.
 
 #include "common/system.h"
 #include "graphics/surface.h"
@@ -76,9 +78,9 @@ void ScreenFader::setFaderValue(const int32 value) {
 			// linear fade instead, which looks fairly well, IMO.
 			Graphics::Surface *screen = g_system->lockScreen();
 
-			for (uint y = 0; y < _screen->h; y++) {
-				for (uint x = 0; x < _screen->w; x++) {
-					if (_screen->format.bytesPerPixel == 2)
+			for (uint y = 0; y < _screen->getHeight(); y++) {
+				for (uint x = 0; x < _screen->getWidth(); x++) {
+					if (_screen->getFormat().bytesPerPixel == 2)
 						WRITE_UINT16(screen->getBasePtr(x, y), fadePixel(READ_UINT16(_screen->getBasePtr(x, y)), value));
 					else
 						WRITE_UINT32(screen->getBasePtr(x, y), fadePixel(READ_UINT32(_screen->getBasePtr(x, y)), value));

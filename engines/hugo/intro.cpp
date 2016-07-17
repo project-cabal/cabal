@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Hugo Trilogy source code
@@ -91,7 +93,7 @@ void intro_v1d::preNewGame() {
 void intro_v1d::introInit() {
 	_introState = 0;
 	_introTicks = 0;
-	_surf.init(320, 200, 320, _vm->_screen->getFrontBuffer(), Graphics::PixelFormat::createFormatCLUT8());
+	_surf.resetWithoutOwnership(320, 200, 320, _vm->_screen->getFrontBuffer(), Graphics::PixelFormat::createFormatCLUT8());
 	_vm->_screen->displayList(kDisplayInit);
 }
 
@@ -241,7 +243,7 @@ void intro_v2d::preNewGame() {
 void intro_v2d::introInit() {
 	_vm->_screen->displayList(kDisplayInit);
 	_vm->_file->readBackground(_vm->_numScreens - 1); // display splash screen
-	_surf.init(320, 200, 320, _vm->_screen->getFrontBuffer(), Graphics::PixelFormat::createFormatCLUT8());
+	_surf.resetWithoutOwnership(320, 200, 320, _vm->_screen->getFrontBuffer(), Graphics::PixelFormat::createFormatCLUT8());
 
 	char buffer[128];
 
@@ -283,7 +285,7 @@ void intro_v3d::preNewGame() {
 void intro_v3d::introInit() {
 	_vm->_screen->displayList(kDisplayInit);
 	_vm->_file->readBackground(_vm->_numScreens - 1); // display splash screen
-	_surf.init(320, 200, 320, _vm->_screen->getFrontBuffer(), Graphics::PixelFormat::createFormatCLUT8());
+	_surf.resetWithoutOwnership(320, 200, 320, _vm->_screen->getFrontBuffer(), Graphics::PixelFormat::createFormatCLUT8());
 
 	char buffer[128];
 	if (_vm->_boot._registered)

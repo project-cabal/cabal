@@ -318,10 +318,10 @@ bool VideoTheoraPlayer::update() {
 			if (!_theoraDecoder->endOfVideo() && _theoraDecoder->getTimeToNextFrame() == 0) {
 				const Graphics::Surface *decodedFrame = _theoraDecoder->decodeNextFrame();
 				if (decodedFrame) {
-					if (decodedFrame->format == _surface.format && decodedFrame->pitch == _surface.pitch && decodedFrame->h == _surface.h) {
+					if (decodedFrame->getFormat() == _surface.getFormat() && decodedFrame->getPitch() == _surface.getPitch() && decodedFrame->getHeight() == _surface.getHeight()) {
 						const byte *src = (const byte *)decodedFrame->getBasePtr(0, 0);
 						byte *dst = (byte *)_surface.getBasePtr(0, 0);
-						memcpy(dst, src, _surface.pitch * _surface.h);
+						memcpy(dst, src, _surface.getPitch() * _surface.getHeight());
 					} else {
 						_surface.free();
 						_surface.copyFrom(*decodedFrame);
@@ -385,23 +385,23 @@ bool VideoTheoraPlayer::writeVideo() {
 }
 
 void VideoTheoraPlayer::writeAlpha() {
-	if (_alphaImage && _surface.w == _alphaImage->getSurface()->w && _surface.h == _alphaImage->getSurface()->h) {
-		assert(_alphaImage->getSurface()->format.bytesPerPixel == 4);
-		assert(_surface.format.bytesPerPixel == 4);
+	if (_alphaImage && _surface.getWidth() == _alphaImage->getSurface()->getWidth() && _surface.getHeight() == _alphaImage->getSurface()->getHeight()) {
+		assert(_alphaImage->getSurface()->getFormat().bytesPerPixel == 4);
+		assert(_surface.getFormat().bytesPerPixel == 4);
 		const byte *alphaData = (const byte *)_alphaImage->getSurface()->getPixels();
 #ifdef SCUMM_LITTLE_ENDIAN
-		int alphaPlace = (_alphaImage->getSurface()->format.aShift / 8);
+		int alphaPlace = (_alphaImage->getSurface()->getFormat().aShift / 8);
 #else
-		int alphaPlace = 3 - (_alphaImage->getSurface()->format.aShift / 8);
+		int alphaPlace = 3 - (_alphaImage->getSurface()->getFormat().aShift / 8);
 #endif
 		alphaData += alphaPlace;
 		byte *imgData = (byte *)_surface.getPixels();
 #ifdef SCUMM_LITTLE_ENDIAN
-		imgData += (_surface.format.aShift / 8);
+		imgData += (_surface.getFormat().aShift / 8);
 #else
-		imgData += 3 - (_surface.format.aShift / 8);
+		imgData += 3 - (_surface.getFormat().aShift / 8);
 #endif
-		for (int i = 0; i < _surface.w * _surface.h; i++) {
+		for (int i = 0; i < _surface.getWidth() * _surface.getHeight(); i++) {
 			*imgData = *alphaData;
 			alphaData += 4;
 			imgData += 4;

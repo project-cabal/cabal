@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "mads/mads.h"
@@ -433,21 +435,21 @@ void UserInterface::mergeFrom(MSurface *src, const Common::Rect &srcBounds,
 	const Common::Point &destPos, int transparencyIndex) {
 	// Validation of the rectangle and position
 	int destX = destPos.x, destY = destPos.y;
-	if ((destX >= w) || (destY >= h))
+	if (destX >= getWidth() || destY >= getHeight())
 		return;
 
 	Common::Rect copyRect = srcBounds;
 	if (destX < 0) {
 		copyRect.left += -destX;
 		destX = 0;
-	} else if (destX + copyRect.width() > w) {
-		copyRect.right -= destX + copyRect.width() - w;
+	} else if (destX + copyRect.width() > getWidth()) {
+		copyRect.right -= destX + copyRect.width() - getWidth();
 	}
 	if (destY < 0) {
 		copyRect.top += -destY;
 		destY = 0;
-	} else if (destY + copyRect.height() > h) {
-		copyRect.bottom -= destY + copyRect.height() - h;
+	} else if (destY + copyRect.height() > getHeight()) {
+		copyRect.bottom -= destY + copyRect.height() - getHeight();
 	}
 
 	if (!copyRect.isValidRect())
@@ -457,7 +459,7 @@ void UserInterface::mergeFrom(MSurface *src, const Common::Rect &srcBounds,
 
 	byte *data = src->getData();
 	byte *srcPtr = data + (src->getWidth() * copyRect.top + copyRect.left);
-	byte *destPtr = (byte *)this->pixels + (destY * getWidth()) + destX;
+	byte *destPtr = (byte *)getPixels() + (destY * getWidth()) + destX;
 
 	for (int rowCtr = 0; rowCtr < copyRect.height(); ++rowCtr) {
 		// Process each line of the area

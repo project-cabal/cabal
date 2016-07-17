@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code contains portions of Libart_LGPL - library of basic graphic primitives
@@ -406,11 +408,7 @@ void VectorImage::render(int width, int height) {
 
 	debug(3, "VectorImage::render(%d, %d) %s", width, height, _fname.c_str());
 
-	if (_pixelData)
-		free(_pixelData);
-
-	_pixelData = (byte *)malloc(width * height * 4);
-	memset(_pixelData, 0, width * height * 4);
+	_surface.create(width, height, Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
 
 	for (uint e = 0; e < _elements.size(); e++) {
 
@@ -451,7 +449,7 @@ void VectorImage::render(int width, int height) {
 			(*fill0pos).code = ART_END;
 			(*fill1pos).code = ART_END;
 
-			drawBez(fill1, fill0, _pixelData, width, height, _boundingBox.left, _boundingBox.top, scaleX, scaleY, -1, _elements[e].getFillStyleColor(s));
+			drawBez(fill1, fill0, static_cast<byte *>(_surface.getPixels()), width, height, _boundingBox.left, _boundingBox.top, scaleX, scaleY, -1, _elements[e].getFillStyleColor(s));
 
 			free(fill0);
 			free(fill1);
@@ -464,7 +462,7 @@ void VectorImage::render(int width, int height) {
 
 			for (uint p = 0; p < _elements[e].getPathCount(); p++) {
 				if (_elements[e].getPathInfo(p).getLineStyle() == s + 1) {
-					drawBez(_elements[e].getPathInfo(p).getVec(), 0, _pixelData, width, height, _boundingBox.left, _boundingBox.top, scaleX, scaleY, penWidth, _elements[e].getLineStyleColor(s));
+					drawBez(_elements[e].getPathInfo(p).getVec(), 0, static_cast<byte *>(_surface.getPixels()), width, height, _boundingBox.left, _boundingBox.top, scaleX, scaleY, penWidth, _elements[e].getLineStyleColor(s));
 				}
 			}
 		}

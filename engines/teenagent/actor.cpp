@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "teenagent/actor.h"
 #include "teenagent/objects.h"
@@ -53,7 +55,7 @@ Common::Rect Actor::renderIdle(Graphics::Surface *surface, const Common::Point &
 	Surface *s = frames + *framesIdle - 1;
 
 	//TODO: remove copy-paste here and below
-	int xp = position.x - s->w * zoom / 512 - s->x, yp = position.y - 62 * zoom / 256 - s->y; //hardcoded in original game
+	int xp = position.x - s->getWidth() * zoom / 512 - s->x, yp = position.y - 62 * zoom / 256 - s->y; //hardcoded in original game
 	return s->render(surface, xp, yp, mirror, Common::Rect(), zoom);
 }
 
@@ -136,11 +138,11 @@ Common::Rect Actor::render(Graphics::Surface *surface, const Common::Point &posi
 	}
 
 	Common::Rect dirty;
-	Common::Rect clip(0, 0, s->w, s->h);
+	Common::Rect clip(s->getWidth(), s->getHeight());
 	if (head != NULL)
-		clip.top = head->h;
+		clip.top = head->getHeight();
 
-	int xp = position.x - s->w * zoom / 512 - s->x, yp = position.y - s->h * zoom / 256 - s->y;
+	int xp = position.x - s->getWidth() * zoom / 512 - s->x, yp = position.y - s->getHeight() * zoom / 256 - s->y;
 	dirty = s->render(surface, xp, yp + clip.top * zoom / 256, mirror, clip, zoom);
 
 	if (head != NULL)

@@ -205,10 +205,10 @@ void BurnedLetterViewWindow::onLButtonUp(const Common::Point &point, uint flags)
 			Graphics::Surface *newFrame = _stillFrames->getFrameCopy(_curView);
 		
 			for (int i = 0; i < 189; i += offset) {
-				_preBuffer->move(0, offset, _preBuffer->h);
+				_preBuffer->move(0, offset, _preBuffer->getHeight());
 
 				for (int j = 0; j < offset; j++)
-					memcpy(_preBuffer->getBasePtr(0, j), newFrame->getBasePtr(0, _preBuffer->h - (i + offset) + j), newFrame->w * newFrame->format.bytesPerPixel);
+					memcpy(_preBuffer->getBasePtr(0, j), newFrame->getBasePtr(0, _preBuffer->getHeight() - (i + offset) + j), newFrame->getWidth() * newFrame->getFormat().bytesPerPixel);
 
 				invalidateWindow(false);
 				_vm->yield();
@@ -235,10 +235,10 @@ void BurnedLetterViewWindow::onLButtonUp(const Common::Point &point, uint flags)
 			Graphics::Surface *newFrame = _stillFrames->getFrameCopy(_curView);
 
 			for (int i = 0; i < 189; i += offset) {
-				_preBuffer->move(0, -offset, _preBuffer->h);
+				_preBuffer->move(0, -offset, _preBuffer->getHeight());
 
 				for (int j = 0; j < offset; j++)
-					memcpy(_preBuffer->getBasePtr(0, newFrame->h - offset + j), newFrame->getBasePtr(0, i + j), newFrame->w * newFrame->format.bytesPerPixel);
+					memcpy(_preBuffer->getBasePtr(0, newFrame->getHeight() - offset + j), newFrame->getBasePtr(0, i + j), newFrame->getWidth() * newFrame->getFormat().bytesPerPixel);
 
 				invalidateWindow(false);
 				_vm->yield();

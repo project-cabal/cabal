@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "mads/mads.h"
@@ -149,9 +151,9 @@ int Font::writeString(MSurface *surface, const Common::String &msg, const Common
 		int spaceWidth, int width) {
 	int xEnd;
 	if (width > 0)
-		xEnd = MIN((int)surface->w, pt.x + width);
+		xEnd = MIN((int)surface->getWidth(), pt.x + width);
 	else
-		xEnd = surface->w;
+		xEnd = surface->getWidth();
 
 	int x = pt.x;
 	int y = pt.y;

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/debug-channels.h"
 #include "common/file.h"
@@ -717,7 +719,7 @@ void ScummDebugger::drawBox(int box) {
 
 	VirtScreen *vs = _vm->findVirtScreen(coords.ul.y);
 	if (vs != NULL)
-		_vm->markRectAsDirty(vs->number, 0, vs->w, 0, vs->h);
+		_vm->markRectAsDirty(vs->number, 0, vs->getWidth(), 0, vs->getHeight());
 	_vm->drawDirtyScreenParts();
 	_vm->_system->updateScreen();
 }

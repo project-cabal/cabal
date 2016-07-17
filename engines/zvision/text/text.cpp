@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/file.h"
@@ -280,11 +282,11 @@ void TextStyleState::updateFontWithTextState(StyledTTFont &font) {
 
 void TextRenderer::drawTextWithJustification(const Common::String &text, StyledTTFont &font, uint32 color, Graphics::Surface &dest, int lineY, TextJustification justify) {
 	if (justify == TEXT_JUSTIFY_LEFT)
-		font.drawString(&dest, text, 0, lineY, dest.w, color, Graphics::kTextAlignLeft);
+		font.drawString(&dest, text, 0, lineY, dest.getWidth(), color, Graphics::kTextAlignLeft);
 	else if (justify == TEXT_JUSTIFY_CENTER)
-		font.drawString(&dest, text, 0, lineY, dest.w, color, Graphics::kTextAlignCenter);
+		font.drawString(&dest, text, 0, lineY, dest.getWidth(), color, Graphics::kTextAlignCenter);
 	else if (justify == TEXT_JUSTIFY_RIGHT)
-		font.drawString(&dest, text, 0, lineY, dest.w, color, Graphics::kTextAlignRight);
+		font.drawString(&dest, text, 0, lineY, dest.getWidth(), color, Graphics::kTextAlignRight);
 }
 
 int32 TextRenderer::drawText(const Common::String &text, TextStyleState &state, Graphics::Surface &dest) {
@@ -410,7 +412,7 @@ void TextRenderer::drawTextWithWordWrapping(const Common::String &text, Graphics
 				wordWidth += font.getStringWidth(temp);
 
 				// If the word causes the line to overflow, render the sentence and start a new line
-				if (lineWidth + sentenceWidth + wordWidth > dest.w) {
+				if (lineWidth + sentenceWidth + wordWidth > dest.getWidth()) {
 					textSurfaces.push_back(TextSurface(font.renderSolidText(currentSentence, textColor), sentencePixelOffset, currentLineNumber));
 
 					// Set line width
@@ -448,7 +450,7 @@ void TextRenderer::drawTextWithWordWrapping(const Common::String &text, Graphics
 				++numSpaces;
 			} else {			
 				// If the word causes the line to overflow, render the sentence and start a new line
-				if (lineWidth + sentenceWidth + wordWidth > dest.w) {
+				if (lineWidth + sentenceWidth + wordWidth > dest.getWidth()) {
 					// Only render out content
 					if (!currentSentence.empty()) {
 						textSurfaces.push_back(TextSurface(font.renderSolidText(currentSentence, currentState.getTextColor(_engine)), sentencePixelOffset, currentLineNumber));
@@ -495,9 +497,9 @@ void TextRenderer::drawTextWithWordWrapping(const Common::String &text, Graphics
 		if (lineJustifications[iter->_lineNumber] == TEXT_JUSTIFY_LEFT) {
 			_engine->getRenderManager()->blitSurfaceToSurface(*iter->_surface, empty, dest, iter->_surfaceOffset.x, iter->_surfaceOffset.y, 0);
 		} else if (lineJustifications[iter->_lineNumber] == TEXT_JUSTIFY_CENTER) {
-			_engine->getRenderManager()->blitSurfaceToSurface(*iter->_surface, empty, dest, ((dest.w - lineWidths[iter->_lineNumber]) / 2) + iter->_surfaceOffset.x, iter->_surfaceOffset.y, 0);
+			_engine->getRenderManager()->blitSurfaceToSurface(*iter->_surface, empty, dest, ((dest.getWidth() - lineWidths[iter->_lineNumber]) / 2) + iter->_surfaceOffset.x, iter->_surfaceOffset.y, 0);
 		} else if (lineJustifications[iter->_lineNumber] == TEXT_JUSTIFY_RIGHT) {
-			_engine->getRenderManager()->blitSurfaceToSurface(*iter->_surface, empty, dest, dest.w - lineWidths[iter->_lineNumber]  + iter->_surfaceOffset.x, iter->_surfaceOffset.y, 0);
+			_engine->getRenderManager()->blitSurfaceToSurface(*iter->_surface, empty, dest, dest.getWidth() - lineWidths[iter->_lineNumber]  + iter->_surfaceOffset.x, iter->_surfaceOffset.y, 0);
 		}
 
 		// Release memory

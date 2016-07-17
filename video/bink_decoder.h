@@ -144,9 +144,9 @@ private:
 		BinkVideoTrack(uint32 width, uint32 height, const Graphics::PixelFormat &format, uint32 frameCount, const Common::Rational &frameRate, bool swapPlanes, bool hasAlpha, uint32 id);
 		~BinkVideoTrack();
 
-		uint16 getWidth() const { return _surface.w; }
-		uint16 getHeight() const { return _surface.h; }
-		Graphics::PixelFormat getPixelFormat() const { return _surface.format; }
+		uint16 getWidth() const { return _surface.getWidth(); }
+		uint16 getHeight() const { return _surface.getHeight(); }
+		Graphics::PixelFormat getPixelFormat() const { return _surface.getFormat(); }
 		int getCurFrame() const { return _curFrame; }
 		int getFrameCount() const { return _frameCount; }
 		const Graphics::Surface *decodeNextFrame() { return &_surface; }

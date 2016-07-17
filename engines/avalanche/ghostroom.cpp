@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
 * This code is based on the original source code of Lord Avalot d'Argent version 1.3.
@@ -131,10 +133,10 @@ void GhostRoom::doBat() {
 		}
 
 		if ((_batCount == 91) || (_batCount == 241)) // When the bat changes, blank out the old one.
-			_vm->_graphics->drawFilledRectangle(Common::Rect(_batX + _bat[batImage].w, _batY, _batX + _bat[batImage - 1].w, _batY + _bat[batImage - 1].h), kColorBlack);
+			_vm->_graphics->drawFilledRectangle(Common::Rect(_batX + _bat[batImage].getWidth(), _batY, _batX + _bat[batImage - 1].getWidth(), _batY + _bat[batImage - 1].getHeight()), kColorBlack);
 
-		_vm->_graphics->drawFilledRectangle(Common::Rect(_batX, _batY, _batX + _bat[batImage].w, _batY + iy), kColorBlack);
-		_vm->_graphics->drawFilledRectangle(Common::Rect(_batX + _bat[batImage].w - dx, _batY, _batX + _bat[batImage].w, _batY + _bat[batImage].h), kColorBlack);
+		_vm->_graphics->drawFilledRectangle(Common::Rect(_batX, _batY, _batX + _bat[batImage].getWidth(), _batY + iy), kColorBlack);
+		_vm->_graphics->drawFilledRectangle(Common::Rect(_batX + _bat[batImage].getWidth() - dx, _batY, _batX + _bat[batImage].getWidth(), _batY + _bat[batImage].getHeight()), kColorBlack);
 
 		_batX -= dx;
 		_batY++;

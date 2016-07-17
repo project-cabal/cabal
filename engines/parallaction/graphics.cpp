@@ -1,7 +1,6 @@
-
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/file.h"
@@ -323,7 +324,7 @@ void Gfx::copyRectToScreen(const byte *buf, int pitch, int x, int y, int w, int 
 		for (int i = 0; i < h; i++) {
 			memcpy(dst, buf, w);
 			buf += pitch;
-			dst += _backBuffer.pitch;
+			dst += _backBuffer.getPitch();
 		}
 	} else {
 		_vm->_system->copyRectToScreen(buf, pitch, x, y, w, h);
@@ -333,7 +334,7 @@ void Gfx::copyRectToScreen(const byte *buf, int pitch, int x, int y, int w, int 
 void Gfx::clearScreen() {
 	if (_doubleBuffering) {
 		if (_backBuffer.getPixels()) {
-			Common::Rect r(_backBuffer.w, _backBuffer.h);
+			Common::Rect r(_backBuffer.getWidth(), _backBuffer.getHeight());
 			_backBuffer.fillRect(r, 0);
 		}
 	} else {
@@ -358,7 +359,7 @@ void Gfx::unlockScreen() {
 void Gfx::updateScreenIntern() {
 	if (_doubleBuffering) {
 		byte *data = (byte *)_backBuffer.getBasePtr(_scrollPosX, _scrollPosY);
-		_vm->_system->copyRectToScreen(data, _backBuffer.pitch, 0, 0, _vm->_screenWidth, _vm->_screenHeight);
+		_vm->_system->copyRectToScreen(data, _backBuffer.getPitch(), 0, 0, _vm->_screenWidth, _vm->_screenHeight);
 	}
 
 	_vm->_system->updateScreen();
@@ -426,7 +427,7 @@ void Gfx::updateScreen() {
 		uint w = _backgroundInfo->width;
 		uint h = _backgroundInfo->height;
 		byte *backgroundData = (byte *)_backgroundInfo->bg.getPixels();
-		uint16 backgroundPitch = _backgroundInfo->bg.pitch;
+		uint16 backgroundPitch = _backgroundInfo->bg.getPitch();
 		copyRectToScreen(backgroundData, backgroundPitch, _backgroundInfo->_x, _backgroundInfo->_y, w, h);
 	}
 
@@ -451,7 +452,7 @@ void Gfx::applyHalfbriteEffect_NS(Graphics::Surface &surf) {
 	}
 
 	byte *buf = (byte *)surf.getPixels();
-	for (int i = 0; i < surf.w*surf.h; i++) {
+	for (int i = 0; i < surf.getWidth() * surf.getHeight(); i++) {
 		*buf++ |= 0x20;
 	}
 
@@ -488,8 +489,7 @@ void Gfx::drawOverlay(Graphics::Surface &surf) {
 
 
 void Gfx::patchBackground(Graphics::Surface &surf, int16 x, int16 y, bool mask) {
-
-	Common::Rect r(surf.w, surf.h);
+	Common::Rect r(surf.getWidth(), surf.getHeight());
 	r.moveTo(x, y);
 
 	uint16 z = (mask) ? _backgroundInfo->getMaskLayer(y) : LAYER_FOREGROUND;
@@ -510,7 +510,7 @@ void Gfx::invertBackground(const Common::Rect& r) {
 			d++;
 		}
 
-		d += (_backgroundInfo->bg.pitch - r.width());
+		d += (_backgroundInfo->bg.getPitch() - r.width());
 	}
 
 }
@@ -536,12 +536,12 @@ GfxObj *Gfx::renderFloatingLabel(Font *font, char *text) {
 		setupLabelSurface(*cnv, w, h);
 
 		font->setColor((_gameType == GType_BRA) ? 0 : 7);
-		font->drawString((byte *)cnv->getBasePtr(1, 0), cnv->w, text);
-		font->drawString((byte *)cnv->getBasePtr(1, 2), cnv->w, text);
-		font->drawString((byte *)cnv->getBasePtr(0, 1), cnv->w, text);
-		font->drawString((byte *)cnv->getBasePtr(2, 1), cnv->w, text);
+		font->drawString((byte *)cnv->getBasePtr(1, 0), cnv->getWidth(), text);
+		font->drawString((byte *)cnv->getBasePtr(1, 2), cnv->getWidth(), text);
+		font->drawString((byte *)cnv->getBasePtr(0, 1), cnv->getWidth(), text);
+		font->drawString((byte *)cnv->getBasePtr(2, 1), cnv->getWidth(), text);
 		font->setColor((_gameType == GType_BRA) ? 11 : 1);
-		font->drawString((byte *)cnv->getBasePtr(1, 1), cnv->w, text);
+		font->drawString((byte *)cnv->getBasePtr(1, 1), cnv->getWidth(), text);
 	} else {
 		w = font->getStringWidth(text);
 		h = font->height();
@@ -709,8 +709,8 @@ void Gfx::copyRect(const Common::Rect &r, Graphics::Surface &src, Graphics::Surf
 	for (uint16 i = 0; i < r.height(); i++) {
 		memcpy(d, s, r.width());
 
-		s += src.pitch;
-		d += dst.pitch;
+		s += src.getPitch();
+		d += dst.getPitch();
 	}
 
 	return;
@@ -857,7 +857,7 @@ void Gfx::setBackground(uint type, BackgroundInfo *info) {
 		int width = CLIP(info->width, (int)_vm->_screenWidth, info->width);
 		int height = CLIP(info->height, (int)_vm->_screenHeight, info->height);
 
-		if (width != _backBuffer.w || height != _backBuffer.h) {
+		if (width != _backBuffer.getWidth() || height != _backBuffer.getHeight()) {
 			_backBuffer.create(width, height, Graphics::PixelFormat::createFormatCLUT8());
 		}
 	}

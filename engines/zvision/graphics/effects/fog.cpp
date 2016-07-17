@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -8,17 +8,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 
@@ -46,10 +48,10 @@ FogFx::FogFx(ZVision *engine, uint32 key, Common::Rect region, bool ported, Effe
 	else
 		_engine->getRenderManager()->readImageToSurface("cloud.tga", _fog);
 
-	_mp.resize(_fog.h);
-	for (int16 i = 0; i < _fog.h; i++) {
-		_mp[i].resize(_fog.w);
-		for (int16 j = 0; j < _fog.w; j++)
+	_mp.resize(_fog.getHeight());
+	for (int16 i = 0; i < _fog.getHeight(); i++) {
+		_mp[i].resize(_fog.getWidth());
+		for (int16 j = 0; j < _fog.getWidth(); j++)
 			_mp[i][j] = true;
 	}
 
@@ -72,15 +74,15 @@ const Graphics::Surface *FogFx::draw(const Graphics::Surface &srcSubRect) {
 
 	uint32 cnt = 0;
 
-	for (uint16 j = 0; j < _surface.h; j++) {
+	for (uint16 j = 0; j < _surface.getHeight(); j++) {
 		uint16 *lineBuf = (uint16 *)_surface.getBasePtr(0, j);
 
-		for (uint16 i = 0; i < _surface.w; i++) {
+		for (uint16 i = 0; i < _surface.getWidth(); i++) {
 			if (it->inEffect) {
 				// Not 100% equivalent, but looks nice and not buggy
 				uint8 sr, sg, sb;
 				_engine->_resourcePixelFormat.colorToRGB(lineBuf[i], sr, sg, sb);
-				uint16 fogColor = *(uint16 *)_fog.getBasePtr((i + _pos) % _fog.w, j);
+				uint16 fogColor = *(uint16 *)_fog.getBasePtr((i + _pos) % _fog.getWidth(), j);
 				uint8 dr, dg, db;
 				_engine->_resourcePixelFormat.colorToRGB(_colorMap[fogColor & 0x1F], dr, dg, db);
 				uint16 fr = dr + sr;
@@ -111,7 +113,7 @@ const Graphics::Surface *FogFx::draw(const Graphics::Surface &srcSubRect) {
 
 void FogFx::update() {
 	_pos += _engine->getScriptManager()->getStateValue(StateKey_EF9_Speed);
-	_pos %= _fog.w;
+	_pos %= _fog.getWidth();
 
 	uint8 dr = _engine->getScriptManager()->getStateValue(StateKey_EF9_R);
 	uint8 dg = _engine->getScriptManager()->getStateValue(StateKey_EF9_G);
@@ -149,10 +151,10 @@ void FogFx::update() {
 		}
 	}
 
-	for (uint16 j = 0; j < _fog.h; j++) {
+	for (uint16 j = 0; j < _fog.getHeight(); j++) {
 		uint16 *pix = (uint16 *)_fog.getBasePtr(0, j);
 
-		for (uint16 i = 0; i < _fog.w; i++) {
+		for (uint16 i = 0; i < _fog.getWidth(); i++) {
 			if (_mp[j][i]) {
 				if ((pix[i] & 0x1F) == 0x1F) {
 					pix[i]--;
