@@ -63,6 +63,19 @@ private:
 	D _deleter;
 };
 
+template<typename T>
+struct SharedPtrArrayDeleter {
+	void operator()(T *ptr) {
+		delete[] ptr;
+	}
+};
+
+template<typename T>
+struct SharedPtrIgnoreDeleter {
+	void operator()(T *ptr) {
+	}
+};
+
 /**
  * A simple shared pointer implementation modelled after boost.
  *
