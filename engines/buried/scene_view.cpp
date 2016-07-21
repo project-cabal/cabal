@@ -87,11 +87,7 @@ SceneViewWindow::~SceneViewWindow() {
 
 	killTimer(_timer);
 
-	if (_preBuffer) {
-		_preBuffer->free();
-		delete _preBuffer;
-	}
-
+	delete _preBuffer;
 	delete _stillFrames;
 	delete _cycleFrames;
 	delete _walkMovie;
@@ -911,10 +907,8 @@ bool SceneViewWindow::playTransition(const DestinationScene &destinationData, in
 
 				changeStillFrameMovie(_vm->getFilePath(destinationStaticData.location.timeZone, destinationStaticData.location.environment, SF_STILLS));
 
-				Graphics::Surface *newBackground = getStillFrameCopy(navFrame);
-				_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground, 0, 0);
-				newBackground->free();
-				delete newBackground;
+				Common::ScopedPtr<Graphics::Surface> newBackground(getStillFrameCopy(navFrame));
+				_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground.get(), 0, 0);
 			}
 			return true;
 		} else {
@@ -922,17 +916,15 @@ bool SceneViewWindow::playTransition(const DestinationScene &destinationData, in
 			if (!getSceneStaticData(destinationData.destinationScene, destinationStaticData))
 				return false;
 
-			Graphics::Surface *newBackground = getStillFrameCopy(navFrame);
+			Common::ScopedPtr<Graphics::Surface> newBackground(getStillFrameCopy(navFrame));
 			Graphics::Surface *curBackground = _preBuffer;
 
 			bool retVal = false;
 			if (destinationData.transitionData == 0 || destinationData.transitionData == 3)
-				retVal = pushTransition(curBackground, newBackground, destinationData.transitionData, _vm->_gfx->computeVPushOffset(_vm->getTransitionSpeed()), 0);
+				retVal = pushTransition(curBackground, newBackground.get(), destinationData.transitionData, _vm->_gfx->computeVPushOffset(_vm->getTransitionSpeed()), 0);
 			else
-				retVal = pushTransition(curBackground, newBackground, destinationData.transitionData, _vm->_gfx->computeHPushOffset(_vm->getTransitionSpeed()), 0);
+				retVal = pushTransition(curBackground, newBackground.get(), destinationData.transitionData, _vm->_gfx->computeHPushOffset(_vm->getTransitionSpeed()), 0);
 
-			newBackground->free();
-			delete newBackground;
 			return retVal;
 		}
 		break;
@@ -945,10 +937,8 @@ bool SceneViewWindow::playTransition(const DestinationScene &destinationData, in
 
 				changeStillFrameMovie(_vm->getFilePath(destinationStaticData.location.timeZone, destinationStaticData.location.environment, SF_STILLS));
 
-				Graphics::Surface *newBackground = getStillFrameCopy(navFrame);
-				_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground, 0, 0);
-				newBackground->free();
-				delete newBackground;
+				Common::ScopedPtr<Graphics::Surface> newBackground(getStillFrameCopy(navFrame));
+				_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground.get(), 0, 0);
 			}
 			return true;
 		} else {
@@ -993,10 +983,8 @@ bool SceneViewWindow::playTransition(const DestinationScene &destinationData, in
 
 				changeStillFrameMovie(_vm->getFilePath(destinationStaticData.location.timeZone, destinationStaticData.location.environment, SF_STILLS));
 
-				Graphics::Surface *newBackground = getStillFrameCopy(navFrame);
-				_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground, 0, 0);
-				newBackground->free();
-				delete newBackground;
+				Common::ScopedPtr<Graphics::Surface> newBackground(getStillFrameCopy(navFrame));
+				_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground.get(), 0, 0);
 			}
 			return true;
 		} else {
@@ -1048,9 +1036,9 @@ bool SceneViewWindow::videoTransition(const Location &location, DestinationScene
 	
 	changeStillFrameMovie(_vm->getFilePath(destinationStaticData.location.timeZone, destinationStaticData.location.environment, SF_STILLS));
 
-	Graphics::Surface *newBackground = 0;
+	Common::ScopedPtr<Graphics::Surface> newBackground;
 	if (destinationStaticData.navFrameIndex >= 0)
-		newBackground = getStillFrameCopy(navFrame);
+		newBackground.reset(getStillFrameCopy(navFrame));
 
 	// Open the movie
 	Common::ScopedPtr<VideoWindow> animationMovie(new VideoWindow(_vm, this));
@@ -1079,11 +1067,8 @@ bool SceneViewWindow::videoTransition(const Location &location, DestinationScene
 	if (audioStream)
 		_vm->_sound->restart();
 
-	if (newBackground) {
-		_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground, 0, 0);
-		newBackground->free();
-		delete newBackground;
-	}
+	if (newBackground)
+		_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground.get(), 0, 0);
 
 	_paused = false;
 
@@ -1093,11 +1078,11 @@ bool SceneViewWindow::videoTransition(const Location &location, DestinationScene
 bool SceneViewWindow::walkTransition(const Location &location, const DestinationScene &destinationData, int navFrame) {
 	_paused = true;
 	TempCursorChange cursorChange(kCursorWait);
-	Graphics::Surface *newBackground = 0;
+	Common::ScopedPtr<Graphics::Surface> newBackground;
 
 	if (navFrame >= 0) {
 		changeStillFrameMovie(_vm->getFilePath(destinationData.destinationScene.timeZone, destinationData.destinationScene.environment, SF_STILLS));
-		newBackground = getStillFrameCopy(navFrame);
+		newBackground.reset(getStillFrameCopy(navFrame));
 	}
 
 	Common::String walkFileName = _vm->getFilePath(location.timeZone, location.environment, SF_NAVIGATION);
@@ -1139,9 +1124,7 @@ bool SceneViewWindow::walkTransition(const Location &location, const Destination
 
 	_vm->_sound->stopFootsteps();
 
-	_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground, 0, 0);
-	newBackground->free();
-	delete newBackground;
+	_vm->_gfx->crossBlit(_preBuffer, 0, 0, 432, 189, newBackground.get(), 0, 0);
 
 	_walkMovie->showWindow(kWindowHide);
 	_paused = false;
@@ -1319,7 +1302,6 @@ bool SceneViewWindow::slideOutTransition(Graphics::Surface *newBackground, int d
 		break;
 	}
 
-	curBackground.free();
 	_useScenePaint = true;
 	return true;
 }
@@ -2593,10 +2575,8 @@ int SceneViewWindow::droppedItem(int itemID, const Common::Point &location, int 
 }
 
 bool SceneViewWindow::updatePrebufferWithSprite(Sprite &spriteData) {
-	if (_currentSprite.image != spriteData.image && _currentSprite.image != 0) {
-		_currentSprite.image->free();
+	if (_currentSprite.image != spriteData.image)
 		delete _currentSprite.image;
-	}
 
 	_currentSprite = spriteData;
 	invalidateWindow(false);

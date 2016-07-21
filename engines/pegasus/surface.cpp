@@ -49,10 +49,8 @@ Surface::~Surface() {
 
 void Surface::deallocateSurface() {
 	if (_surface) {
-		if (_ownsSurface) {
-			_surface->free();
+		if (_ownsSurface)
 			delete _surface;
-		}
 
 		_surface = 0;
 		_bounds = Common::Rect();

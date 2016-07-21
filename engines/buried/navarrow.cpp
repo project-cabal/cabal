@@ -65,7 +65,6 @@ NavArrowWindow::NavArrowWindow(BuriedEngine *vm, Window *parent) : Window(vm, pa
 }
 
 NavArrowWindow::~NavArrowWindow() {
-	_background->free();
 	delete _background;
 }
 
@@ -104,18 +103,15 @@ bool NavArrowWindow::updateAllArrows(const LocationStaticData &locationStaticDat
 }
 
 bool NavArrowWindow::drawArrow(int xDst, int yDst, int arrow) {
-	Graphics::Surface *arrowBitmap = _vm->_gfx->getBitmap(_arrowBitmaps[arrow][_arrowStatus[arrow]]);
+	Common::ScopedPtr<Graphics::Surface> arrowBitmap(_vm->_gfx->getBitmap(_arrowBitmaps[arrow][_arrowStatus[arrow]]));
 
 	for (int ySrc = 0; ySrc < arrowBitmap->getHeight(); ySrc++)
 		memcpy(_background->getBasePtr(xDst, yDst + ySrc), arrowBitmap->getBasePtr(0, ySrc), arrowBitmap->getWidth() * arrowBitmap->getFormat().bytesPerPixel);
 
-	arrowBitmap->free();
-	delete arrowBitmap;
 	return true;
 }
 
 bool NavArrowWindow::rebuildArrows() {
-	_background->free();
 	delete _background;
 	_background = _vm->_gfx->getBitmap(IDB_ARROW_BACKGROUND);
 
@@ -124,10 +120,8 @@ bool NavArrowWindow::rebuildArrows() {
 	drawArrow(64, 38, 2);
 	drawArrow(38, 68, 3);
 
-	Graphics::Surface *centerArrow = _vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]);
-	_vm->_gfx->opaqueTransparentBlit(_background, 39, 49, centerArrow->getWidth(), centerArrow->getHeight(), centerArrow, 0, 0, (_arrowStatus[4] == BUTTON_DISABLED) ? 50 : 85, 255, 255, 255);
-	centerArrow->free();
-	delete centerArrow;
+	Common::ScopedPtr<Graphics::Surface> centerArrow(_vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]));
+	_vm->_gfx->opaqueTransparentBlit(_background, 39, 49, centerArrow->getWidth(), centerArrow->getHeight(), centerArrow.get(), 0, 0, (_arrowStatus[4] == BUTTON_DISABLED) ? 50 : 85, 255, 255, 255);
 	return true;
 }
 
@@ -152,33 +146,27 @@ void NavArrowWindow::onLButtonDown(const Common::Point &point, uint flags) {
 				((GameUIWindow *)_parent)->_sceneViewWindow->moveInDirection(4);
 		} else {
 			if (rightButton.contains(point)) {
-				Graphics::Surface *centerArrow = _vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]);
+				Common::ScopedPtr<Graphics::Surface> centerArrow(_vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]));
 
-				if (_vm->_gfx->checkPointAgainstMaskedBitmap(centerArrow, 39, 49, point, 255, 255, 255)) {
+				if (_vm->_gfx->checkPointAgainstMaskedBitmap(centerArrow.get(), 39, 49, point, 255, 255, 255)) {
 					if (_arrowStatus[4] == BUTTON_ENABLED)
 						((GameUIWindow *)_parent)->_sceneViewWindow->moveInDirection(4);
 				} else {
 					if (_arrowStatus[2] == BUTTON_ENABLED)
 						((GameUIWindow *)_parent)->_sceneViewWindow->moveInDirection(2);
 				}
-
-				centerArrow->free();
-				delete centerArrow;
 			}
 
 			if (downButton.contains(point)) {
-				Graphics::Surface *centerArrow = _vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]);
+				Common::ScopedPtr<Graphics::Surface> centerArrow(_vm->_gfx->getBitmap(_arrowBitmaps[4][_arrowStatus[4]]));
 
-				if (_vm->_gfx->checkPointAgainstMaskedBitmap(centerArrow, 39, 49, point, 255, 255, 255)) {
+				if (_vm->_gfx->checkPointAgainstMaskedBitmap(centerArrow.get(), 39, 49, point, 255, 255, 255)) {
 					if (_arrowStatus[4] == BUTTON_ENABLED)
 						((GameUIWindow *)_parent)->_sceneViewWindow->moveInDirection(4);
 				} else {
 					if (_arrowStatus[3] == BUTTON_ENABLED)
 						((GameUIWindow *)_parent)->_sceneViewWindow->moveInDirection(3);
 				}
-
-				centerArrow->free();
-				delete centerArrow;
 			}
 		}
 	} else {

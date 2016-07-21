@@ -52,11 +52,7 @@ TitleSequenceWindow::TitleSequenceWindow(BuriedEngine *vm, Window *parent) : Win
 }
 
 TitleSequenceWindow::~TitleSequenceWindow() {
-	if (_currentBackground) {
-		_currentBackground->free();
-		delete _currentBackground;
-	}
-
+	delete _currentBackground;
 	delete _currentMovie;
 
 	killTimer(_timerID);
@@ -158,11 +154,8 @@ void TitleSequenceWindow::onKeyUp(const Common::KeyState &key, uint flags) {
 void TitleSequenceWindow::onTimer(uint timer) {
 	if (_exitNow || (_currentMovie && _currentMovie->getMode() == VideoWindow::kModeStopped)) {
 		// Destroy all resources
-		if (_currentBackground) {
-			_currentBackground->free();
-			delete _currentBackground;
-			_currentBackground = 0;
-		}
+		delete _currentBackground;
+		_currentBackground = 0;
 
 		delete _currentMovie;
 		_currentMovie = 0;

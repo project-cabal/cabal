@@ -387,8 +387,8 @@ void InventoryManager::restoreScreens() {
 	_savedBuffer1.copyTo(&_vm->_buffer1);
 	_savedScreen.copyTo(_vm->_screen);
 
-	_savedBuffer1.free();
-	_savedScreen.free();
+	_savedBuffer1.reset();
+	_savedScreen.reset();
 }
 
 void InventoryManager::outlineIcon(int itemIndex) {

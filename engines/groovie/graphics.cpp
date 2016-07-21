@@ -40,9 +40,6 @@ GraphicsMan::GraphicsMan(GroovieEngine *vm) :
 }
 
 GraphicsMan::~GraphicsMan() {
-	// Free the game surfaces
-	_foreground.free();
-	_background.free();
 }
 
 void GraphicsMan::update() {
@@ -77,9 +74,6 @@ void GraphicsMan::update() {
 }
 
 void GraphicsMan::switchToFullScreen(bool fullScreen) {
-	_foreground.free();
-	_background.free();
-
 	if (fullScreen) {
 		_foreground.create(640, 480, _vm->_pixelFormat);
 		_background.create(640, 480, _vm->_pixelFormat);

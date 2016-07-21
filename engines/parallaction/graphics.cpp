@@ -759,16 +759,11 @@ Gfx::Gfx(Parallaction* vm) :
 }
 
 Gfx::~Gfx() {
-
-	_backBuffer.free();
-
 	delete _backgroundInfo;
 
 	freeLabels();
 
 	delete[] _unpackedBitmap;
-
-	return;
 }
 
 
@@ -875,7 +870,6 @@ BackgroundInfo::BackgroundInfo() : _x(0), _y(0), width(0), height(0), _mask(0), 
 }
 
 BackgroundInfo::~BackgroundInfo() {
-	bg.free();
 	clearMaskData();
 	clearPathData();
 }

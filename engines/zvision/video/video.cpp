@@ -74,12 +74,10 @@ void ZVision::playVideo(Video::VideoDecoder &vid, const Common::Rect &destRect, 
 	if (dst.isEmpty())
 		dst = Common::Rect(vid.getWidth(), vid.getHeight());
 
-	Graphics::Surface *scaled = NULL;
+	Graphics::Surface scaled;
 
-	if (vid.getWidth() != dst.width() || vid.getHeight() != dst.height()) {
-		scaled = new Graphics::Surface;
-		scaled->create(dst.width(), dst.height(), vid.getPixelFormat());
-	}
+	if (vid.getWidth() != dst.width() || vid.getHeight() != dst.height())
+		scaled.create(dst.width(), dst.height(), vid.getPixelFormat());
 
 	uint16 x = _workingWindow.left + dst.left;
 	uint16 y = _workingWindow.top + dst.top;
@@ -121,9 +119,9 @@ void ZVision::playVideo(Video::VideoDecoder &vid, const Common::Rect &destRect, 
 				sub->process(vid.getCurFrame());
 
 			if (frame) {
-				if (scaled) {
-					_renderManager->scaleBuffer(frame->getPixels(), scaled->getPixels(), frame->getWidth(), frame->getHeight(), frame->getFormat().bytesPerPixel, scaled->getWidth(), scaled->getHeight());
-					frame = scaled;
+				if (scaled.getPixels()) {
+					_renderManager->scaleBuffer(frame->getPixels(), scaled.getPixels(), frame->getWidth(), frame->getHeight(), frame->getFormat().bytesPerPixel, scaled.getWidth(), scaled.getHeight());
+					frame = &scaled;
 				}
 				Common::Rect rect = Common::Rect(x, y, x + finalWidth, y + finalHeight);
 				_renderManager->copyToScreen(*frame, rect, 0, 0);
@@ -139,11 +137,6 @@ void ZVision::playVideo(Video::VideoDecoder &vid, const Common::Rect &destRect, 
 
 	_videoIsPlaying = false;
 	_clock.start();
-
-	if (scaled) {
-		scaled->free();
-		delete scaled;
-	}
 }
 
 } // End of namespace ZVision

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "kyra/gui_lok.h"
 #include "kyra/kyra_lok.h"
@@ -776,7 +778,6 @@ int GUI_LoK::saveGame(Button *button) {
 			Graphics::Surface thumb;
 			createScreenThumbnail(thumb);
 			_vm->saveGameStateIntern(_vm->_gameToLoad, _savegameName, &thumb);
-			thumb.free();
 		}
 	}
 

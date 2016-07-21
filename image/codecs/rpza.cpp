@@ -46,11 +46,7 @@ RPZADecoder::RPZADecoder(uint16 width, uint16 height) : Codec() {
 }
 
 RPZADecoder::~RPZADecoder() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
-
+	delete _surface;
 	delete[] _ditherPalette;
 }
 

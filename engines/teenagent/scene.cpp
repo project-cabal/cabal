@@ -76,10 +76,7 @@ Scene::Scene(TeenAgentEngine *vm) : _vm(vm), intro(false), _id(0), ons(0),
 }
 
 Scene::~Scene() {
-	background.free();
-
 	delete[] ons;
-	ons = 0;
 }
 
 void Scene::warp(const Common::Point &_point, byte o) {
@@ -939,7 +936,7 @@ bool Scene::processEventQueue() {
 					orientation = currentEvent.orientation;
 			} else {
 				// special case, empty scene
-				background.free();
+				background.reset();
 				on.free();
 				delete[] ons;
 				ons = NULL;

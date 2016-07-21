@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/scummsys.h"
 #include "common/config-manager.h"
@@ -94,13 +96,8 @@ Game::Game(MADSEngine *vm)
 }
 
 Game::~Game() {
-	if (_saveThumb) {
-		_saveThumb->free();
-		delete _saveThumb;
-	}
-
+	delete _saveThumb;
 	delete _saveFile;
-	_surface->free();
 	delete _surface;
 	delete _sectionHandler;
 }
@@ -485,10 +482,7 @@ void Game::loadGame(int slotNumber) {
 	if (!readSavegameHeader(_saveFile, header))
 		error("Invalid savegame");
 
-	if (header._thumbnail) {
-		header._thumbnail->free();
-		delete header._thumbnail;
-	}
+	delete header._thumbnail;
 
 	// Load most of the savegame data with the exception of scene specific info
 	synchronize(s, true);
@@ -576,7 +570,6 @@ void Game::writeSavegameHeader(Common::OutSaveFile *out, MADSSavegameHeader &hea
 		createThumbnail();
 	Graphics::saveThumbnail(*out, *_saveThumb);
 
-	_saveThumb->free();
 	delete _saveThumb;
 	_saveThumb = nullptr;
 
@@ -592,13 +585,9 @@ void Game::writeSavegameHeader(Common::OutSaveFile *out, MADSSavegameHeader &hea
 }
 
 void Game::createThumbnail() {
-	if (_saveThumb) {
-		_saveThumb->free();
-		delete _saveThumb;
-	}
-
 	uint8 thumbPalette[PALETTE_SIZE];
 	_vm->_palette->grabPalette(thumbPalette, 0, PALETTE_COUNT);
+	delete _saveThumb;
 	_saveThumb = new Graphics::Surface();
 	::createThumbnail(_saveThumb, _vm->_screen.getData(), MADS_SCREEN_WIDTH, MADS_SCREEN_HEIGHT, thumbPalette);
 }

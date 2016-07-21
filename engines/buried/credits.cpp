@@ -60,11 +60,7 @@ CreditsWindow::CreditsWindow(BuriedEngine *vm, Window *parent) : Window(vm, pare
 
 CreditsWindow::~CreditsWindow() {
 	delete _stillFrames;
-
-	_normalImage->free();
 	delete _normalImage;
-
-	_highlightedImage->free();
 	delete _highlightedImage;
 }
 

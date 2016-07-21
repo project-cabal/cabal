@@ -96,7 +96,6 @@ public:
 	}
 
 	~SurfaceToFrames() {
-		_surf->free();
 		delete _surf;
 	}
 

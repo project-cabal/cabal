@@ -2822,7 +2822,6 @@ int GUI_LoL::clickedSavenameMenu(Button *button) {
 		Graphics::Surface thumb;
 		createScreenThumbnail(thumb);
 		_vm->saveGameStateIntern(slot, _saveDescription, &thumb);
-		thumb.free();
 
 		_displayMenu = false;
 

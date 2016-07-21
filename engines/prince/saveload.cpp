@@ -89,10 +89,7 @@ SaveStateList PrinceMetaEngine::listSaves(const char *target) const {
 					// Valid savegame
 					if (Prince::PrinceEngine::readSavegameHeader(file, header)) {
 						saveList.push_back(SaveStateDescriptor(slotNum, header.saveName));
-						if (header.thumbnail) {
-							header.thumbnail->free();
-							delete header.thumbnail;
-						}
+						delete header.thumbnail;
 					}
 				} else {
 					// Must be an original format savegame
@@ -243,12 +240,10 @@ void PrinceEngine::writeSavegameHeader(Common::OutSaveFile *out, SavegameHeader 
 	_system->getPaletteManager()->grabPalette(thumbPalette, 0, 256);
 
 	// Create a thumbnail and save it
-	Graphics::Surface *thumb = new Graphics::Surface();
+	Graphics::Surface thumb;
 	Graphics::Surface *s = _graph->_frontScreen; // check inventory / map etc..
-	::createThumbnail(thumb, (const byte *)s->getPixels(), s->getWidth(), s->getHeight(), thumbPalette);
-	Graphics::saveThumbnail(*out, *thumb);
-	thumb->free();
-	delete thumb;
+	::createThumbnail(&thumb, (const byte *)s->getPixels(), s->getWidth(), s->getHeight(), thumbPalette);
+	Graphics::saveThumbnail(*out, thumb);
 
 	// Write out the save date/time
 	TimeDate td;
@@ -519,7 +514,6 @@ bool PrinceEngine::loadGame(int slotNumber) {
 		}
 
 		// Delete the thumbnail
-		saveHeader.thumbnail->free();
 		delete saveHeader.thumbnail;
 	}
 

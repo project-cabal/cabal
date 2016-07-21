@@ -40,7 +40,6 @@ ScreenFader::ScreenFader() {
 }
 
 ScreenFader::~ScreenFader() {
-	_screen->free();
 	delete _screen;
 }
 
@@ -53,7 +52,7 @@ void ScreenFader::doFadeOutSync(const TimeValue duration, const TimeValue scale,
 	spec.makeTwoKnotFaderSpec(scale, 0, getFaderValue(), duration, 0);
 	startFaderSync(spec);
 
-	_screen->free();
+	_screen->reset();
 }
 
 void ScreenFader::doFadeInSync(const TimeValue duration, const TimeValue scale, bool isBlack) {
@@ -65,7 +64,7 @@ void ScreenFader::doFadeInSync(const TimeValue duration, const TimeValue scale, 
 	spec.makeTwoKnotFaderSpec(scale, 0, getFaderValue(), duration, 100);
 	startFaderSync(spec);
 
-	_screen->free();
+	_screen->reset();
 }
 
 void ScreenFader::setFaderValue(const int32 value) {

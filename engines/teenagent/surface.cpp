@@ -35,12 +35,11 @@ Surface::Surface() : x(0), y(0) {
 }
 
 Surface::~Surface() {
-	free();
 }
 
 void Surface::load(Common::SeekableReadStream &stream, Type type) {
 	debugC(0, kDebugSurface, "load()");
-	free();
+	reset();
 
 	x = y = 0;
 

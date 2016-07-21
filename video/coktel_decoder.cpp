@@ -131,7 +131,7 @@ void CoktelDecoder::createSurface() {
 }
 
 void CoktelDecoder::freeSurface() {
-	_surface.free();
+	_surface.reset();
 }
 
 void CoktelDecoder::setXY(uint16 x, uint16 y) {

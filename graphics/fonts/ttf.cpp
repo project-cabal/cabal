@@ -173,12 +173,6 @@ TTFFont::~TTFFont() {
 		g_ttf.closeFont(_face);
 
 		delete[] _ttfFile;
-		_ttfFile = 0;
-
-		for (GlyphCache::iterator i = _glyphs.begin(), end = _glyphs.end(); i != end; ++i)
-			i->_value.image.free();
-
-		_initialized = false;
 	}
 }
 
@@ -637,7 +631,7 @@ bool TTFFont::cacheGlyph(Glyph &glyph, uint32 chr) const {
 
 	default:
 		warning("TTFFont::cacheGlyph: Unsupported pixel mode %d", bitmap.pixel_mode);
-		glyph.image.free();
+		glyph.image.reset();
 		return false;
 	}
 

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on the original source code of Lord Avalot d'Argent version 1.3.
@@ -307,7 +309,7 @@ void Background::loadSprites(byte number) {
 void Background::release() {
 	for (int i = 0; i < _spriteNum; i++) {
 		if (_sprites[i]._x > kOnDisk)
-			_sprites[i]._picture.free();
+			_sprites[i]._picture.reset();
 	}
 }
 
@@ -347,7 +349,6 @@ void Background::draw(int16 destX, int16 destY, byte sprId) {
 		}
 		drawSprite(destX, destY, sprite);
 
-		sprite._picture.free();
 		f.close();
 	}
 }

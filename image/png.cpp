@@ -45,11 +45,8 @@ PNGDecoder::~PNGDecoder() {
 }
 
 void PNGDecoder::destroy() {
-	if (_outputSurface) {
-		_outputSurface->free();
-		delete _outputSurface;
-		_outputSurface = 0;
-	}
+	delete _outputSurface;
+	_outputSurface = 0;
 	delete[] _palette;
 	_palette = NULL;
 }

@@ -252,11 +252,8 @@ GfxSurface::~GfxSurface() {
 }
 
 void GfxSurface::clear() {
-	if (_customSurface) {
-		_customSurface->free();
-		delete _customSurface;
-		_customSurface = NULL;
-	}
+	delete _customSurface;
+	_customSurface = NULL;
 }
 
 /**
@@ -324,10 +321,7 @@ void GfxSurface::addDirtyRect(const Rect &r) {
 void GfxSurface::create(int width, int height) {
 	assert((width >= 0) && (height >= 0));
 
-	if (_customSurface) {
-		_customSurface->free();
-		delete _customSurface;
-	}
+	delete _customSurface;
 	_customSurface = new Graphics::Surface();
 	_customSurface->create(width, height, Graphics::PixelFormat::createFormatCLUT8());
 	Common::fill((byte *)_customSurface->getPixels(), (byte *)_customSurface->getBasePtr(0, height), 0);
@@ -411,11 +405,7 @@ GfxSurface &GfxSurface::operator=(const GfxSurface &s) {
 	assert(_lockSurfaceCtr == 0);
 	assert(s._lockSurfaceCtr == 0);
 
-	if (_customSurface) {
-		_customSurface->free();
-		delete _customSurface;
-	}
-
+	delete _customSurface;
 	_customSurface = s._customSurface;
 	_disableUpdates = s._disableUpdates;
 	_bounds = s._bounds;

@@ -320,7 +320,7 @@ bool VideoManager::updateMovies() {
 		// Check if we need to draw a frame
 		if (video->needsUpdate()) {
 			const Graphics::Surface *frame = video->decodeNextFrame();
-			Graphics::Surface *convertedFrame = 0;
+			Common::SharedPtr<Graphics::Surface> convertedFrame;
 
 			if (frame && (*it)->isEnabled()) {
 				Graphics::PixelFormat pixelFormat = _vm->_system->getScreenFormat();
@@ -336,8 +336,8 @@ bool VideoManager::updateMovies() {
 					}
 
 					// Convert to the current screen format
-					convertedFrame = frame->convertTo(pixelFormat, video->getPalette());
-					frame = convertedFrame;
+					convertedFrame.reset(frame->convertTo(pixelFormat, video->getPalette()));
+					frame = convertedFrame.get();
 				} else if (pixelFormat.bytesPerPixel == 1 && video->hasDirtyPalette()) {
 					// Set the palette when running in 8bpp mode only
 					// Don't do this for Myst, which has its own per-stack handling
@@ -352,12 +352,6 @@ bool VideoManager::updateMovies() {
 
 				// We've drawn something to the screen, make sure we update it
 				updateScreen = true;
-
-				// Delete 8bpp conversion surface
-				if (convertedFrame) {
-					convertedFrame->free();
-					delete convertedFrame;
-				}
 			}
 		}
 

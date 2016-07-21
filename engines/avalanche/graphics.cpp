@@ -55,17 +55,6 @@ GraphicManager::GraphicManager(AvalancheEngine *vm) {
 }
 
 GraphicManager::~GraphicManager() {
-	_surface.free();
-	_magics.free();
-	_background.free();
-	_screen.free();
-	_scrolls.free();
-	_backup.free();
-
-	for (int i = 0; i < 10; i++)
-		_digits[i].free();
-	for (int i = 0; i < 9; i++)
-		_directions[i].free();
 }
 
 void GraphicManager::init() {
@@ -146,8 +135,6 @@ void GraphicManager::loadMouse(byte which) {
 		}
 	}
 
-	mask.free();
-
 	// The OR mask.
 	f.seek(kMouseSize * 2 * which + 134 * 2);
 
@@ -163,11 +150,9 @@ void GraphicManager::loadMouse(byte which) {
 		}
 	}
 
-	mask.free();
 	f.close();
 
 	CursorMan.replaceCursor(cursor.getPixels(), 16, 32, kMouseHotSpots[which]._horizontal, kMouseHotSpots[which]._vertical * 2, 255, false);
-	cursor.free();
 }
 
 void GraphicManager::drawThinkPic(Common::String filename, int id) {
@@ -180,7 +165,6 @@ void GraphicManager::drawThinkPic(Common::String filename, int id) {
 	Graphics::Surface picture = loadPictureGraphic(file);
 	drawPicture(_surface, picture, 205, 170);
 
-	picture.free();
 	file.close();
 }
 
@@ -196,7 +180,6 @@ void GraphicManager::drawToolbar() {
 	drawPicture(_surface, picture, 5, 169);
 	CursorMan.showMouse(true);
 
-	picture.free();
 	file.close();
 }
 
@@ -525,10 +508,10 @@ void GraphicManager::nimDrawLogo() {
 }
 
 void GraphicManager::nimFree() {
-	_nimStone.free();
+	_nimStone.reset();
 	for (int i = 0; i < 3; i++)
-		_nimInitials[i].free();
-	_nimLogo.free();
+		_nimInitials[i].reset();
+	_nimLogo.reset();
 }
 
 void GraphicManager::ghostDrawMonster(byte ***picture, uint16 destX, int16 destY, MonsterType type) {
@@ -588,8 +571,6 @@ void GraphicManager::ghostDrawMonster(byte ***picture, uint16 destX, int16 destY
 	}
 
 	drawPicture(_surface, monsterPicture, destX, destY);
-
-	monsterPicture.free();
 }
 
 /**
@@ -648,8 +629,6 @@ void GraphicManager::ghostDrawBackgroundItems(Common::File &file) {
 		}
 
 		drawPicture(_surface, picture, cb._x, cb._y);
-
-		picture.free();
 	}
 	refreshScreen();
 }
@@ -684,7 +663,6 @@ void GraphicManager::helpDrawButton(int y, byte which) {
 
 	_vm->_graphics->drawPicture(_surface, button, x, y);
 
-	button.free();
 	file.close();
 }
 
@@ -730,9 +708,6 @@ void GraphicManager::seuDrawTitle() {
 	drawPicture(_surface, doubledPicture, 0, 0);
 	refreshScreen();
 
-	picture.free();
-	doubledPicture.free();
-
 	file.close();
 }
 
@@ -753,7 +728,7 @@ void GraphicManager::seuLoad() {
 
 void GraphicManager::seuFree() {
 	for (int i = 0; i < 99; i++)
-		_seuPictures[i].free();
+		_seuPictures[i].reset();
 }
 
 /**
@@ -807,7 +782,7 @@ void GraphicManager::menuInitialize() {
 }
 
 void GraphicManager::menuFree() {
-	_menu.free();
+	_menu.reset();
 }
 
 void GraphicManager::menuRestoreScreen() {
@@ -866,7 +841,6 @@ void GraphicManager::menuLoadPictures() {
 
 	Graphics::Surface title = loadPictureRaw(file, 640, 59);
 	drawPicture(_menu, title, 0, 0);
-	title.free();
 
 	file.close();
 }
@@ -996,7 +970,6 @@ void GraphicManager::drawWinningPic() {
 	Graphics::Surface winning = loadPictureRaw(file, 640, 200);
 	drawPicture(_surface, winning, 0, 0);
 
-	winning.free();
 	file.close();
 }
 
@@ -1144,7 +1117,6 @@ void GraphicManager::drawIcon(int16 x, int16 y, byte which) {
 	Graphics::Surface icon = loadPictureGraphic(file);
 	drawPicture(_scrolls, icon, x, y);
 
-	icon.free();
 	file.close();
 }
 
@@ -1195,7 +1167,6 @@ void GraphicManager::refreshScreen() {
 }
 
 void GraphicManager::loadBackground(Common::File &file) {
-	_background.free();
 	_background = loadPictureRaw(file, kBackgroundWidth, kBackgroundHeight);
 }
 
@@ -1245,7 +1216,7 @@ void GraphicManager::saveScreen() {
 }
 
 void GraphicManager::removeBackup() {
-	_backup.free();
+	_backup.reset();
 }
 
 void GraphicManager::restoreScreen() {

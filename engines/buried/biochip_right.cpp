@@ -216,11 +216,9 @@ void BioChipRightWindow::onPaint() {
 		if (!_vm->isDemo())
 			bitmapResID += IDB_BCR_BITMAP_BASE;
 
-		Graphics::Surface *bitmap = _vm->_gfx->getBitmap(bitmapResID);
+		Common::ScopedPtr<Graphics::Surface> bitmap(_vm->_gfx->getBitmap(bitmapResID));
 		Common::Rect absoluteRect = getAbsoluteRect();
-		_vm->_gfx->blit(bitmap, absoluteRect.left, absoluteRect.top);
-		bitmap->free();
-		delete bitmap;
+		_vm->_gfx->blit(bitmap.get(), absoluteRect.left, absoluteRect.top);
 	}
 }
 

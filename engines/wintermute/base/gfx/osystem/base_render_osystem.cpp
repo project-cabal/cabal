@@ -78,10 +78,7 @@ BaseRenderOSystem::~BaseRenderOSystem() {
 	}
 
 	delete _dirtyRect;
-
-	_renderSurface->free();
 	delete _renderSurface;
-	_blankSurface->free();
 	delete _blankSurface;
 }
 
@@ -260,7 +257,6 @@ void BaseRenderOSystem::fadeToColor(byte r, byte g, byte b, byte a) {
 	Graphics::TransformStruct temp = Graphics::TransformStruct();
 	temp._alphaDisable = false;
 	drawSurface(nullptr, &surf, &sizeRect, &fillRect, temp);
-	surf.free();
 
 	//SDL_SetRenderDrawColor(_renderer, r, g, b, a);
 	//SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);

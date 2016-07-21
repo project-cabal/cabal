@@ -67,7 +67,6 @@ ttyTextNode::ttyTextNode(ZVision *engine, uint32 key, const Common::String &file
 
 ttyTextNode::~ttyTextNode() {
 	_engine->getScriptManager()->setStateValue(_key, 2);
-	_img.free();
 }
 
 bool ttyTextNode::process(uint32 deltaTimeInMillis) {

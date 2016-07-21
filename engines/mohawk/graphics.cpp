@@ -45,11 +45,7 @@ MohawkSurface::MohawkSurface(Graphics::Surface *surface, byte *palette, int offs
 
 MohawkSurface::~MohawkSurface() {
 	free(_palette);
-
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
+	delete _surface;
 }
 
 void MohawkSurface::convertToTrueColor() {
@@ -63,7 +59,6 @@ void MohawkSurface::convertToTrueColor() {
 	Graphics::Surface *surface = _surface->convertTo(g_system->getScreenFormat(), _palette);
 
 	// Free everything and set the new surface as the converted surface
-	_surface->free();
 	delete _surface;
 	free(_palette);
 	_palette = 0;

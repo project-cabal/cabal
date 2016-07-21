@@ -487,9 +487,7 @@ PSXStreamDecoder::PSXVideoTrack::PSXVideoTrack(Common::SeekableReadStream &first
 }
 
 PSXStreamDecoder::PSXVideoTrack::~PSXVideoTrack() {
-	_surface->free();
 	delete _surface;
-
 	delete[] _yBuffer;
 	delete[] _cbBuffer;
 	delete[] _crBuffer;

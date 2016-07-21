@@ -53,7 +53,6 @@ SMCDecoder::SMCDecoder(uint16 width, uint16 height) {
 }
 
 SMCDecoder::~SMCDecoder() {
-	_surface->free();
 	delete _surface;
 }
 

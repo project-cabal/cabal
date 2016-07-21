@@ -54,7 +54,6 @@ GraphicsManager::GraphicsManager(PegasusEngine *vm) : _vm(vm) {
 }
 
 GraphicsManager::~GraphicsManager() {
-	_workArea.free();
 	delete _screenFader;
 }
 
@@ -323,8 +322,6 @@ void GraphicsManager::shakeTheWorld(TimeValue duration, TimeScale scale) {
 		g_system->copyRectToScreen((byte *)oldScreen.getPixels(), oldScreen.getPitch(), 0, 0, 640, 480);
 		g_system->updateScreen();
 	}
-
-	oldScreen.free();
 }
 
 void GraphicsManager::enableErase() {

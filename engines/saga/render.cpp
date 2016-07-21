@@ -67,8 +67,6 @@ Render::~Render() {
 	_vm->getTimerManager()->removeTimerProc(&fpsTimerCallback);
 #endif
 
-	_backGroundSurface.free();
-
 	_initialized = false;
 }
 

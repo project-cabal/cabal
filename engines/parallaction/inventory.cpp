@@ -144,7 +144,6 @@ InventoryRenderer::InventoryRenderer(Parallaction *vm, InventoryProperties *prop
 }
 
 InventoryRenderer::~InventoryRenderer() {
-	_surf.free();
 }
 
 void InventoryRenderer::showInventory() {

@@ -129,11 +129,8 @@ void VideoWindow::closeVideo() {
 		_mode = kModeClosed;
 		_lastFrame = 0;
 
-		if (_ownedFrame) {
-			_ownedFrame->free();
-			delete _ownedFrame;
-			_ownedFrame = 0;
-		}
+		delete _ownedFrame;
+		_ownedFrame = 0;
 	}
 }
 
@@ -143,11 +140,8 @@ void VideoWindow::updateVideo() {
 			// Store the frame for later
 			const Graphics::Surface *frame = _video->decodeNextFrame();
 			if (frame) {
-				if (_ownedFrame) {
-					_ownedFrame->free();
-					delete _ownedFrame;
-					_ownedFrame = 0;
-				}
+				delete _ownedFrame;
+				_ownedFrame = 0;
 
 				if (_vm->isTrueColor()) {
 					// Convert to the screen format if necessary

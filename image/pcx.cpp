@@ -49,11 +49,8 @@ PCXDecoder::~PCXDecoder() {
 }
 
 void PCXDecoder::destroy() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-		_surface = 0;
-	}
+	delete _surface;
+	_surface = 0;
 
 	delete[] _palette;
 	_palette = 0;

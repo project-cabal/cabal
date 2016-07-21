@@ -404,8 +404,6 @@ void MoviePlayer::drawFramePSX(const Graphics::Surface *frame) {
 	uint16 y = (g_system->getHeight() - scaledFrame.getHeight()) / 2;
 
 	_vm->_system->copyRectToScreen(scaledFrame.getPixels(), scaledFrame.getPitch(), x, y, scaledFrame.getWidth(), scaledFrame.getHeight());
-
-	scaledFrame.free();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

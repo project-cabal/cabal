@@ -54,7 +54,7 @@ const Graphics::Surface *JPEGDecoder::getSurface() const {
 }
 
 void JPEGDecoder::destroy() {
-	_surface.free();
+	_surface.reset();
 }
 
 const Graphics::Surface *JPEGDecoder::decodeFrame(Common::SeekableReadStream &stream) {

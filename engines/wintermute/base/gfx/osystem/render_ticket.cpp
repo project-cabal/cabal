@@ -62,7 +62,6 @@ RenderTicket::RenderTicket(BaseSurfaceOSystem *owner, const Graphics::Surface *s
 		if (_transform._angle != Graphics::kDefaultAngle) {
 			Graphics::TransparentSurface src(*_surface, false);
 			Graphics::Surface *temp = src.rotoscale(transform);
-			_surface->free();
 			delete _surface;
 			_surface = temp;
 		} else if ((dstRect->width() != srcRect->width() ||
@@ -70,7 +69,6 @@ RenderTicket::RenderTicket(BaseSurfaceOSystem *owner, const Graphics::Surface *s
 					_transform._numTimesX * _transform._numTimesY == 1) {
 			Graphics::TransparentSurface src(*_surface, false);
 			Graphics::Surface *temp = src.scale(dstRect->width(), dstRect->height());
-			_surface->free();
 			delete _surface;
 			_surface = temp;
 		}
@@ -80,10 +78,7 @@ RenderTicket::RenderTicket(BaseSurfaceOSystem *owner, const Graphics::Surface *s
 }
 
 RenderTicket::~RenderTicket() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
+	delete _surface;
 }
 
 bool RenderTicket::operator==(const RenderTicket &t) const {

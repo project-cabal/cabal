@@ -51,13 +51,8 @@ OverviewWindow::OverviewWindow(BuriedEngine *vm, Window *parent) : Window(vm, pa
 OverviewWindow::~OverviewWindow() {
 	_vm->_sound->stopInterfaceSound();
 
-	_background->free();
 	delete _background;
-
-	if (_currentImage) {
-		_currentImage->free();
-		delete _currentImage;
-	}
+	delete _currentImage;
 
 	if (_timer != 0xFFFFFFFF)
 		_vm->killTimer(_timer);
@@ -116,11 +111,8 @@ void OverviewWindow::onTimer(uint timer) {
 	if (_currentStatus >= 0 && _vm->_sound->isInterfaceSoundPlaying())
 		return;
 
-	if (_currentImage) {
-		_currentImage->free();
-		delete _currentImage;
-		_currentImage = 0;
-	}
+	delete _currentImage;
+	_currentImage = 0;
 
 	// Switch on the current status in order to determine which action to take next
 	switch (_currentStatus) {

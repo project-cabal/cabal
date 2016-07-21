@@ -312,18 +312,14 @@ BinkDecoder::BinkVideoTrack::BinkVideoTrack(uint32 width, uint32 height, const G
 
 BinkDecoder::BinkVideoTrack::~BinkVideoTrack() {
 	for (int i = 0; i < 4; i++) {
-		delete[] _curPlanes[i]; _curPlanes[i] = 0;
-		delete[] _oldPlanes[i]; _oldPlanes[i] = 0;
+		delete[] _curPlanes[i];
+		delete[] _oldPlanes[i];
 	}
 
 	deinitBundles();
 
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 16; i++)
 		delete _huffman[i];
-		_huffman[i] = 0;
-	}
-
-	_surface.free();
 }
 
 void BinkDecoder::BinkVideoTrack::decodePacket(VideoFrame &frame) {

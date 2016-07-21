@@ -69,7 +69,6 @@ DemoMainMenuWindow::DemoMainMenuWindow(BuriedEngine *vm, Window *parent) : Windo
 }
 
 DemoMainMenuWindow::~DemoMainMenuWindow() {
-	_background->free();
 	delete _background;
 }
 
@@ -92,7 +91,6 @@ void DemoMainMenuWindow::showWithSplash() {
 	while (g_system->getMillis() < (startTime + 6000) && !_vm->hasMessage(this, kMessageTypeLButtonUp, kMessageTypeLButtonUp) && !_vm->shouldQuit())
 		_vm->yield();
 
-	_background->free();
 	delete _background;
 	_background = temp;
 	invalidateWindow(false);

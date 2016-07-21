@@ -109,17 +109,14 @@ void LiveTextWindow::translateBiochipClosing() {
 
 void LiveTextWindow::onPaint() {
 	// Draw the background bitmap
-	Graphics::Surface *surface = _vm->_gfx->getBitmap(IDB_LIVE_TEXT_BACKGROUND);
+	Common::ScopedPtr<Graphics::Surface> surface(_vm->_gfx->getBitmap(IDB_LIVE_TEXT_BACKGROUND));
 
 	// Draw the text on top of that
 	if (!_text.empty())
-		_vm->_gfx->renderText(surface, _font, _text, 30, 4, 270, 50, _vm->_gfx->getColor(212, 109, 0), _fontHeight);
+		_vm->_gfx->renderText(surface.get(), _font, _text, 30, 4, 270, 50, _vm->_gfx->getColor(212, 109, 0), _fontHeight);
 
 	Common::Rect absoluteRect = getAbsoluteRect();
-	_vm->_gfx->blit(surface, absoluteRect.left, absoluteRect.top);
-
-	surface->free();
-	delete surface;
+	_vm->_gfx->blit(surface.get(), absoluteRect.left, absoluteRect.top);
 }
 
 void LiveTextWindow::onEnable(bool enable) {

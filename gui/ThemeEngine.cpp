@@ -319,20 +319,13 @@ ThemeEngine::ThemeEngine(Common::String id, GraphicsMode mode) :
 
 ThemeEngine::~ThemeEngine() {
 	delete _vectorRenderer;
-	_vectorRenderer = 0;
-	_screen.free();
-	_backBuffer.free();
 
 	unloadTheme();
 
 	// Release all graphics surfaces
-	for (ImagesMap::iterator i = _bitmaps.begin(); i != _bitmaps.end(); ++i) {
-		Graphics::Surface *surf = i->_value;
-		if (surf) {
-			surf->free();
-			delete surf;
-		}
-	}
+	for (ImagesMap::iterator i = _bitmaps.begin(); i != _bitmaps.end(); ++i)
+		delete i->_value;
+
 	_bitmaps.clear();
 
 	delete _parser;
@@ -451,13 +444,9 @@ void ThemeEngine::refresh() {
 
 	// Flush all bitmaps if the overlay pixel format changed.
 	if (_overlayFormat != _system->getOverlayFormat()) {
-		for (ImagesMap::iterator i = _bitmaps.begin(); i != _bitmaps.end(); ++i) {
-			Graphics::Surface *surf = i->_value;
-			if (surf) {
-				surf->free();
-				delete surf;
-			}
-		}
+		for (ImagesMap::iterator i = _bitmaps.begin(); i != _bitmaps.end(); ++i)
+			delete i->_value;
+
 		_bitmaps.clear();
 	}
 
@@ -516,10 +505,8 @@ void ThemeEngine::setGraphicsMode(GraphicsMode mode) {
 	uint32 width = _system->getOverlayWidth();
 	uint32 height = _system->getOverlayHeight();
 
-	_backBuffer.free();
 	_backBuffer.create(width, height, _overlayFormat);
 
-	_screen.free();
 	_screen.create(width, height, _overlayFormat);
 
 	delete _vectorRenderer;

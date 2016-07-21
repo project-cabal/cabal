@@ -78,11 +78,8 @@ void QuickTimeDecoder::close() {
 	VideoDecoder::close();
 	Common::QuickTimeParser::close();
 
-	if (_scaledSurface) {
-		_scaledSurface->free();
-		delete _scaledSurface;
-		_scaledSurface = 0;
-	}
+	delete _scaledSurface;
+	_scaledSurface = 0;
 }
 
 const Graphics::Surface *QuickTimeDecoder::decodeNextFrame() {
@@ -300,18 +297,10 @@ QuickTimeDecoder::VideoTrackHandler::VideoTrackHandler(QuickTimeDecoder *decoder
 }
 
 QuickTimeDecoder::VideoTrackHandler::~VideoTrackHandler() {
-	if (_scaledSurface) {
-		_scaledSurface->free();
-		delete _scaledSurface;
-	}
-
+	delete _scaledSurface;
 	delete[] _forcedDitherPalette;
 	delete[] _ditherTable;
-
-	if (_ditherFrame) {
-		_ditherFrame->free();
-		delete _ditherFrame;
-	}
+	delete _ditherFrame;
 }
 
 bool QuickTimeDecoder::VideoTrackHandler::endOfTrack() const {

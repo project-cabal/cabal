@@ -94,11 +94,8 @@ void AVIFrames::close() {
 	_lastFrameIndex = -1;
 	_lastFrame = 0;
 
-	if (_tempFrame) {
-		_tempFrame->free();
-		delete _tempFrame;
-		_tempFrame = 0;
-	}
+	delete _tempFrame;
+	_tempFrame = 0;
 }
 
 const Graphics::Surface *AVIFrames::getFrame(int frameIndex) {
@@ -132,11 +129,7 @@ const Graphics::Surface *AVIFrames::getFrame(int frameIndex) {
 	if (_cacheEnabled) {
 		addFrameToCache(frameIndex, copy);
 	} else {
-		if (_tempFrame) {
-			_tempFrame->free();
-			delete _tempFrame;
-		}
-
+		delete _tempFrame;
 		_tempFrame = copy;
 	}
 
@@ -164,12 +157,8 @@ bool AVIFrames::flushFrameCache() {
 	if (_cachedFrames.empty())
 		return false;
 
-	for (FrameList::iterator it = _cachedFrames.begin(); it != _cachedFrames.end(); it++) {
-		if (it->frame) {
-			it->frame->free();
-			delete it->frame;
-		}
-	}
+	for (FrameList::iterator it = _cachedFrames.begin(); it != _cachedFrames.end(); it++)
+		delete it->frame;
 
 	return true;
 }
@@ -185,11 +174,7 @@ const Graphics::Surface *AVIFrames::retrieveFrameFromCache(int frameIndex) const
 void AVIFrames::addFrameToCache(int frameIndex, Graphics::Surface *frame) {
 	if (_cachedFrames.size() >= _maxCachedFrames) {
 		CachedFrame &cachedFrame = _cachedFrames.front();
-		if (cachedFrame.frame) {
-			cachedFrame.frame->free();
-			delete cachedFrame.frame;
-		}
-		
+		delete cachedFrame.frame;
 		_cachedFrames.pop_front();
 	}
 

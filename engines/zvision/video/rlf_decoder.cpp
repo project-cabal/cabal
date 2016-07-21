@@ -83,7 +83,6 @@ RLFDecoder::RLFVideoTrack::~RLFVideoTrack() {
 	}
 	delete[] _frames;
 	delete _readStream;
-	_currentFrameBuffer.free();
 }
 
 bool RLFDecoder::RLFVideoTrack::readHeader() {

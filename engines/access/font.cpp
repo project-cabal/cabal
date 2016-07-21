@@ -34,8 +34,6 @@ Font::Font() {
 }
 
 Font::~Font() {
-	for (uint i = 0; i < _chars.size(); ++i)
-		_chars[i].free();
 }
 
 void Font::load(const int *fontIndex, const byte *fontData) {

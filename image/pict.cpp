@@ -48,12 +48,8 @@ PICTDecoder::~PICTDecoder() {
 }
 
 void PICTDecoder::destroy() {
-	if (_outputSurface) {
-		_outputSurface->free();
-		delete _outputSurface;
-		_outputSurface = 0;
-	}
-
+	delete _outputSurface;
+	_outputSurface = 0;
 	_paletteColorCount = 0;
 }
 

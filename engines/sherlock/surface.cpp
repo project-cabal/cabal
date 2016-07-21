@@ -244,7 +244,7 @@ void Surface::clear() {
 }
 
 void Surface::free() {
-	_surface.free();
+	_surface.reset();
 }
 
 void Surface::writeString(const Common::String &str, const Common::Point &pt, uint overrideColor) {

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "image/iff.h"
 
@@ -44,16 +46,11 @@ IFFDecoder::~IFFDecoder() {
 }
 
 void IFFDecoder::destroy() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-		_surface = 0;
-	}
+	delete _surface;
+	_surface = 0;
 
-	if (_palette) {
-		delete[] _palette;
-		_palette = 0;
-	}
+	delete[] _palette;
+	_palette = 0;
 
 	memset(&_header, 0, sizeof(Header));
 	_paletteRanges.clear();

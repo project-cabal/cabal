@@ -79,8 +79,6 @@ TheoraDecoder::~TheoraDecoder() {
 	th_setup_free(_theoraSetup);
 	th_comment_clear(&_theoraComment);
 	th_info_clear(&_theoraInfo);
-
-	_surface.free();
 }
 
 enum TheoraYUVBuffers {

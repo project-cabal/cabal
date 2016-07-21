@@ -63,12 +63,8 @@ AnimationEffect::~AnimationEffect() {
 
 	PlayNodes::iterator it = _playList.begin();
 	if (it != _playList.end()) {
-		_engine->getScriptManager()->setStateValue((*it).slot, 2);
-
-		if ((*it)._scaled) {
-			(*it)._scaled->free();
-			delete(*it)._scaled;
-		}
+		_engine->getScriptManager()->setStateValue(it->slot, 2);
+		delete it->_scaled;
 	}
 
 	_playList.clear();
@@ -108,10 +104,7 @@ bool AnimationEffect::process(uint32 deltaTimeInMillis) {
 			if (nod->loop == 0) {
 				if (nod->slot >= 0)
 					scriptManager->setStateValue(nod->slot, 2);
-				if (nod->_scaled) {
-					nod->_scaled->free();
-					delete nod->_scaled;
-				}
+				delete nod->_scaled;
 				_playList.erase(it);
 				return _disposeAfterUse;
 			}
@@ -156,12 +149,10 @@ bool AnimationEffect::process(uint32 deltaTimeInMillis) {
 				// when a simple 2x filter is requested (e.g. the alchemists and cup sequence
 				// in Nemesis)
 				if (frame->getWidth() > dstw || frame->getHeight() > dsth || (frame->getWidth() == dstw / 2 && frame->getHeight() == dsth / 2)) {
-					if (nod->_scaled)
-						if (nod->_scaled->getWidth() != dstw || nod->_scaled->getHeight() != dsth) {
-							nod->_scaled->free();
-							delete nod->_scaled;
-							nod->_scaled = NULL;
-						}
+					if (nod->_scaled && (nod->_scaled->getWidth() != dstw || nod->_scaled->getHeight() != dsth)) {
+						delete nod->_scaled;
+						nod->_scaled = NULL;
+					}
 
 					if (!nod->_scaled) {
 						nod->_scaled = new Graphics::Surface;
@@ -173,10 +164,8 @@ bool AnimationEffect::process(uint32 deltaTimeInMillis) {
 				}
 
 				if (isPanorama) {
-					Graphics::Surface *transposed = RenderManager::tranposeSurface(frame);
+					Common::ScopedPtr<Graphics::Surface> transposed(RenderManager::tranposeSurface(frame));
 					renderManager->blitSurfaceToBkg(*transposed, nod->pos.left, nod->pos.top, _mask);
-					transposed->free();
-					delete transposed;
 				} else {
 					renderManager->blitSurfaceToBkg(*frame, nod->pos.left, nod->pos.top, _mask);
 				}
@@ -203,11 +192,8 @@ void AnimationEffect::addPlayNode(int32 slot, int x, int y, int x2, int y2, int 
 bool AnimationEffect::stop() {
 	PlayNodes::iterator it = _playList.begin();
 	if (it != _playList.end()) {
-		_engine->getScriptManager()->setStateValue((*it).slot, 2);
-		if ((*it)._scaled) {
-			(*it)._scaled->free();
-			delete(*it)._scaled;
-		}
+		_engine->getScriptManager()->setStateValue(it->slot, 2);
+		delete it->_scaled;
 	}
 
 	_playList.clear();

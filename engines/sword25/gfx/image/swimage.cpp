@@ -66,7 +66,6 @@ SWImage::SWImage(const Common::String &filename, bool &result) : _image() {
 }
 
 SWImage::~SWImage() {
-	_image.free();
 }
 
 

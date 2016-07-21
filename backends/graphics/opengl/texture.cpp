@@ -58,7 +58,6 @@ Texture::Texture(GLenum glIntFormat, GLenum glFormat, GLenum glType, const Graph
 
 Texture::~Texture() {
 	releaseInternalTexture();
-	_textureData.free();
 }
 
 void Texture::releaseInternalTexture() {
@@ -283,8 +282,6 @@ TextureCLUT8::TextureCLUT8(GLenum glIntFormat, GLenum glFormat, GLenum glType, c
 
 TextureCLUT8::~TextureCLUT8() {
 	delete[] _palette;
-	_palette = nullptr;
-	_clut8Data.free();
 }
 
 void TextureCLUT8::allocate(uint width, uint height) {

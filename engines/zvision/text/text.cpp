@@ -503,7 +503,6 @@ void TextRenderer::drawTextWithWordWrapping(const Common::String &text, Graphics
 		}
 
 		// Release memory
-		iter->_surface->free();
 		delete iter->_surface;
 	}
 }

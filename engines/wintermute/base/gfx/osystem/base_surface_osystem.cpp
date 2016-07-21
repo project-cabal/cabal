@@ -56,14 +56,8 @@ BaseSurfaceOSystem::BaseSurfaceOSystem(BaseGame *inGame) : BaseSurface(inGame) {
 
 //////////////////////////////////////////////////////////////////////////
 BaseSurfaceOSystem::~BaseSurfaceOSystem() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-		_surface = nullptr;
-	}
-
+	delete _surface;
 	delete[] _alphaMask;
-	_alphaMask = nullptr;
 
 	_gameRef->addMem(-_width * _height * 4);
 	BaseRenderOSystem *renderer = static_cast<BaseRenderOSystem *>(_gameRef->_renderer);
@@ -148,7 +142,6 @@ bool BaseSurfaceOSystem::finishLoad() {
 		// FIBITMAP *newImg = FreeImage_ConvertToGreyscale(img); TODO
 	}
 
-	_surface->free();
 	delete _surface;
 
 	bool needsColorKey = false;
@@ -450,7 +443,6 @@ bool BaseSurfaceOSystem::putSurface(const Graphics::Surface &surface, bool hasAl
 		byte *dst = (byte *)_surface->getBasePtr(0, 0);
 		memcpy(dst, src, surface.getPitch() * surface.getHeight());
 	} else {
-		_surface->free();
 		_surface->copyFrom(surface);
 	}
 	if (hasAlpha) {

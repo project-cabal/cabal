@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "cruise/cruise_main.h"
 #include "cruise/cruise.h"
@@ -81,11 +83,9 @@ void writeSavegameHeader(Common::OutSaveFile *out, CruiseSavegameHeader &header)
 	out->write(header.saveName.c_str(), header.saveName.size() + 1);
 
 	// Create a thumbnail and save it
-	Graphics::Surface *thumb = new Graphics::Surface();
-	::createThumbnail(thumb, globalScreen, 320, 200, workpal);
-	Graphics::saveThumbnail(*out, *thumb);
-	thumb->free();
-	delete thumb;
+	Graphics::Surface thumb;
+	::createThumbnail(&thumb, globalScreen, 320, 200, workpal);
+	Graphics::saveThumbnail(*out, thumb);
 }
 
 static void syncPalette(Common::Serializer &s, uint8 *p) {

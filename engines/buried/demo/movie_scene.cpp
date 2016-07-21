@@ -61,8 +61,6 @@ MovieDisplayWindow::~MovieDisplayWindow() {
 		killTimer(_timer);
 
 	delete _movie;
-
-	_background->free();
 	delete _background;
 }
 

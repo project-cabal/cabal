@@ -84,7 +84,6 @@ GraphicEngine::GraphicEngine(Kernel *pKernel) :
 
 GraphicEngine::~GraphicEngine() {
 	unregisterScriptBindings();
-	_backSurface.free();
 	delete _thumbnail;
 }
 

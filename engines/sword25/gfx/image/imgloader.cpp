@@ -42,20 +42,16 @@ namespace Sword25 {
 
 bool ImgLoader::decodePNGImage(const byte *fileDataPtr, uint fileSize, Graphics::Surface *dest) {
 	assert(dest);
-	Common::MemoryReadStream *fileStr = new Common::MemoryReadStream(fileDataPtr, fileSize, DisposeAfterUse::NO);
+	Common::MemoryReadStream fileStr(fileDataPtr, fileSize, DisposeAfterUse::NO);
 
 	::Image::PNGDecoder png;
-	if (!png.loadStream(*fileStr)) // the fileStr pointer, and thus pFileData will be deleted after this is done
+	if (!png.loadStream(fileStr)) // the fileStr pointer, and thus pFileData will be deleted after this is done
 		error("Error while reading PNG image");
 
 	const Graphics::Surface *sourceSurface = png.getSurface();
-	Graphics::Surface *pngSurface = sourceSurface->convertTo(Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0), png.getPalette());
+	Common::ScopedPtr<Graphics::Surface> pngSurface(sourceSurface->convertTo(Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0), png.getPalette()));
 
 	dest->copyFrom(*pngSurface);
-
-	pngSurface->free();
-	delete pngSurface;
-	delete fileStr;
 
 	// Signal success
 	return true;

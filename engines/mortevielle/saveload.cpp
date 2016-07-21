@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Mortville Manor DOS source code
@@ -189,14 +191,13 @@ void SavegameManager::writeSavegameHeader(Common::OutSaveFile *out, const Common
 	uint8 thumbPalette[256 * 3];
 	g_system->getPaletteManager()->grabPalette(thumbPalette, 0, 256);
 
-	// Create a thumbnail and save it
-	Graphics::Surface *thumb = new Graphics::Surface();
-	Graphics::Surface s = g_vm->_screenSurface->lockArea(Common::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
-
-	::createThumbnail(thumb, (const byte *)s.getPixels(), SCREEN_WIDTH, SCREEN_HEIGHT, thumbPalette);
-	Graphics::saveThumbnail(*out, *thumb);
-	thumb->free();
-	delete thumb;
+	{
+		// Create a thumbnail and save it
+		Graphics::Surface thumb;
+		Graphics::Surface s = g_vm->_screenSurface->lockArea(Common::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+		::createThumbnail(&thumb, (const byte *)s.getPixels(), SCREEN_WIDTH, SCREEN_HEIGHT, thumbPalette);
+		Graphics::saveThumbnail(*out, thumb);
+	}
 
 	// Write out the save date/time
 	TimeDate td;

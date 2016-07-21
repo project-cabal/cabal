@@ -55,7 +55,6 @@ Gfx::Gfx(SagaEngine *vm, OSystem *system, int width, int height) : _vm(vm), _sys
 }
 
 Gfx::~Gfx() {
-	_backBuffer.free();
 }
 
 #ifdef SAGA_DEBUG

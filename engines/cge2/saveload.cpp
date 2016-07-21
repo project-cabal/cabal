@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Sfinx source code
@@ -121,7 +123,6 @@ bool CGE2Engine::loadGame(int slotNumber) {
 		}
 
 		// Delete the thumbnail
-		saveHeader.thumbnail->free();
 		delete saveHeader.thumbnail;
 	}
 
@@ -165,12 +166,10 @@ void CGE2Engine::writeSavegameHeader(Common::OutSaveFile *out, SavegameHeader &h
 	_vga->show();
 
 	// Create a thumbnail and save it
-	Graphics::Surface *thumb = new Graphics::Surface();
+	Graphics::Surface thumb;
 	Graphics::Surface *s = _vga->_page[0];
-	::createThumbnail(thumb, (const byte *)s->getPixels(), kScrWidth, kScrHeight, thumbPalette);
-	Graphics::saveThumbnail(*out, *thumb);
-	thumb->free();
-	delete thumb;
+	::createThumbnail(&thumb, (const byte *)s->getPixels(), kScrWidth, kScrHeight, thumbPalette);
+	Graphics::saveThumbnail(*out, thumb);
 
 	// Write out the save date/time
 	TimeDate td;

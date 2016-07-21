@@ -387,10 +387,7 @@ CinepakDecoder::CinepakDecoder(int bitsPerPixel) : Codec(), _bitsPerPixel(bitsPe
 }
 
 CinepakDecoder::~CinepakDecoder() {
-	if (_curFrame.surface) {
-		_curFrame.surface->free();
-		delete _curFrame.surface;
-	}
+	delete _curFrame.surface;
 
 	delete[] _curFrame.strips;
 	delete[] _clipTableBuf;

@@ -91,26 +91,23 @@ bool InventoryInfoWindow::changeCurrentItem(int newItemID) {
 }
 
 void InventoryInfoWindow::onPaint() {
-	Graphics::Surface *background = _vm->_gfx->getBitmap(IDB_INVENTORY_INFO_BACKGROUND);
+	Common::ScopedPtr<Graphics::Surface> background(_vm->_gfx->getBitmap(IDB_INVENTORY_INFO_BACKGROUND));
 
 	// Draw the title
 	uint32 textColor = _vm->_gfx->getColor(212, 109, 0);
 	Common::Rect titleRect(10, 56, 263, 71);
 	Common::String title = _vm->getString(IDES_ITEM_TITLE_BASE + _currentItemID);
 	assert(!title.empty());
-	_vm->_gfx->renderText(background, _textFont, title, titleRect.left, titleRect.top, titleRect.width(), titleRect.height(), textColor, _fontHeight);
+	_vm->_gfx->renderText(background.get(), _textFont, title, titleRect.left, titleRect.top, titleRect.width(), titleRect.height(), textColor, _fontHeight);
 
 	// Draw the description
 	Common::Rect descRect(10, 89, 263, 186);
 	Common::String desc = _vm->getString(IDES_ITEM_DESC_BASE + _currentItemID * 5);
 	assert(!desc.empty());
-	_vm->_gfx->renderText(background, _textFont, desc, descRect.left, descRect.top, descRect.width(), descRect.height(), textColor, _fontHeight);
+	_vm->_gfx->renderText(background.get(), _textFont, desc, descRect.left, descRect.top, descRect.width(), descRect.height(), textColor, _fontHeight);
 
 	Common::Rect absoluteRect = getAbsoluteRect();
-	_vm->_gfx->blit(background, absoluteRect.left, absoluteRect.top);
-
-	background->free();
-	delete background;
+	_vm->_gfx->blit(background.get(), absoluteRect.left, absoluteRect.top);
 }
 
 bool InventoryInfoWindow::onEraseBackground() {
@@ -157,20 +154,13 @@ BurnedLetterViewWindow::BurnedLetterViewWindow(BuriedEngine *vm, Window *parent,
 }
 
 BurnedLetterViewWindow::~BurnedLetterViewWindow() {
-	if (_preBuffer) {
-		_preBuffer->free();
-		delete _preBuffer;
-	}
-
+	delete _preBuffer;
 	delete _stillFrames;
 }
 
 void BurnedLetterViewWindow::onPaint() {
 	if (_rebuildPage) {
-		if (_preBuffer) {
-			_preBuffer->free();
-			delete _preBuffer;
-		}
+		delete _preBuffer;
 
 		_preBuffer = _stillFrames->getFrameCopy(_curView);
 		if (!_preBuffer)
@@ -202,8 +192,8 @@ void BurnedLetterViewWindow::onLButtonUp(const Common::Point &point, uint flags)
 		if (offset != 189) {
 			TempCursorChange cursorChange(kCursorWait);
 
-			Graphics::Surface *newFrame = _stillFrames->getFrameCopy(_curView);
-		
+			Common::ScopedPtr<Graphics::Surface> newFrame(_stillFrames->getFrameCopy(_curView));
+
 			for (int i = 0; i < 189; i += offset) {
 				_preBuffer->move(0, offset, _preBuffer->getHeight());
 
@@ -213,9 +203,6 @@ void BurnedLetterViewWindow::onLButtonUp(const Common::Point &point, uint flags)
 				invalidateWindow(false);
 				_vm->yield();
 			}
-
-			newFrame->free();
-			delete newFrame;
 		}
 
 		_rebuildPage = true;
@@ -232,7 +219,7 @@ void BurnedLetterViewWindow::onLButtonUp(const Common::Point &point, uint flags)
 		if (offset != 189) {
 			TempCursorChange cursorChange(kCursorWait);
 
-			Graphics::Surface *newFrame = _stillFrames->getFrameCopy(_curView);
+			Common::ScopedPtr<Graphics::Surface> newFrame(_stillFrames->getFrameCopy(_curView));
 
 			for (int i = 0; i < 189; i += offset) {
 				_preBuffer->move(0, -offset, _preBuffer->getHeight());
@@ -243,9 +230,6 @@ void BurnedLetterViewWindow::onLButtonUp(const Common::Point &point, uint flags)
 				invalidateWindow(false);
 				_vm->yield();
 			}
-
-			newFrame->free();
-			delete newFrame;
 		}
 
 		_rebuildPage = true;

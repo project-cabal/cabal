@@ -235,45 +235,35 @@ void GameUIWindow::onPaint() {
 	Common::Rect rightUI(495, 128, 639, 316);
 
 	if (topUI.intersects(_vm->_gfx->getDirtyRect()) && !_doNotDraw) {
-		Graphics::Surface *topBitmap = _vm->_gfx->getBitmap(IDB_UI_TOP);
-		_vm->_gfx->blit(topBitmap, 0, 0);
-		topBitmap->free();
-		delete topBitmap;
+		Common::ScopedPtr<Graphics::Surface> topBitmap(_vm->_gfx->getBitmap(IDB_UI_TOP));
+		_vm->_gfx->blit(topBitmap.get(), 0, 0);
 	}
 
 	if (leftUI.intersects(_vm->_gfx->getDirtyRect()) && !_doNotDraw) {
-		Graphics::Surface *leftBitmap = _vm->_gfx->getBitmap(IDB_UI_LEFT);
-		_vm->_gfx->blit(leftBitmap, 0, 128);
-		leftBitmap->free();
-		delete leftBitmap;
+		Common::ScopedPtr<Graphics::Surface> leftBitmap(_vm->_gfx->getBitmap(IDB_UI_LEFT));
+		_vm->_gfx->blit(leftBitmap.get(), 0, 128);
 	}
 
 	if (rightUI.intersects(_vm->_gfx->getDirtyRect()) && !_doNotDraw) {
-		Graphics::Surface *rightBitmap = _vm->_gfx->getBitmap(IDB_UI_RIGHT);
-		_vm->_gfx->blit(rightBitmap, 496, 128);
-		rightBitmap->free();
-		delete rightBitmap;
+		Common::ScopedPtr<Graphics::Surface> rightBitmap(_vm->_gfx->getBitmap(IDB_UI_RIGHT));
+		_vm->_gfx->blit(rightBitmap.get(), 496, 128);
 	}
 
 	if (bottomUI.intersects(_vm->_gfx->getDirtyRect()) && !_doNotDraw) {
-		Graphics::Surface *bottomBitmap = _vm->_gfx->getBitmap(IDB_UI_BOTTOM);
-		_vm->_gfx->blit(bottomBitmap, 0, 317);
-		bottomBitmap->free();
-		delete bottomBitmap;
+		{
+			Common::ScopedPtr<Graphics::Surface> bottomBitmap(_vm->_gfx->getBitmap(IDB_UI_BOTTOM));
+			_vm->_gfx->blit(bottomBitmap.get(), 0, 317);
+		}
 
 		if (!_vm->isDemo()) {
 			if (_currentDateDisplay >= 0) {
-				Graphics::Surface *dateBitmap = _vm->_gfx->getBitmap(IDB_UI_DATE_BASE + _currentDateDisplay);
-				_vm->_gfx->blit(dateBitmap, 62, 332);
-				dateBitmap->free();
-				delete dateBitmap;
+				Common::ScopedPtr<Graphics::Surface> dateBitmap(_vm->_gfx->getBitmap(IDB_UI_DATE_BASE + _currentDateDisplay));
+				_vm->_gfx->blit(dateBitmap.get(), 62, 332);
 			}
 
 			if (_warningLightDisplayed) {
-				Graphics::Surface *warningLight = _vm->_gfx->getBitmap(IDB_UI_WARNING_LIGHT);
-				_vm->_gfx->blit(warningLight, 189, 321);
-				warningLight->free();
-				delete warningLight;
+				Common::ScopedPtr<Graphics::Surface> warningLight(_vm->_gfx->getBitmap(IDB_UI_WARNING_LIGHT));
+				_vm->_gfx->blit(warningLight.get(), 189, 321);
 			}
 		}
 	}

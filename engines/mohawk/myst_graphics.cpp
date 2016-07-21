@@ -65,8 +65,6 @@ MystGraphics::MystGraphics(MohawkEngine_Myst* vm) : GraphicsManager(), _vm(vm) {
 
 MystGraphics::~MystGraphics() {
 	delete _bmpDecoder;
-
-	_backBuffer->free();
 	delete _backBuffer;
 }
 

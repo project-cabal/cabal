@@ -499,10 +499,7 @@ MPEGPSDecoder::MPEGVideoTrack::~MPEGVideoTrack() {
 	delete _mpegDecoder;
 #endif
 
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
+	delete _surface;
 }
 
 uint16 MPEGPSDecoder::MPEGVideoTrack::getWidth() const {

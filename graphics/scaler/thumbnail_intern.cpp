@@ -224,7 +224,7 @@ static bool createThumbnail(Graphics::Surface &out, Graphics::Surface &in) {
 
 	out.create(kThumbnailWidth, height, Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0));
 	scaleThumbnail(in, out);
-	in.free();
+	in.reset();
 	return true;
 }
 

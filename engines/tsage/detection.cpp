@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/config-manager.h"
 #include "common/system.h"
@@ -126,17 +128,11 @@ public:
 			int slot = ext ? atoi(ext + 1) : -1;
 
 			if (slot >= 0 && slot < MAX_SAVES) {
-				Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(*file);
+				Common::ScopedPtr<Common::SeekableReadStream> in(g_system->getSavefileManager()->openForLoading(*file));
 
-				if (in) {
-					if (TsAGE::Saver::readSavegameHeader(in, header)) {
-						saveList.push_back(SaveStateDescriptor(slot, header._saveName));
-
-						header._thumbnail->free();
-						delete header._thumbnail;
-					}
-
-					delete in;
+				if (in && TsAGE::Saver::readSavegameHeader(in.get(), header)) {
+					saveList.push_back(SaveStateDescriptor(slot, header._saveName));
+					delete header._thumbnail;
 				}
 			}
 		}

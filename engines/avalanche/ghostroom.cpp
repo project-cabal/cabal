@@ -57,25 +57,6 @@ GhostRoom::GhostRoom(AvalancheEngine *vm) {
 }
 
 GhostRoom::~GhostRoom() {
-	for (int i = 0; i < 2; i++)
-		_eyes[i].free();
-
-	_exclamation.free();
-
-	for (int i = 0; i < 3; i++)
-		_bat[i].free();
-
-	for (int i = 0; i < 6; i++)
-		_aargh[i].free();
-
-	for (int i = 0; i < 5; i++)
-		_greenEyes[i].free();
-
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 6; j++)
-			_greldet[j][i].free();
-	}
-
 	if (_wasLoaded) {
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 2; j++) {

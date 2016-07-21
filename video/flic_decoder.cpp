@@ -117,8 +117,6 @@ FlicDecoder::FlicVideoTrack::FlicVideoTrack(Common::SeekableReadStream *stream, 
 FlicDecoder::FlicVideoTrack::~FlicVideoTrack() {
 	delete _fileStream;
 	delete[] _palette;
-
-	_surface->free();
 	delete _surface;
 }
 

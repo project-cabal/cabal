@@ -349,10 +349,8 @@ void SpriteSlots::drawSprites(MSurface *s) {
 				spr->copyTo(s, Common::Point(xp, yp), sprite->getTransparencyIndex());
 
 				// Free sprite if it was a flipped one
-				if (flipped) {
-					spr->free();
+				if (flipped)
 					delete spr;
-				}
 			}
 		}
 	}

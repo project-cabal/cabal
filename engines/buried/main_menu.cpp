@@ -80,28 +80,13 @@ MainMenuWindow::MainMenuWindow(BuriedEngine *vm, Window *parent) : Window(vm, pa
 }
 
 MainMenuWindow::~MainMenuWindow() {
-	_background->free();
 	delete _background;
-
-	_depressedPlayMode->free();
 	delete _depressedPlayMode;
-
-	_depressedPlayIntro->free();
 	delete _depressedPlayIntro;
-
-	_depressedOverview->free();
 	delete _depressedOverview;
-
-	_depressedNewGame->free();
 	delete _depressedNewGame;
-
-	_depressedRestoreGame->free();
 	delete _depressedRestoreGame;
-
-	_depressedCredits->free();
 	delete _depressedCredits;
-
-	_depressedQuit->free();
 	delete _depressedQuit;
 }
 

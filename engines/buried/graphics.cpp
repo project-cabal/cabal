@@ -69,7 +69,6 @@ GraphicsManager::GraphicsManager(BuriedEngine *vm) : _vm(vm) {
 }
 
 GraphicsManager::~GraphicsManager() {
-	_screen->free();
 	delete _screen;
 
 	delete[] _palette;

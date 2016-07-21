@@ -80,7 +80,7 @@ void Surface::create(uint16 width, uint16 height, uint16 allocWidth, uint16 allo
 	_height = height;
 }
 
-void Surface::free() {
+void Surface::reset() {
 	_width = 0;
 	_height = 0;
 	_pitch = 0;

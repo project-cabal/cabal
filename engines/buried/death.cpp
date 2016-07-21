@@ -248,32 +248,22 @@ DeathWindow::~DeathWindow() {
 }
 
 void DeathWindow::onPaint() {
-	Graphics::Surface *topBitmap = _vm->_gfx->getBitmap(IDB_DEATH_UI_TOP);
-	_vm->_gfx->blit(topBitmap, 301, 0);
-	topBitmap->free();
-	delete topBitmap;
+	Common::ScopedPtr<Graphics::Surface> topBitmap(_vm->_gfx->getBitmap(IDB_DEATH_UI_TOP));
+	_vm->_gfx->blit(topBitmap.get(), 301, 0);
 
-	Graphics::Surface *leftBitmap = _vm->_gfx->getBitmap(IDB_DEATH_UI_LEFT);
-	_vm->_gfx->blit(leftBitmap, 0, 0);
-	leftBitmap->free();
-	delete leftBitmap;
+	Common::ScopedPtr<Graphics::Surface> leftBitmap(_vm->_gfx->getBitmap(IDB_DEATH_UI_LEFT));
+	_vm->_gfx->blit(leftBitmap.get(), 0, 0);
 
 	if (_walkthroughMode) {
-		Graphics::Surface *lowerLeftBitmap = _vm->_gfx->getBitmap(IDB_DEATH_WT_LOWER_LEFT);
-		_vm->_gfx->blit(lowerLeftBitmap, 0, 416);
-		lowerLeftBitmap->free();
-		delete lowerLeftBitmap;
+		Common::ScopedPtr<Graphics::Surface> lowerLeftBitmap(_vm->_gfx->getBitmap(IDB_DEATH_WT_LOWER_LEFT));
+		_vm->_gfx->blit(lowerLeftBitmap.get(), 0, 416);
 	}
 
-	Graphics::Surface *rightBitmap = _vm->_gfx->getBitmap(IDB_DEATH_UI_RIGHT);
-	_vm->_gfx->blit(rightBitmap, 624, 0);
-	rightBitmap->free();
-	delete rightBitmap;
+	Common::ScopedPtr<Graphics::Surface> rightBitmap(_vm->_gfx->getBitmap(IDB_DEATH_UI_RIGHT));
+	_vm->_gfx->blit(rightBitmap.get(), 624, 0);
 
-	Graphics::Surface *bottomBitmap = _vm->_gfx->getBitmap(IDB_DEATH_UI_BOTTOM);
-	_vm->_gfx->blit(bottomBitmap, 301, 468);
-	bottomBitmap->free();
-	delete bottomBitmap;
+	Common::ScopedPtr<Graphics::Surface> bottomBitmap(_vm->_gfx->getBitmap(IDB_DEATH_UI_BOTTOM));
+	_vm->_gfx->blit(bottomBitmap.get(), 301, 468);
 
 	const Graphics::Surface *deathSceneHeader = _deathSceneFrames->getFrame(_deathFrameIndex);
 	_vm->_gfx->blit(deathSceneHeader, 301, 10);
@@ -314,16 +304,12 @@ void DeathWindow::onTimer(uint timer) {
 
 	if (_lightOn) {
 		// Light is now on
-		Graphics::Surface *lightBitmap = _vm->_gfx->getBitmap(IDB_DEATH_ELIGHT_ON);
-		_vm->_gfx->blit(lightBitmap, 164, 0);
-		lightBitmap->free();
-		delete lightBitmap;
+		Common::ScopedPtr<Graphics::Surface> lightBitmap(_vm->_gfx->getBitmap(IDB_DEATH_ELIGHT_ON));
+		_vm->_gfx->blit(lightBitmap.get(), 164, 0);
 	} else {
 		// Light is now off
-		Graphics::Surface *leftBitmap = _vm->_gfx->getBitmap(IDB_DEATH_UI_LEFT);
-		_vm->_gfx->blit(leftBitmap, Common::Rect(164, 0, 164 + 137, 51), destRect);
-		leftBitmap->free();
-		delete leftBitmap;
+		Common::ScopedPtr<Graphics::Surface> leftBitmap(_vm->_gfx->getBitmap(IDB_DEATH_UI_LEFT));
+		_vm->_gfx->blit(leftBitmap.get(), Common::Rect(164, 0, 164 + 137, 51), destRect);
 	}
 
 	// Force just that section of the screen to update
@@ -333,29 +319,23 @@ void DeathWindow::onTimer(uint timer) {
 
 void DeathWindow::onLButtonDown(const Common::Point &point, uint flags) {
 	if (_quit.contains(point)) {
-		Graphics::Surface *buttons = _vm->_gfx->getBitmap(_walkthroughMode ? IDB_DEATH_WT_BUTTONS_DEPRESSED : IDB_DEATH_BUTTONS_DEPRESSED);
+		Common::ScopedPtr<Graphics::Surface> buttons(_vm->_gfx->getBitmap(_walkthroughMode ? IDB_DEATH_WT_BUTTONS_DEPRESSED : IDB_DEATH_BUTTONS_DEPRESSED));
 		Common::Rect destRect(29, 424, 29 + 76, 424 + 36);
-		_vm->_gfx->blit(buttons, Common::Rect(76, 36), destRect);
-		buttons->free();
-		delete buttons;
+		_vm->_gfx->blit(buttons.get(), Common::Rect(76, 36), destRect);
 		invalidateRect(destRect, false);
 		_vm->_gfx->updateScreen(false);
 		_curButton = BUTTON_QUIT;
 	} else if (_restoreGame.contains(point)) {
-		Graphics::Surface *buttons = _vm->_gfx->getBitmap(_walkthroughMode ? IDB_DEATH_WT_BUTTONS_DEPRESSED : IDB_DEATH_BUTTONS_DEPRESSED);
+		Common::ScopedPtr<Graphics::Surface> buttons(_vm->_gfx->getBitmap(_walkthroughMode ? IDB_DEATH_WT_BUTTONS_DEPRESSED : IDB_DEATH_BUTTONS_DEPRESSED));
 		Common::Rect destRect(109, 424, 109 + 80, 424 + 36);
-		_vm->_gfx->blit(buttons, Common::Rect(80, 0, 80 + 80, 36), destRect);
-		buttons->free();
-		delete buttons;
+		_vm->_gfx->blit(buttons.get(), Common::Rect(80, 0, 80 + 80, 36), destRect);
 		invalidateRect(destRect, false);
 		_vm->_gfx->updateScreen(false);
 		_curButton = BUTTON_RESTORE_GAME;
 	} else if (_mainMenu.contains(point)) {
-		Graphics::Surface *buttons = _vm->_gfx->getBitmap(_walkthroughMode ? IDB_DEATH_WT_BUTTONS_DEPRESSED : IDB_DEATH_BUTTONS_DEPRESSED);
+		Common::ScopedPtr<Graphics::Surface> buttons(_vm->_gfx->getBitmap(_walkthroughMode ? IDB_DEATH_WT_BUTTONS_DEPRESSED : IDB_DEATH_BUTTONS_DEPRESSED));
 		Common::Rect destRect(195, 424, 195 + 76, 424 + 36);
-		_vm->_gfx->blit(buttons, Common::Rect(166, 0, 166 + 76, 36), destRect);
-		buttons->free();
-		delete buttons;
+		_vm->_gfx->blit(buttons.get(), Common::Rect(166, 0, 166 + 76, 36), destRect);
 		invalidateRect(destRect, false);
 		_vm->_gfx->updateScreen(false);
 		_curButton = BUTTON_MAIN_MENU;

@@ -47,7 +47,6 @@ Screen::~Screen() {
 	delete _microTiles;
 	delete _renderQueue;
 	delete _prevRenderQueue;
-	_backScreen->free();
 	delete _backScreen;
 }
 

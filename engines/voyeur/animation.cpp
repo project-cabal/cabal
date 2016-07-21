@@ -248,12 +248,8 @@ RL2Decoder::RL2VideoTrack::RL2VideoTrack(const RL2FileHeader &header, RL2AudioTr
 
 RL2Decoder::RL2VideoTrack::~RL2VideoTrack() {
 	// Free surfaces
-	_surface->free();
 	delete _surface;
-	if (_backSurface) {
-		_backSurface->free();
-		delete _backSurface;
-	}
+	delete _backSurface;
 }
 
 void RL2Decoder::RL2VideoTrack::initBackSurface() {

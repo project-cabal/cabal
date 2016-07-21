@@ -119,9 +119,8 @@ void Events::setCursor(const Graphics::Surface &src, int hotspotX, int hotspotY)
 
 		// 3DO RGB565
 		CursorMan.replaceCursor(tempSurface.getPixels(), tempSurface.getWidth(), tempSurface.getHeight(), 2 * hotspotX, 2 * hotspotY, 0x0000, false, &src.getFormat());
-
-		tempSurface.free();
 	}
+
 	showCursor();
 }
 

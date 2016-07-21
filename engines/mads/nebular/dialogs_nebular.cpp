@@ -439,9 +439,9 @@ void CopyProtectionDialog::show() {
 
 	Common::KeyState curKey;
 	const Common::Rect inputArea(110, 165, 210, 175);
-	MSurface *origInput = new MSurface(inputArea.width(), inputArea.height());
+	MSurface origInput(inputArea.width(), inputArea.height());
 	_vm->_screen.frameRect(inputArea, TEXTDIALOG_BLACK);
-	_vm->_screen.copyTo(origInput, inputArea, Common::Point(0, 0));
+	_vm->_screen.copyTo(&origInput, inputArea, Common::Point(0, 0));
 	_font->setColors(TEXTDIALOG_FE, TEXTDIALOG_FE, TEXTDIALOG_FE, TEXTDIALOG_FE);
 	_vm->_screen.copyRectToScreen(inputArea);
 	_vm->_screen.updateScreen();
@@ -472,15 +472,12 @@ void CopyProtectionDialog::show() {
 			_textInput = _hogEntry._word[0];
 		}
 
-		_vm->_screen.copyFrom(origInput, Common::Rect(0, 0, inputArea.width(), inputArea.height()), Common::Point(inputArea.left, inputArea.top));
+		_vm->_screen.copyFrom(&origInput, Common::Rect(0, 0, inputArea.width(), inputArea.height()), Common::Point(inputArea.left, inputArea.top));
 		_font->writeString(&_vm->_screen, _textInput,
 			Common::Point(inputArea.left + 2, inputArea.top + 1), 1);
 		_vm->_screen.copyRectToScreen(inputArea);
 		_vm->_screen.updateScreen();
 	}
-
-	origInput->free();
-	delete origInput;
 }
 
 bool CopyProtectionDialog::isCorrectAnswer() {
@@ -601,7 +598,6 @@ void PictureDialog::save() {
 void PictureDialog::restore() {
 	if (_savedSurface) {
 		_savedSurface->copyTo(&_vm->_screen);
-		_savedSurface->free();
 		delete _savedSurface;
 		_savedSurface = nullptr;
 

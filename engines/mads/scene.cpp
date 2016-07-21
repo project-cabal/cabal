@@ -689,8 +689,8 @@ void Scene::freeCurrentScene() {
 	_vm->_palette->_paletteUsage.load(nullptr);
 	_cyclingActive = false;
 	_hotspots.clear();
-	_backgroundSurface.free();
-	_depthSurface.free();
+	_backgroundSurface.reset();
+	_depthSurface.reset();
 
 	delete _sceneInfo;
 	_sceneInfo = nullptr;

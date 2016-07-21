@@ -46,10 +46,7 @@ Cursor::Cursor() {
 
 Cursor::~Cursor() {
 	for (uint32 i = 0; i < _info.size(); i++) {
-		if (_info[i].surface) {
-			_info[i].surface->free();
-			delete _info[i].surface;
-		}
+		delete _info[i].surface;
 		delete[] _info[i].palette;
 	}
 

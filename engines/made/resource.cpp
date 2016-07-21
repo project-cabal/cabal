@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "made/resource.h"
 #include "made/graphics.h"
@@ -46,14 +48,8 @@ PictureResource::PictureResource() : _picture(NULL), _picturePalette(NULL) {
 }
 
 PictureResource::~PictureResource() {
-	if (_picture) {
-		_picture->free();
-		delete _picture;
-		_picture = 0;
-	}
-
+	delete _picture;
 	delete[] _picturePalette;
-	_picturePalette = 0;
 }
 
 void PictureResource::load(byte *source, int size) {
@@ -185,10 +181,8 @@ AnimationResource::AnimationResource() {
 }
 
 AnimationResource::~AnimationResource() {
-	for (uint i = 0; i < _frames.size(); i++) {
-		_frames[i]->free();
+	for (uint i = 0; i < _frames.size(); i++)
 		delete _frames[i];
-	}
 }
 
 void AnimationResource::load(byte *source, int size) {

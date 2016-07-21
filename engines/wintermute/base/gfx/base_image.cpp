@@ -55,9 +55,6 @@ BaseImage::BaseImage() {
 //////////////////////////////////////////////////////////////////////
 BaseImage::~BaseImage() {
 	delete _decoder;
-	if (_deletableSurface) {
-		_deletableSurface->free();
-	}
 	delete _deletableSurface;
 }
 
@@ -115,13 +112,9 @@ bool BaseImage::saveBMPFile(const Common::String &filename) const {
 bool BaseImage::resize(int newWidth, int newHeight) {
 	// WME Lite used FILTER_BILINEAR with FreeImage_Rescale here.
 	Graphics::TransparentSurface temp(*_surface, true);
-	if (_deletableSurface) {
-		_deletableSurface->free();
-		delete _deletableSurface;
-		_deletableSurface = nullptr;
-	}
+	delete _deletableSurface;
+	_deletableSurface = nullptr;
 	_surface = _deletableSurface = temp.scale((uint16)newWidth, (uint16)newHeight);
-	temp.free();
 	return true;
 }
 
@@ -189,7 +182,7 @@ bool BaseImage::writeBMPToStream(Common::WriteStream *stream) const {
 		format = Graphics::PixelFormat(4, 8, 8, 8, 8, 8, 16, 24, 0);
 	}
 
-	Graphics::Surface *surface = _surface->convertTo(format);
+	Common::ScopedPtr<Graphics::Surface> surface(_surface->convertTo(format));
 
 	int srcPitch = width * (bitsPerPixel >> 3);
 	const int extraDataLength = (srcPitch % 4) ? 4 - (srcPitch % 4) : 0;
@@ -208,8 +201,7 @@ bool BaseImage::writeBMPToStream(Common::WriteStream *stream) const {
 			stream->writeByte(0);
 		}
 	}
-	surface->free();
-	delete surface;
+
 	return true;
 }
 
@@ -219,11 +211,8 @@ bool BaseImage::copyFrom(BaseImage *origImage, int newWidth, int newHeight) {
 	// WME Lite used FILTER_BILINEAR with FreeImage_Rescale here.
 
 	Graphics::TransparentSurface temp(*origImage->_surface, false);
-	if (_deletableSurface) {
-		_deletableSurface->free();
-		delete _deletableSurface;
-		_deletableSurface = nullptr;
-	}
+	delete _deletableSurface;
+	_deletableSurface = nullptr;
 	_surface = _deletableSurface = temp.scale((uint16)newWidth, (uint16)newHeight);
 	return true;
 }

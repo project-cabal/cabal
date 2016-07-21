@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This code is based on original Soltys source code
@@ -674,10 +676,8 @@ Vga::~Vga() {
 	delete _spareQ;
 	delete[] _sysPal;
 
-	for (int idx = 0; idx < 4; idx++) {
-		_page[idx]->free();
+	for (int idx = 0; idx < 4; idx++)
 		delete _page[idx];
-	}
 }
 
 void Vga::waitVR() {

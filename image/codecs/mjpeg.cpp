@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 // Based on LGPL MJPEG/AVI to JPEG/JFIF conversion code from libav
 // Copyright (c) 2010 Adrian Daerr and Nicolas George
@@ -45,10 +47,7 @@ MJPEGDecoder::MJPEGDecoder() : Codec() {
 }
 
 MJPEGDecoder::~MJPEGDecoder() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
+	delete _surface;
 }
 
 // Header to be inserted
@@ -211,11 +210,8 @@ const Graphics::Surface *MJPEGDecoder::decodeFrame(Common::SeekableReadStream &s
 
 void MJPEGDecoder::decodeJPEGStream(Common::SeekableReadStream &stream) {
 	// Throw out the old one
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-		_surface = 0;
-	}
+	delete _surface;
+	_surface = 0;
 
 	// And then decode to new one
 	JPEGDecoder jpeg;

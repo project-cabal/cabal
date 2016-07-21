@@ -607,8 +607,6 @@ ScummEngine::~ScummEngine() {
 	delete _costumeLoader;
 	delete _costumeRenderer;
 
-	_textSurface.free();
-
 	free(_shadowPalette);
 	free(_verbPalette);
 

@@ -65,7 +65,7 @@ public:
 	 * Destroy the surface, resetting the underlying reference
 	 */
 	~Surface() {
-		free();
+		reset();
 	}
 
 	/**
@@ -155,7 +155,7 @@ public:
 	 * Release the memory used by the pixels memory of this surface. This is the
 	 * counterpart to create().
 	 */
-	void free();
+	void reset();
 
 	/**
 	 * Set up the Surface with user-specified data.
@@ -169,7 +169,7 @@ public:
 	 */
 	template<typename D>
 	void reset(uint16 width, uint16 height, uint16 pitch, byte *pixels, const PixelFormat &format, D deleter) {
-		free();
+		reset();
 		_width = width;
 		_height = height;
 		_pitch = pitch;

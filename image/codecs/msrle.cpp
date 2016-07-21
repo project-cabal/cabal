@@ -37,7 +37,6 @@ MSRLEDecoder::MSRLEDecoder(uint16 width, uint16 height, byte bitsPerPixel) {
 }
 
 MSRLEDecoder::~MSRLEDecoder() {
-	_surface->free();
 	delete _surface;
 }
 

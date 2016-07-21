@@ -278,7 +278,6 @@ bool Inventory::processEvent(const Common::Event &event) {
 
 void Inventory::Item::free() {
 	_animation.free();
-	_surface.free();
 }
 
 void Inventory::Item::backgroundEffect(Graphics::Surface *s) {

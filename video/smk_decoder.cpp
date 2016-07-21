@@ -534,9 +534,7 @@ SmackerDecoder::SmackerVideoTrack::SmackerVideoTrack(uint32 width, uint32 height
 }
 
 SmackerDecoder::SmackerVideoTrack::~SmackerVideoTrack() {
-	_surface->free();
 	delete _surface;
-
 	delete _MMapTree;
 	delete _MClrTree;
 	delete _FullTree;

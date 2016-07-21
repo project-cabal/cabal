@@ -258,10 +258,8 @@ Common::ErrorCode MortevielleEngine::initialize() {
 
 	// Load the mort.dat resource
 	Common::ErrorCode result = loadMortDat();
-	if (result != Common::kNoError) {
-		_screenSurface->free();
+	if (result != Common::kNoError)
 		return result;
-	}
 
 	// Load some error messages (was previously in chartex())
 	_hintPctMessage = getString(580);  // You should have noticed %d hints
@@ -436,7 +434,6 @@ Common::Error MortevielleEngine::run() {
 	mainGame();
 
 	// Cleanup (allocated in initialize())
-	_screenSurface->free();
 	free(_soundManager->_cfiphBuffer);
 	free(_cfiecBuffer);
 

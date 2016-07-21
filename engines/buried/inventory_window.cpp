@@ -103,15 +103,8 @@ InventoryWindow::~InventoryWindow() {
 	destroyInfoWindow();
 	destroyBurnedLetterWindow();
 
-	if (_background) {
-		_background->free();
-		delete _background;
-	}
-
-	if (_draggingItemSpriteData.image) {
-		_draggingItemSpriteData.image->free();
-		delete _draggingItemSpriteData.image;
-	}
+	delete _background;
+	delete _draggingItemSpriteData.image;
 
 	if (_scrollTimer != 0)
 		killTimer(_scrollTimer);	
@@ -121,25 +114,22 @@ InventoryWindow::~InventoryWindow() {
 }
 
 bool InventoryWindow::rebuildPreBuffer() {
-	if (_background) {
-		_background->free();
-		delete _background;
-	}
-
+	delete _background;
 	_background = _vm->_gfx->getBitmap(IDB_INVENTORY_BACKGROUND);
-	Graphics::Surface *arrows = _vm->_gfx->getBitmap(IDB_INVENTORY_ARROWS);
 
-	int leftOffset = 3;
-	if (_magSelected)
-		leftOffset += 69;
-	if (_upSelected)
-		leftOffset += 23;
-	if (_downSelected)
-		leftOffset += 46;
+	{
+		Common::ScopedPtr<Graphics::Surface> arrows(_vm->_gfx->getBitmap(IDB_INVENTORY_ARROWS));
 
-	_vm->_gfx->crossBlit(_background, 96, 7, 18, 69, arrows, leftOffset, 0);
-	arrows->free();
-	delete arrows;
+		int leftOffset = 3;
+		if (_magSelected)
+			leftOffset += 69;
+		if (_upSelected)
+			leftOffset += 23;
+		if (_downSelected)
+			leftOffset += 46;
+
+		_vm->_gfx->crossBlit(_background, 96, 7, 18, 69, arrows.get(), leftOffset, 0);
+	}
 
 	if (!_itemArray.empty()) {
 		// Draw the icon for the current item

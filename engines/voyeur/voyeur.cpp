@@ -796,8 +796,7 @@ void VoyeurEngine::loadGame(int slot) {
 	VoyeurSavegameHeader header;
 	if (!header.read(saveFile))
 		return;
-	if (header._thumbnail)
-		header._thumbnail->free();
+
 	delete header._thumbnail;
 
 	synchronize(serializer);
@@ -907,12 +906,10 @@ void VoyeurSavegameHeader::write(Common::OutSaveFile *f, VoyeurEngine *vm, const
 	f->writeByte(0);
 
 	// Create a thumbnail and save it
-	Graphics::Surface *thumb = new Graphics::Surface();
-	::createThumbnail(thumb, (byte *)vm->_graphicsManager->_screenSurface.getPixels(),
+	Graphics::Surface thumb;
+	::createThumbnail(&thumb, (byte *)vm->_graphicsManager->_screenSurface.getPixels(),
 		SCREEN_WIDTH, SCREEN_HEIGHT, vm->_graphicsManager->_VGAColors);
-	Graphics::saveThumbnail(*f, *thumb);
-	thumb->free();
-	delete thumb;
+	Graphics::saveThumbnail(*f, thumb);
 
 	// Write the save datet/ime
 	TimeDate td;

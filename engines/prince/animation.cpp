@@ -41,7 +41,6 @@ Animation::~Animation() {
 void Animation::clear() {
 	_phaseList.clear();
 	for (int i = 0; i < _frameCount; i++) {
-		_frameList[i]._surface->free();
 		delete _frameList[i]._surface;
 		_frameList[i]._surface = nullptr;
 		if (_frameList[i]._compressedData != nullptr) {

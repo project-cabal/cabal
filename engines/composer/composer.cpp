@@ -74,8 +74,6 @@ ComposerEngine::~ComposerEngine() {
 		delete *i;
 	for (Common::List<Library>::iterator i = _libraries.begin(); i != _libraries.end(); i++)
 		delete i->_archive;
-	for (Common::List<Sprite>::iterator i = _sprites.begin(); i != _sprites.end(); i++)
-		i->_surface.free();
 
 	delete _rnd;
 	delete _console;
@@ -225,8 +223,6 @@ Common::Error ComposerEngine::run() {
 
 		_system->delayMillis(20);
 	}
-
-	_screen.free();
 
 	return Common::kNoError;
 }
@@ -508,7 +504,7 @@ void ComposerEngine::unloadLibrary(uint id) {
 		_randomEvents.clear();
 
 		for (Common::List<Sprite>::iterator j = _sprites.begin(); j != _sprites.end(); j++) {
-			j->_surface.free();
+			j->_surface.reset();
 		}
 		_sprites.clear();
 		i->_buttons.clear();

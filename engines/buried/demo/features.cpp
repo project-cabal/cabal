@@ -49,10 +49,7 @@ FeaturesDisplayWindow::FeaturesDisplayWindow(BuriedEngine *vm, Window *parent) :
 }
 
 FeaturesDisplayWindow::~FeaturesDisplayWindow() {
-	if (_background) {
-		_background->free();
-		delete _background;
-	}
+	delete _background;
 }
 
 void FeaturesDisplayWindow::onPaint() {
@@ -69,11 +66,8 @@ void FeaturesDisplayWindow::onLButtonUp(const Common::Point &point, uint flags) 
 	_vm->removeMouseMessages(_parent);
 
 	_curBackground++;
-	if (_background) {
-		_background->free();
-		delete _background;
-		_background = 0;
-	}
+	delete _background;
+	_background = 0;
 
 	switch (_curBackground) {
 	case 1:

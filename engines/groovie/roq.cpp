@@ -58,9 +58,7 @@ ROQPlayer::ROQPlayer(GroovieEngine *vm) :
 
 ROQPlayer::~ROQPlayer() {
 	// Free the buffers
-	_currBuf->free();
 	delete _currBuf;
-	_prevBuf->free();
 	delete _prevBuf;
 }
 
@@ -304,10 +302,6 @@ bool ROQPlayer::processBlockInfo(ROQBlockHeader &blockHeader) {
 		_scaleX = MIN(_syst->getWidth() / width, 2);
 		_scaleY = MIN(_syst->getHeight() / height, 2);
 
-		// Free the previous surfaces
-		_currBuf->free();
-		_prevBuf->free();
-
 		// Allocate new buffers
 		_currBuf->create(width, height, _vm->_pixelFormat);
 		_prevBuf->create(width, height, _vm->_pixelFormat);
@@ -475,7 +469,6 @@ bool ROQPlayer::processBlockStill(ROQBlockHeader &blockHeader) {
 	jpg.loadStream(subStream);
 
 	const Graphics::Surface *srcSurf = jpg.getSurface();
-	_currBuf->free();
 	delete _currBuf;
 	_currBuf = srcSurf->convertTo(_vm->_pixelFormat);
 

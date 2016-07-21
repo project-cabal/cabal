@@ -53,7 +53,6 @@ EventsManager::EventsManager(AccessEngine *vm) : _vm(vm) {
 }
 
 EventsManager::~EventsManager() {
-	_invCursor.free();
 }
 
 void EventsManager::forceSetCursor(CursorType cursorId) {
@@ -111,9 +110,6 @@ void EventsManager::setCursor(CursorType cursorId) {
 		// Set the cursor
 		CursorMan.replaceCursor(cursorSurface.getPixels(), CURSOR_WIDTH, CURSOR_HEIGHT,
 			hotspotX, hotspotY, 0);
-
-		// Free the cursor surface
-		cursorSurface.free();
 	}
 }
 

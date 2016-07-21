@@ -50,7 +50,7 @@ TGADecoder::~TGADecoder() {
 }
 
 void TGADecoder::destroy() {
-	_surface.free();
+	_surface.reset();
 	delete[] _colorMap;
 	_width = 0;
 	_height = 0;

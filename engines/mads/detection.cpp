@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -18,8 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "mads/mads.h"
 
@@ -200,15 +201,12 @@ SaveStateList MADSMetaEngine::listSaves(const char *target) const {
 		int slot = ext ? atoi(ext + 1) : -1;
 
 		if (slot >= 0 && slot < MAX_SAVES) {
-			Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(*file);
+			Common::ScopedPtr<Common::SeekableReadStream> in(g_system->getSavefileManager()->openForLoading(*file));
 
 			if (in) {
-				MADS::Game::readSavegameHeader(in, header);
+				MADS::Game::readSavegameHeader(in.get(), header);
 				saveList.push_back(SaveStateDescriptor(slot, header._saveName));
-
-				header._thumbnail->free();
 				delete header._thumbnail;
-				delete in;
 			}
 		}
 	}

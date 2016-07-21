@@ -501,10 +501,7 @@ Common::Error AccessEngine::loadGameState(int slot) {
 	if (!readSavegameHeader(saveFile, header))
 		error("Invalid savegame");
 
-	if (header._thumbnail) {
-		header._thumbnail->free();
-		delete header._thumbnail;
-	}
+	delete header._thumbnail;
 
 	// Load most of the savegame data
 	synchronize(s);
@@ -602,7 +599,6 @@ void AccessEngine::writeSavegameHeader(Common::OutSaveFile *out, AccessSavegameH
 	::createThumbnail(&saveThumb, (const byte *)_screen->getPixels(),
 		_screen->getWidth(), _screen->getHeight(), thumbPalette);
 	Graphics::saveThumbnail(*out, saveThumb);
-	saveThumb.free();
 
 	// Write out the save date/time
 	TimeDate td;

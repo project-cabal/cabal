@@ -51,21 +51,11 @@ GfxMacIconBar::GfxMacIconBar() {
 }
 
 GfxMacIconBar::~GfxMacIconBar() {
-	if (_inventoryIcon) {
-		_inventoryIcon->free();
-		delete _inventoryIcon;
-	}
+	delete _inventoryIcon;
 
 	for (uint32 i = 0; i < _iconBarItems.size(); i++) {
-		if (_iconBarItems[i].nonSelectedImage) {
-			_iconBarItems[i].nonSelectedImage->free();
-			delete _iconBarItems[i].nonSelectedImage;
-		}
-
-		if (_iconBarItems[i].selectedImage) {
-			_iconBarItems[i].selectedImage->free();
-			delete _iconBarItems[i].selectedImage;
-		}
+		delete _iconBarItems[i].nonSelectedImage;
+		delete _iconBarItems[i].selectedImage;
 	}
 }
 
@@ -156,7 +146,6 @@ void GfxMacIconBar::drawDisabledImage(Graphics::Surface *surface, const Common::
 	}
 
 	g_system->copyRectToScreen(newSurf.getPixels(), newSurf.getPitch(), rect.left, rect.top, rect.width(), rect.height());
-	newSurf.free();
 }
 
 void GfxMacIconBar::drawSelectedImage(uint16 iconIndex) {
@@ -186,14 +175,11 @@ void GfxMacIconBar::setInventoryIcon(int16 icon) {
 	if (icon >= 0)
 		surface = loadPict(ResourceId(kResourceTypeMacPict, icon));
 
-	if (_inventoryIcon) {
-		// Free old inventory icon if we're removing the inventory icon
-		// or setting a new one.
-		if ((icon < 0) || surface) {
-			_inventoryIcon->free();
-			delete _inventoryIcon;
-			_inventoryIcon = 0;
-		}
+	// Free old inventory icon if we're removing the inventory icon
+	// or setting a new one.
+	if (icon < 0 || surface) {
+		delete _inventoryIcon;
+		_inventoryIcon = 0;
 	}
 
 	if (surface)

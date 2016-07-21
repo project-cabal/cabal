@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/saveload.h"
 #include "sherlock/surface.h"
@@ -52,10 +54,7 @@ SaveManager::SaveManager(SherlockEngine *vm, const Common::String &target) :
 }
 
 SaveManager::~SaveManager() {
-	if (_saveThumb) {
-		_saveThumb->free();
-		delete _saveThumb;
-	}
+	delete _saveThumb;
 }
 
 void SaveManager::createSavegameList() {
@@ -101,17 +100,15 @@ SaveStateList SaveManager::getSavegameList(const Common::String &target) {
 		int slot = ext ? atoi(ext + 1) : -1;
 
 		if (slot >= 0 && slot < MAX_SAVEGAME_SLOTS) {
-			Common::InSaveFile *in = g_system->getSavefileManager()->openForLoading(*file);
+			Common::ScopedPtr<Common::SeekableReadStream> in(g_system->getSavefileManager()->openForLoading(*file));
 
 			if (in) {
-				if (!readSavegameHeader(in, header))
+				if (!readSavegameHeader(in.get(), header))
 					continue;
 
 				saveList.push_back(SaveStateDescriptor(slot, header._saveName));
 
-				header._thumbnail->free();
 				delete header._thumbnail;
-				delete in;
 			}
 		}
 	}
@@ -168,7 +165,6 @@ void SaveManager::writeSavegameHeader(Common::OutSaveFile *out, SherlockSavegame
 		createThumbnail();
 	Graphics::saveThumbnail(*out, *_saveThumb);
 
-	_saveThumb->free();
 	delete _saveThumb;
 	_saveThumb = nullptr;
 
@@ -184,11 +180,7 @@ void SaveManager::writeSavegameHeader(Common::OutSaveFile *out, SherlockSavegame
 }
 
 void SaveManager::createThumbnail() {
-	if (_saveThumb) {
-		_saveThumb->free();
-		delete _saveThumb;
-	}
-
+	delete _saveThumb;
 	_saveThumb = new Graphics::Surface();
 
 	if (!IS_3DO) {
@@ -212,10 +204,7 @@ void SaveManager::loadGame(int slot) {
 	if (!readSavegameHeader(saveFile, header))
 		error("Invalid savegame");
 
-	if (header._thumbnail) {
-		header._thumbnail->free();
-		delete header._thumbnail;
-	}
+	delete header._thumbnail;
 
 	// Synchronize the savegame data
 	Serializer s(saveFile, nullptr);

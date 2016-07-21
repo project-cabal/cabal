@@ -1404,9 +1404,6 @@ bool ScalpelEngine::play3doMovie(const Common::String &filename, const Common::P
 		}
 	}
 
-	if (halfSize)
-		tempSurface.free();
-
 	videoDecoder->close();
 	delete videoDecoder;
 

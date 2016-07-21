@@ -34,11 +34,7 @@ PScr::PScr() : _x(0), _y(0), _step(0), _surface(nullptr)
 }
 
 PScr::~PScr() {
-	if (_surface != nullptr) {
-		_surface->free();
-		delete _surface;
-		_surface = nullptr;
-	}
+	delete _surface;
 }
 
 void PScr::loadSurface(Common::SeekableReadStream &stream) {

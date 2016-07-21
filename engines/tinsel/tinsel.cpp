@@ -858,7 +858,6 @@ TinselEngine::~TinselEngine() {
 	delete _midiMusic;
 	delete _pcmMusic;
 	delete _console;
-	_screenSurface.free();
 	FreeSaveScenes();
 	FreeTextBuffer();
 	FreeHandleTable();

@@ -187,7 +187,6 @@ PMVDecoder::PMVVideoTrack::PMVVideoTrack(uint width, uint height, uint frameDela
 }
 
 PMVDecoder::PMVVideoTrack::~PMVVideoTrack() {
-	_surface->free();
 	delete _surface;
 }
 

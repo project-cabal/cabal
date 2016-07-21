@@ -1319,30 +1319,24 @@ int BrowseCodex::mouseUp(Window *viewWindow, const Common::Point &pointLocation)
 		_curPage--;
 		_staticData.navFrameIndex = startingPage + _curPage;
 
-		Graphics::Surface *newBackground = ((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex);
-		((SceneViewWindow *)viewWindow)->pushNewTransition(newBackground, 0, _vm->_gfx->computeVPushOffset(_vm->getTransitionSpeed()), 0);
-		newBackground->free();
-		delete newBackground;
+		Common::ScopedPtr<Graphics::Surface> newBackground(((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex));
+		((SceneViewWindow *)viewWindow)->pushNewTransition(newBackground.get(), 0, _vm->_gfx->computeVPushOffset(_vm->getTransitionSpeed()), 0);
 		viewWindow->invalidateWindow(false);
 		return SC_TRUE;
 	} else if (_bottom.contains(pointLocation) && (_curPage % 2) == 0) {
 		_curPage++;
 		_staticData.navFrameIndex = startingPage + _curPage;
 
-		Graphics::Surface *newBackground = ((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex);
-		((SceneViewWindow *)viewWindow)->pushNewTransition(newBackground, 3, _vm->_gfx->computeVPushOffset(_vm->getTransitionSpeed()), 0);
-		newBackground->free();
-		delete newBackground;
+		Common::ScopedPtr<Graphics::Surface> newBackground(((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex));
+		((SceneViewWindow *)viewWindow)->pushNewTransition(newBackground.get(), 3, _vm->_gfx->computeVPushOffset(_vm->getTransitionSpeed()), 0);
 		viewWindow->invalidateWindow(false);
 		return SC_TRUE;
 	} else if (_left.contains(pointLocation) && _curPage >= 2) {
 		_curPage -= 2;
 		_staticData.navFrameIndex = startingPage + _curPage;
 
-		Graphics::Surface *newBackground = ((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex);
-		((SceneViewWindow *)viewWindow)->slideInTransition(newBackground, 1, _vm->_gfx->computeHPushOffset(_vm->getTransitionSpeed()), 0);
-		newBackground->free();
-		delete newBackground;
+		Common::ScopedPtr<Graphics::Surface> newBackground(((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex));
+		((SceneViewWindow *)viewWindow)->slideInTransition(newBackground.get(), 1, _vm->_gfx->computeHPushOffset(_vm->getTransitionSpeed()), 0);
 		viewWindow->invalidateWindow(false);
 		return SC_TRUE;
 	} else if (_right.contains(pointLocation) && _curPage < _frameCount - 2) {
@@ -1358,10 +1352,8 @@ int BrowseCodex::mouseUp(Window *viewWindow, const Common::Point &pointLocation)
 			((SceneViewWindow *)viewWindow)->getGlobalFlags().dsCTCodexAtlanticusPage2 = 0;
 		}
 
-		Graphics::Surface *newBackground = ((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex);
-		((SceneViewWindow *)viewWindow)->slideOutTransition(newBackground, 1, _vm->_gfx->computeHPushOffset(_vm->getTransitionSpeed()), 0);
-		newBackground->free();
-		delete newBackground;
+		Common::ScopedPtr<Graphics::Surface> newBackground(((SceneViewWindow *)viewWindow)->getStillFrameCopy(_staticData.navFrameIndex));
+		((SceneViewWindow *)viewWindow)->slideOutTransition(newBackground.get(), 1, _vm->_gfx->computeHPushOffset(_vm->getTransitionSpeed()), 0);
 		viewWindow->invalidateWindow(false);
 		return SC_TRUE;
 	} else if (_putDown.contains(pointLocation) && _putDownDestination.destinationScene.timeZone >= 0) {

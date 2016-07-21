@@ -45,7 +45,6 @@ MSVideo1Decoder::MSVideo1Decoder(uint16 width, uint16 height, byte bitsPerPixel)
 }
 
 MSVideo1Decoder::~MSVideo1Decoder() {
-	_surface->free();
 	delete _surface;
 }
 

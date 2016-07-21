@@ -133,10 +133,7 @@ PrinceEngine::~PrinceEngine() {
 	delete _graph;
 	delete _room;
 
-	if (_cursor2 != nullptr) {
-		_cursor2->free();
-		delete _cursor2;
-	}
+	delete _cursor2;
 
 	for (uint i = 0; i < _objList.size(); i++) {
 		delete _objList[i];
@@ -163,16 +160,13 @@ PrinceEngine::~PrinceEngine() {
 	freeAllNormAnims();
 	_normAnimList.clear();
 
-	for (uint i = 0; i < _allInvList.size(); i++) {
-		_allInvList[i]._surface->free();
+	for (uint i = 0; i < _allInvList.size(); i++)
 		delete _allInvList[i]._surface;
-	}
+
 	_allInvList.clear();
 
-	_optionsPic->free();
 	delete _optionsPic;
 
-	_optionsPicInInventory->free();
 	delete _optionsPicInInventory;
 
 	for (uint i = 0; i < _mainHero->_moveSet.size(); i++) {
@@ -204,10 +198,7 @@ PrinceEngine::~PrinceEngine() {
 
 	free(_creditsData);
 
-	if (_dialogImage != nullptr) {
-		_dialogImage->free();
-		delete _dialogImage;
-	}
+	delete _dialogImage;
 
 	free(_mobTranslationData);
 }
@@ -668,10 +659,7 @@ void PrinceEngine::makeInvCursor(int itemNr) {
 	int cur2W = cur1W + itemW / 2;
 	int cur2H = cur1H + itemH / 2;
 
-	if (_cursor2 != nullptr) {
-		_cursor2->free();
-		delete _cursor2;
-	}
+	delete _cursor2;
 	_cursor2 = new Graphics::Surface();
 	_cursor2->create(cur2W, cur2H, Graphics::PixelFormat::createFormatCLUT8());
 	Common::Rect cur2Rect(0, 0, cur2W, cur2H);
@@ -1826,11 +1814,8 @@ void PrinceEngine::doZoomOut(int slot) {
 void PrinceEngine::freeZoomObject(int slot) {
 	Object *object = _objList[slot];
 	if (object != nullptr) {
-		if (object->_zoomSurface != nullptr) {
-			object->_zoomSurface->free();
-			delete object->_zoomSurface;
-			object->_zoomSurface = nullptr;
-		}
+		delete object->_zoomSurface;
+		object->_zoomSurface = nullptr;
 	}
 }
 
@@ -2979,7 +2964,7 @@ void PrinceEngine::dialogRun() {
 		_graph->update(_graph->_frontScreen);
 		pausePrinceEngine();
 	}
-	_dialogImage->free();
+
 	delete _dialogImage;
 	_dialogImage = nullptr;
 	_dialogFlag = false;

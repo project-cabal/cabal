@@ -87,33 +87,13 @@ MenuZGI::MenuZGI(ZVision *engine) :
 }
 
 MenuZGI::~MenuZGI() {
-	for (int i = 0; i < 3; i++) {
-		menuBack[i][0].free();
-		menuBack[i][1].free();
-	}
-	for (int i = 0; i < 4; i++) {
-		menuBar[i][0].free();
-		menuBar[i][1].free();
-	}
 	for (int i = 0; i < 50; i++) {
-		if (items[i][0]) {
-			items[i][0]->free();
-			delete items[i][0];
-		}
-		if (items[i][1]) {
-			items[i][1]->free();
-			delete items[i][1];
-		}
+		delete items[i][0];
+		delete items[i][1];
 	}
 	for (int i = 0; i < 12; i++) {
-		if (magic[i][0]) {
-			magic[i][0]->free();
-			delete magic[i][0];
-		}
-		if (magic[i][1]) {
-			magic[i][1]->free();
-			delete magic[i][1];
-		}
+		delete magic[i][0];
+		delete magic[i][1];
 	}
 }
 
@@ -405,16 +385,10 @@ void MenuZGI::process(uint32 deltatime) {
 						_engine->getRenderManager()->blitSurfaceToMenu(*items[i][0], scrollPos[kMenuItem] + itemspace * i, 0, 0);
 
 				} else {
-					if (items[i][0]) {
-						items[i][0]->free();
-						delete items[i][0];
-						items[i][0] = NULL;
-					}
-					if (items[i][1]) {
-						items[i][1]->free();
-						delete items[i][1];
-						items[i][1] = NULL;
-					}
+					delete items[i][0];
+					items[i][0] = NULL;
+					delete items[i][1];
+					items[i][1] = NULL;
 					itemId[i] = 0;
 				}
 			}
@@ -472,16 +446,10 @@ void MenuZGI::process(uint32 deltatime) {
 						_engine->getRenderManager()->blitSurfaceToMenu(*magic[i][0], 668 + 47 * i - scrollPos[kMenuMagic], 0, 0);
 
 				} else {
-					if (magic[i][0]) {
-						magic[i][0]->free();
-						delete magic[i][0];
-						magic[i][0] = NULL;
-					}
-					if (magic[i][1]) {
-						magic[i][1]->free();
-						delete magic[i][1];
-						magic[i][1] = NULL;
-					}
+					delete magic[i][0];
+					magic[i][0] = NULL;
+					delete magic[i][1];
+					magic[i][1] = NULL;
 					magicId[i] = 0;
 				}
 			}
@@ -573,11 +541,6 @@ MenuNemesis::MenuNemesis(ZVision *engine) :
 }
 
 MenuNemesis::~MenuNemesis() {
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 6; j++)
-			but[i][j].free();
-
-	menuBar.free();
 }
 
 static const int16 buts[4][2] = { {120 , 64}, {144, 184}, {128, 328}, {120, 456} };

@@ -39,16 +39,10 @@ Object::Object() : _surface(nullptr), _x(0), _y(0), _z(0), _flags(0), _width(0),
 }
 
 Object::~Object() {
-	if (_surface != nullptr) {
-		_surface->free();
-		delete _surface;
-		_surface = nullptr;
-	}
-	if (_zoomSurface != nullptr) {
-		_zoomSurface->free();
-		delete _zoomSurface;
-		_zoomSurface = nullptr;
-	}
+	delete _surface;
+	_surface = nullptr;
+	delete _zoomSurface;
+	_zoomSurface = nullptr;
 }
 
 void Object::loadSurface(Common::SeekableReadStream &stream) {

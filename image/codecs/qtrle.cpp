@@ -54,11 +54,7 @@ QTRLEDecoder::QTRLEDecoder(uint16 width, uint16 height, byte bitsPerPixel) : Cod
 }
 
 QTRLEDecoder::~QTRLEDecoder() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
-
+	delete _surface;
 	delete[] _colorMap;
 	delete[] _ditherPalette;
 }
@@ -534,11 +530,7 @@ void QTRLEDecoder::setDither(DitherType type, const byte *palette) {
 }
 
 void QTRLEDecoder::createSurface() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}	
-
+	delete _surface;
 	_surface = new Graphics::Surface();
 	_surface->create(_width, _height, _paddedWidth, _height, getPixelFormat());
 }

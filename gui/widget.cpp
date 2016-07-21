@@ -393,11 +393,10 @@ PicButtonWidget::PicButtonWidget(GuiObject *boss, const Common::String &name, co
 }
 
 PicButtonWidget::~PicButtonWidget() {
-	_gfx.free();
 }
 
 void PicButtonWidget::setGfx(const Graphics::Surface *gfx) {
-	_gfx.free();
+	_gfx.reset();
 
 	if (!gfx || !gfx->getPixels())
 		return;
@@ -424,7 +423,6 @@ void PicButtonWidget::setGfx(int w, int h, int r, int g, int b) {
 
 	const Graphics::PixelFormat &requiredFormat = g_gui.theme()->getPixelFormat();
 
-	_gfx.free();
 	_gfx.create(w, h, requiredFormat);
 	_gfx.fillRect(Common::Rect(0, 0, w, h), _gfx.getFormat().RGBToColor(r, g, b));
 }
@@ -643,11 +641,10 @@ GraphicsWidget::GraphicsWidget(GuiObject *boss, const Common::String &name, cons
 }
 
 GraphicsWidget::~GraphicsWidget() {
-	_gfx.free();
 }
 
 void GraphicsWidget::setGfx(const Graphics::Surface *gfx) {
-	_gfx.free();
+	_gfx.reset();
 
 	if (!gfx || !gfx->getPixels())
 		return;
@@ -673,7 +670,6 @@ void GraphicsWidget::setGfx(int w, int h, int r, int g, int b) {
 
 	const Graphics::PixelFormat &requiredFormat = g_gui.theme()->getPixelFormat();
 
-	_gfx.free();
 	_gfx.create(w, h, requiredFormat);
 	_gfx.fillRect(Common::Rect(0, 0, w, h), _gfx.getFormat().RGBToColor(r, g, b));
 }

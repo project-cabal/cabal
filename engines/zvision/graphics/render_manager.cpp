@@ -66,12 +66,6 @@ RenderManager::RenderManager(ZVision *engine, uint32 windowWidth, uint32 windowH
 }
 
 RenderManager::~RenderManager() {
-	_currentBackgroundImage.free();
-	_backgroundSurface.free();
-	_effectSurface.free();
-	_warpedSceneSurface.free();
-	_menuSurface.free();
-	_subtitleSurface.free();
 }
 
 void RenderManager::renderSceneToScreen() {
@@ -140,15 +134,13 @@ void RenderManager::renderSceneToScreen() {
 
 void RenderManager::copyToScreen(const Graphics::Surface &surface, Common::Rect &rect, int16 srcLeft, int16 srcTop) {
 	// Convert the surface to RGB565, if needed
-	Graphics::Surface *outSurface = surface.convertTo(_engine->_screenPixelFormat);
+	Common::ScopedPtr<Graphics::Surface> outSurface(surface.convertTo(_engine->_screenPixelFormat));
 	_system->copyRectToScreen(outSurface->getBasePtr(srcLeft, srcTop),
 		                        outSurface->getPitch(),
 		                        rect.left,
 		                        rect.top,
 		                        rect.width(),
 		                        rect.height());
-	outSurface->free();
-	delete outSurface;
 }
 
 void RenderManager::renderImageToBackground(const Common::String &fileName, int16 destX, int16 destY) {
@@ -156,7 +148,6 @@ void RenderManager::renderImageToBackground(const Common::String &fileName, int1
 	readImageToSurface(fileName, surface);
 
 	blitSurfaceToBkg(surface, destX, destY);
-	surface.free();
 }
 
 void RenderManager::renderImageToBackground(const Common::String &fileName, int16 destX, int16 destY, uint32 keycolor) {
@@ -164,7 +155,6 @@ void RenderManager::renderImageToBackground(const Common::String &fileName, int1
 	readImageToSurface(fileName, surface);
 
 	blitSurfaceToBkg(surface, destX, destY, keycolor);
-	surface.free();
 }
 
 void RenderManager::renderImageToBackground(const Common::String &fileName, int16 destX, int16 destY, int16  keyX, int16 keyY) {
@@ -174,7 +164,6 @@ void RenderManager::renderImageToBackground(const Common::String &fileName, int1
 	uint16 keycolor = *(uint16 *)surface.getBasePtr(keyX, keyY);
 
 	blitSurfaceToBkg(surface, destX, destY, keycolor);
-	surface.free();
 }
 
 void RenderManager::readImageToSurface(const Common::String &fileName, Graphics::Surface &destination) {
@@ -394,7 +383,7 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	if (srcRect.isEmpty() || !srcRect.isValidRect())
 		return;
 
-	Graphics::Surface *srcAdapted = src.convertTo(dst.getFormat());
+	Common::ScopedPtr<Graphics::Surface> srcAdapted(src.convertTo(dst.getFormat()));
 
 	// Copy srcRect from src surface to dst surface
 	const byte *srcBuffer = (const byte *)srcAdapted->getBasePtr(srcRect.left, srcRect.top);
@@ -407,11 +396,8 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	if (yy < 0)
 		yy = 0;
 
-	if (_x >= dst.getWidth() || _y >= dst.getHeight()) {
-		srcAdapted->free();
-		delete srcAdapted;
+	if (_x >= dst.getWidth() || _y >= dst.getHeight())
 		return;
-	}
 
 	byte *dstBuffer = (byte *)dst.getBasePtr(xx, yy);
 
@@ -423,9 +409,6 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 		srcBuffer += srcAdapted->getPitch();
 		dstBuffer += dst.getPitch();
 	}
-
-	srcAdapted->free();
-	delete srcAdapted;
 }
 
 void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Common::Rect &_srcRect , Graphics::Surface &dst, int _x, int _y, uint32 colorkey) {
@@ -439,7 +422,7 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	if (srcRect.isEmpty() || !srcRect.isValidRect())
 		return;
 
-	Graphics::Surface *srcAdapted = src.convertTo(dst.getFormat());
+	Common::ScopedPtr<Graphics::Surface> srcAdapted(src.convertTo(dst.getFormat()));
 	uint32 keycolor = colorkey & ((1 << (src.getFormat().bytesPerPixel << 3)) - 1);
 
 	// Copy srcRect from src surface to dst surface
@@ -453,11 +436,8 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 	if (yy < 0)
 		yy = 0;
 
-	if (_x >= dst.getWidth() || _y >= dst.getHeight()) {
-		srcAdapted->free();
-		delete srcAdapted;
+	if (_x >= dst.getWidth() || _y >= dst.getHeight())
 		return;
-	}
 
 	byte *dstBuffer = (byte *)dst.getBasePtr(xx, yy);
 
@@ -508,9 +488,6 @@ void RenderManager::blitSurfaceToSurface(const Graphics::Surface &src, const Com
 		srcBuffer += srcAdapted->getPitch();
 		dstBuffer += dst.getPitch();
 	}
-
-	srcAdapted->free();
-	delete srcAdapted;
 }
 
 void RenderManager::blitSurfaceToBkg(const Graphics::Surface &src, int x, int y, int32 colorkey) {
@@ -531,12 +508,9 @@ void RenderManager::blitSurfaceToBkgScaled(const Graphics::Surface &src, const C
 	if (src.getWidth() == _dstRect.width() && src.getHeight() == _dstRect.height()) {
 		blitSurfaceToBkg(src, _dstRect.left, _dstRect.top, colorkey);
 	} else {
-		Graphics::Surface *tmp = new Graphics::Surface;
-		tmp->create(_dstRect.width(), _dstRect.height(), src.getFormat());
-		scaleBuffer(src.getPixels(), tmp->getPixels(), src.getWidth(), src.getHeight(), src.getFormat().bytesPerPixel, _dstRect.width(), _dstRect.height());
-		blitSurfaceToBkg(*tmp, _dstRect.left, _dstRect.top, colorkey);
-		tmp->free();
-		delete tmp;
+		Graphics::Surface tmp(_dstRect.width(), _dstRect.height(), src.getFormat());
+		scaleBuffer(src.getPixels(), tmp.getPixels(), src.getWidth(), src.getHeight(), src.getFormat().bytesPerPixel, _dstRect.width(), _dstRect.height());
+		blitSurfaceToBkg(tmp, _dstRect.left, _dstRect.top, colorkey);
 	}
 }
 
@@ -686,9 +660,6 @@ void RenderManager::renderMenuToScreen() {
 
 void RenderManager::initSubArea(uint32 windowWidth, uint32 windowHeight, const Common::Rect workingWindow) {
 	_workingWindow = workingWindow;
-
-	_subtitleSurface.free();
-
 	_subtitleSurface.create(windowWidth, windowHeight - workingWindow.bottom, _pixelFormat);
 	_subtitleArea = Common::Rect(0, workingWindow.bottom, windowWidth, windowHeight);
 }
@@ -758,7 +729,6 @@ void RenderManager::processSubs(uint16 deltatime) {
 				_engine->getTextRenderer()->drawTextWithWordWrapping(sub->txt, subtitleSurface);
 				Common::Rect empty;
 				blitSurfaceToSurface(subtitleSurface, empty, _subtitleSurface, sub->r.left - _subtitleArea.left + _workingWindow.left, sub->r.top - _subtitleArea.top + _workingWindow.top);
-				subtitleSurface.free();
 			}
 			sub->redraw = false;
 		}
@@ -1033,9 +1003,6 @@ bool RenderManager::askQuestion(const Common::String &str) {
 	// Draw over the text in order to clear it
 	textSurface.fillRect(Common::Rect(_subtitleArea.width(), _subtitleArea.height()), 0);
 	copyToScreen(textSurface, _subtitleArea, 0, 0);
-
-	// Free the surface
-	textSurface.free();
 
 	_engine->startClock();
 	return result == 2;

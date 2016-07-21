@@ -35,10 +35,7 @@ BitmapRawDecoder::BitmapRawDecoder(int width, int height, int bitsPerPixel) : Co
 }
 
 BitmapRawDecoder::~BitmapRawDecoder() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
+	delete _surface;
 }
 
 const Graphics::Surface *BitmapRawDecoder::decodeFrame(Common::SeekableReadStream &stream) {

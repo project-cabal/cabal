@@ -82,13 +82,11 @@ bool FrameWindow::showTitleSequence() {
 	invalidateWindow();
 	updateWindow();
 
-	Graphics::Surface *swLogo = _vm->_gfx->getBitmap(_vm->isTrueColor() ? "MISC/24BPP/SWLOGO.BMP" : "MISC/8BPP/SWLOGO.BMP");
+	Common::ScopedPtr<Graphics::Surface> swLogo(_vm->_gfx->getBitmap(_vm->isTrueColor() ? "MISC/24BPP/SWLOGO.BMP" : "MISC/8BPP/SWLOGO.BMP"));
 	uint32 x = (640 - swLogo->getWidth()) / 2;
 	uint32 y = (480 - swLogo->getHeight()) / 2;
-	_vm->_gfx->blit(swLogo, x, y);
+	_vm->_gfx->blit(swLogo.get(), x, y);
 	_vm->_gfx->updateScreen(false);
-	swLogo->free();
-	delete swLogo;
 
 	_vm->_sound->playInterfaceSound("MISC/SWSTING.WAV");
 

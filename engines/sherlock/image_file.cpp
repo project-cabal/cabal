@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/image_file.h"
 #include "sherlock/screen.h"
@@ -52,8 +54,6 @@ ImageFile::ImageFile(Common::SeekableReadStream &stream, bool skipPal) {
 }
 
 ImageFile::~ImageFile() {
-	for (uint idx = 0; idx < size(); ++idx)
-		(*this)[idx]._frame.free();
 }
 
 void ImageFile::load(Common::SeekableReadStream &stream, bool skipPalette, bool animImages) {
@@ -1049,7 +1049,6 @@ void StreamingImageFile::close() {
 	_stream = nullptr;
 	_frameNumber = -1;
 	_active = false;
-	_imageFrame._frame.free();
 }
 
 bool StreamingImageFile::getNextFrame() {
@@ -1080,9 +1079,6 @@ bool StreamingImageFile::getNextFrame() {
 	_imageFrame._offset.y = frameStream->readByte();
 	_imageFrame._size = frameStream->readUint16LE() - 11;
 	_imageFrame._rleMarker = frameStream->readByte();
-
-	// Free the previous frame
-	_imageFrame._frame.free();
 
 	// Decode the frame
 	if (_compressed) {

@@ -488,7 +488,7 @@ void ComposerEngine::removeSprite(uint16 id, uint16 animId) {
 		} else if (i->_animId && animId && (i->_animId != animId))
 			continue;
 		dirtySprite(*i);
-		i->_surface.free();
+		i->_surface.reset();
 		i = _sprites.reverse_erase(i);
 		if (id)
 			break;
@@ -578,7 +578,7 @@ void ComposerEngine::setBackground(uint16 id) {
 		if (i->_id)
 			continue;
 		dirtySprite(*i);
-		i->_surface.free();
+		i->_surface.reset();
 		i->_id = id;
 		if (!initSprite(*i))
 			error("failed to set background %d", id);

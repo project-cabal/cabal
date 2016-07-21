@@ -186,10 +186,7 @@ CompletionWindow::~CompletionWindow() {
 	delete _textFontA;
 	delete _textFontB;
 
-	if (_background) {
-		_background->free();
-		delete _background;
-	}
+	delete _background;
 }
 
 void CompletionWindow::onPaint() {
@@ -256,11 +253,8 @@ void CompletionWindow::onLButtonUp(const Common::Point &point, uint flags) {
 		_currentSoundEffectID = -1;
 		_status = 2;
 
-		if (_background) {
-			_background->free();
-			delete _background;
-			_background = 0;
-		}
+		delete _background;
+		_background = 0;
 
 		invalidateWindow(false);
 

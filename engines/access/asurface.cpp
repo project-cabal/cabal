@@ -82,7 +82,6 @@ SpriteFrame::SpriteFrame(AccessEngine *vm, Common::SeekableReadStream *stream, i
 }
 
 SpriteFrame::~SpriteFrame() {
-	free();
 }
 
 /*------------------------------------------------------------------------*/
@@ -124,8 +123,6 @@ ASurface::ASurface(): Graphics::Surface() {
 }
 
 ASurface::~ASurface() {
-	free();
-	_savedBlock.free();
 }
 
 void ASurface::create(uint16 width, uint16 height) {
@@ -309,7 +306,6 @@ void ASurface::saveBlock(const Common::Rect &bounds) {
 	_savedBounds = bounds;
 	_savedBounds.clip(Common::Rect(getWidth(), getHeight()));
 
-	_savedBlock.free();
 	_savedBlock.create(bounds.width(), bounds.height(),
 		Graphics::PixelFormat::createFormatCLUT8());
 	_savedBlock.copyRectToSurface(*this, 0, 0, _savedBounds);
@@ -320,7 +316,7 @@ void ASurface::restoreBlock() {
 		copyRectToSurface(_savedBlock, _savedBounds.left, _savedBounds.top,
 			Common::Rect(_savedBlock.getWidth(), _savedBlock.getHeight()));
 
-		_savedBlock.free();
+		_savedBlock.reset();
 		_savedBounds = Common::Rect(0, 0, 0, 0);
 	}
 }

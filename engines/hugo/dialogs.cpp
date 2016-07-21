@@ -45,9 +45,7 @@ TopMenu::TopMenu(HugoEngine *vm) : Dialog(0, 0, kMenuWidth, kMenuHeight), _vm(vm
 
 TopMenu::~TopMenu() {
 	for (int i = 0; i < _arraySize; i++) {
-		_arrayBmp[i * 2]->free();
 		delete _arrayBmp[i * 2];
-		_arrayBmp[i * 2 + 1]->free();
 		delete _arrayBmp[i * 2 + 1];
 	}
 	delete[] _arrayBmp;

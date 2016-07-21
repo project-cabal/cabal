@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 /*
  * This file is based on WME Lite.
@@ -173,13 +175,10 @@ void BasePersistenceManager::getSaveStateDesc(int slot, SaveStateDescriptor &des
 		Image::BitmapDecoder bmpDecoder;
 		if (bmpDecoder.loadStream(thumbStream)) {
 			const Graphics::Surface *bmpSurface = bmpDecoder.getSurface();
-			Graphics::TransparentSurface *scaleableSurface = new Graphics::TransparentSurface(*bmpSurface, false);
-			Graphics::Surface *scaled = scaleableSurface->scale(kThumbnailWidth, kThumbnailHeight2);
-			Graphics::Surface *thumb = scaled->convertTo(g_system->getOverlayFormat());
-			desc.setThumbnail(thumb);
-			delete scaleableSurface;
-			scaled->free();
-			delete scaled;
+			Graphics::TransparentSurface scaleableSurface(*bmpSurface, false);
+			Common::ScopedPtr<Graphics::Surface> scaled(scaleableSurface.scale(kThumbnailWidth, kThumbnailHeight2));
+			Common::ScopedPtr<Graphics::Surface> thumb(scaled->convertTo(g_system->getOverlayFormat()));
+			desc.setThumbnail(thumb.get());
 		}
 	}
 

@@ -292,9 +292,6 @@ OggDecoder::TheoraVideoTrack::TheoraVideoTrack(const Graphics::PixelFormat &form
 
 OggDecoder::TheoraVideoTrack::~TheoraVideoTrack() {
 	th_decode_free(_theoraDecode);
-
-	_surface.free();
-	_displaySurface.free();
 }
 
 bool OggDecoder::TheoraVideoTrack::decodePacket(ogg_packet &oggPacket) {

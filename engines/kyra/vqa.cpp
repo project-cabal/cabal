@@ -431,7 +431,6 @@ VQADecoder::VQAVideoTrack::VQAVideoTrack(const VQAHeader *header) {
 }
 
 VQADecoder::VQAVideoTrack::~VQAVideoTrack() {
-	_surface->free();
 	delete _surface;
 	delete[] _codeBook;
 	delete[] _partialCodeBook;

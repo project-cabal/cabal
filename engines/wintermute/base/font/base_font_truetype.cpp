@@ -272,13 +272,12 @@ BaseSurface *BaseFontTT::renderTextToTexture(const WideString &text, int width, 
 	// TODO: This debug call does not work with WideString because text.c_str() returns an uint32 array.
 	//debugC(kWintermuteDebugFont, "%s %d %d %d %d", text.c_str(), RGBCOLGetR(_layers[0]->_color), RGBCOLGetG(_layers[0]->_color), RGBCOLGetB(_layers[0]->_color), RGBCOLGetA(_layers[0]->_color));
 //	void drawString(Surface *dst, const Common::String &str, int x, int y, int w, uint32 color, TextAlign align = kTextAlignLeft, int deltax = 0, bool useEllipsis = true) const;
-	Graphics::Surface *surface = new Graphics::Surface();
-	surface->create((uint16)width, (uint16)(_lineHeight * lines.size()), _gameRef->_renderer->getPixelFormat());
+	Graphics::Surface surface((uint16)width, (uint16)(_lineHeight * lines.size()), _gameRef->_renderer->getPixelFormat());
 	uint32 useColor = 0xffffffff;
 	Common::Array<WideString>::iterator it;
 	int heightOffset = 0;
 	for (it = lines.begin(); it != lines.end(); ++it) {
-		_font->drawString(surface, *it, 0, heightOffset, width, useColor, alignment);
+		_font->drawString(&surface, *it, 0, heightOffset, width, useColor, alignment);
 		heightOffset += (int)_lineHeight;
 	}
 
@@ -292,10 +291,10 @@ BaseSurface *BaseFontTT::renderTextToTexture(const WideString &text, int width, 
 		// to its original alpha value.
 
 		Graphics::PixelFormat format = _gameRef->_renderer->getPixelFormat();
-		uint32 *pixels = (uint32 *)surface->getPixels();
+		uint32 *pixels = (uint32 *)surface.getPixels();
 
 		// This is a Surface we created ourselves, so no empty space between rows.
-		for (int i = 0; i < surface->getWidth() * surface->getHeight(); ++i) {
+		for (int i = 0; i < surface.getWidth() * surface.getHeight(); ++i) {
 			uint8 a, r, g, b;
 			format.colorToRGB(*pixels, r, g, b);
 			a = r;
@@ -303,9 +302,8 @@ BaseSurface *BaseFontTT::renderTextToTexture(const WideString &text, int width, 
 		}
 	}
 
-	retSurface->putSurface(*surface, true);
-	surface->free();
-	delete surface;
+	retSurface->putSurface(surface, true);
+
 	return retSurface;
 	// TODO: _isUnderline, _isBold, _isItalic, _isStriked
 }

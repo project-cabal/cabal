@@ -166,7 +166,6 @@ void UISlots::draw(bool updateFlag, bool delFlag) {
 						MSurface *spr = sprite->flipHorizontal();
 						userInterface.mergeFrom(spr, spr->getBounds(), slot._position,
 							sprite->getTransparencyIndex());
-						spr->free();
 						delete spr;
 					} else {
 						userInterface.mergeFrom(sprite, sprite->getBounds(), slot._position,

@@ -46,7 +46,6 @@ Screen::Screen(OSystem *system) : _system(system) {
 }
 
 Screen::~Screen() {
-	_surface->free();
 	delete _surface;
 }
 

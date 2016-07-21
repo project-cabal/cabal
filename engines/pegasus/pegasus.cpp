@@ -2343,7 +2343,6 @@ void PegasusEngine::drawScaledFrame(const Graphics::Surface *frame, uint16 x, ui
 
 	_system->copyRectToScreen((byte *)scaledFrame.getPixels(), scaledFrame.getPitch(), x, y, scaledFrame.getWidth(), scaledFrame.getHeight());
 	_system->updateScreen();
-	scaledFrame.free();
 }
 
 void PegasusEngine::destroyInventoryItem(const ItemID itemID) {

@@ -107,7 +107,6 @@ PaintControl::PaintControl(ZVision *engine, uint32 key, Common::SeekableReadStre
 		Graphics::Surface *tmp = new Graphics::Surface;
 		tmp->create(_rectangle.width(), _rectangle.height(), _paint->getFormat());
 		_engine->getRenderManager()->blitSurfaceToSurface(*_paint, _rectangle, *tmp, 0, 0);
-		_paint->free();
 		delete _paint;
 		_paint = tmp;
 	}
@@ -116,18 +115,9 @@ PaintControl::PaintControl(ZVision *engine, uint32 key, Common::SeekableReadStre
 PaintControl::~PaintControl() {
 	// Clear the state value back to 0
 	//_engine->getScriptManager()->setStateValue(_key, 0);
-	if (_paint) {
-		_paint->free();
-		delete _paint;
-	}
-	if (_brush) {
-		_brush->free();
-		delete _brush;
-	}
-	if (_bkg) {
-		_bkg->free();
-		delete _bkg;
-	}
+	delete _paint;
+	delete _brush;
+	delete _bkg;
 }
 
 bool PaintControl::onMouseUp(const Common::Point &screenSpacePos, const Common::Point &backgroundImageSpacePos) {

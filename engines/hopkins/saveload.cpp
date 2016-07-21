@@ -123,11 +123,9 @@ void SaveLoadManager::writeSavegameHeader(Common::OutSaveFile *out, hopkinsSaveg
 	out->write(header._saveName.c_str(), header._saveName.size() + 1);
 
 	// Create a thumbnail and save it
-	Graphics::Surface *thumb = new Graphics::Surface();
-	createThumbnail(thumb);
-	Graphics::saveThumbnail(*out, *thumb);
-	thumb->free();
-	delete thumb;
+	Graphics::Surface thumb;
+	createThumbnail(&thumb);
+	Graphics::saveThumbnail(*out, thumb);
 
 	// Write out the save date/time
 	TimeDate td;
@@ -189,8 +187,6 @@ Common::Error SaveLoadManager::loadGame(int slot) {
 	// Read in the savegame header
 	hopkinsSavegameHeader header;
 	readSavegameHeader(savefile, header);
-	if (header._thumbnail)
-		header._thumbnail->free();
 	delete header._thumbnail;
 
 	// Read in the savegame data
@@ -256,7 +252,6 @@ void SaveLoadManager::createThumbnail(Graphics::Surface *s) {
 		srcP += w;
 		destP += w;
 	}
-	thumb8.free();
 }
 
 void SaveLoadManager::syncSavegameData(Common::Serializer &s, int version) {

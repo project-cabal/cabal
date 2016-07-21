@@ -411,7 +411,6 @@ EvidenceBioChipViewWindow::EvidenceBioChipViewWindow(BuriedEngine *vm, Window *p
 }
 
 EvidenceBioChipViewWindow::~EvidenceBioChipViewWindow() {
-	_preBuffer.free();
 }
 
 void EvidenceBioChipViewWindow::onPaint() {
@@ -545,13 +544,8 @@ InterfaceBioChipViewWindow::InterfaceBioChipViewWindow(BuriedEngine *vm, Window 
 }
 
 InterfaceBioChipViewWindow::~InterfaceBioChipViewWindow() {
-	_background->free();
 	delete _background;
-
-	_cycleCheck->free();
 	delete _cycleCheck;
-
-	_caret->free();
 	delete _caret;
 }
 

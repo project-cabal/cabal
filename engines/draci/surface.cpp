@@ -34,7 +34,6 @@ Surface::Surface(int width, int height) {
 }
 
 Surface::~Surface() {
-	this->free();
 }
 
 /**

@@ -328,8 +328,6 @@ bool Console::cmdDumpImage(int argc, const char **argv) {
 	out.flush();
 	out.close();
 
-	surface.free();
-
 	return true;
 }
 

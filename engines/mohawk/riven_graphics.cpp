@@ -56,7 +56,6 @@ RivenGraphics::RivenGraphics(MohawkEngine_Riven* vm) : GraphicsManager(), _vm(vm
 }
 
 RivenGraphics::~RivenGraphics() {
-	_mainScreen->free();
 	delete _mainScreen;
 	delete _bitmapDecoder;
 }

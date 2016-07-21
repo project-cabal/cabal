@@ -210,12 +210,11 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 	int16 heroSurfaceWidth = drawNode->s->getWidth();
 	int16 heroSurfaceHeight = drawNode->s->getHeight();
 
-	Graphics::Surface *makeShadow = new Graphics::Surface();
-	makeShadow->create(heroSurfaceWidth, heroSurfaceHeight, Graphics::PixelFormat::createFormatCLUT8());
+	Graphics::Surface makeShadow(heroSurfaceWidth, heroSurfaceHeight, Graphics::PixelFormat::createFormatCLUT8());
 
 	for (int y = 0; y < heroSurfaceHeight; y++) {
 		byte *src = (byte *)drawNode->s->getBasePtr(0, y);
-		byte *dst = (byte *)makeShadow->getBasePtr(0, y);
+		byte *dst = (byte *)makeShadow.getBasePtr(0, y);
 		for (int x = 0; x < heroSurfaceWidth; x++, dst++, src++) {
 			if (*src != 0xFF) {
 				*dst = GraphicsMan::kShadowColor;
@@ -257,7 +256,7 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 
 		int shadLastY = 0;
 
-		byte *shadowHero = (byte *)makeShadow->getBasePtr(shadowHeroX, shadowHeroY); // first pixel from last row of shadow hero
+		byte *shadowHero = (byte *)makeShadow.getBasePtr(shadowHeroX, shadowHeroY); // first pixel from last row of shadow hero
 		byte *background = (byte *)screen->getBasePtr(shadDrawX, shadDrawY); // pixel of background where shadow sprite starts
 
 		// banked2
@@ -351,7 +350,7 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 					int backgroundDiff = shadSkipX;
 					int shadBitMaskCopyTrans = shadBitMask;
 					int shadBitAddrCopyTrans = shadBitAddr;
-					shadowHero = (byte *)makeShadow->getBasePtr(shadowHeroX, shadowHeroY);
+					shadowHero = (byte *)makeShadow.getBasePtr(shadowHeroX, shadowHeroY);
 					background = (byte *)screen->getBasePtr(shadDrawX + diffX + backgroundDiff, shadDrawY + diffY);
 
 					if (shadPosX < 0) {
@@ -403,7 +402,7 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 							background = (byte *)screen->getBasePtr(shadDrawX + diffX + backgroundDiff, shadDrawY + diffY);
 						}
 						shadowHeroX++;
-						shadowHero = (byte *)makeShadow->getBasePtr(shadowHeroX, shadowHeroY);
+						shadowHero = (byte *)makeShadow.getBasePtr(shadowHeroX, shadowHeroY);
 					}
 					//byebyebye
 					if (!shadWallDown && shadWDFlag) {
@@ -420,7 +419,7 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 						int shadBitMaskWallCopyTrans = shadWallBitMask;
 						int shadBitAddrWallCopyTrans = shadWallBitAddr;
 						background = shadWallDestAddr;
-						shadowHero = (byte *)makeShadow->getBasePtr(shadWallSkipX, shadowHeroY);
+						shadowHero = (byte *)makeShadow.getBasePtr(shadWallSkipX, shadowHeroY);
 
 						if (ctLoop > shadWallSkipX && ctLoop - shadWallSkipX > shadWallModulo) {
 							//WALL_copy_trans
@@ -452,7 +451,7 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 									background = shadWallDestAddr + backgroundDiffWall;
 								}
 								shadowHeroXWall++;
-								shadowHero = (byte *)makeShadow->getBasePtr(shadWallSkipX + shadowHeroXWall, shadowHeroY);
+								shadowHero = (byte *)makeShadow.getBasePtr(shadWallSkipX + shadowHeroXWall, shadowHeroY);
 							}
 						}
 						//krap2
@@ -505,12 +504,10 @@ void Hero::showHeroShadow(Graphics::Surface *screen, DrawNode *drawNode) {
 			}
 			shadowHeroX = 0;
 			background = (byte *)screen->getBasePtr(shadDrawX + diffX, shadDrawY + diffY);
-			shadowHero = (byte *)makeShadow->getBasePtr(shadowHeroX, shadowHeroY);
+			shadowHero = (byte *)makeShadow.getBasePtr(shadowHeroX, shadowHeroY);
 		}
 		//koniec_bajki - end_of_a_story
 	}
-	makeShadow->free();
-	delete makeShadow;
 }
 
 void Hero::setScale(int8 zoomBitmapValue) {
@@ -972,14 +969,10 @@ void Hero::scrollHero() {
 }
 
 void Hero::freeOldMove() {
-	if (_coords != nullptr) {
-		free(_coords);
-		_coords = nullptr;
-	}
-	if (_dirTab != nullptr) {
-		free(_dirTab);
-		_dirTab = nullptr;
-	}
+	free(_coords);
+	_coords = nullptr;
+	free(_dirTab);
+	_dirTab = nullptr;
 	_step = 0;
 	_phase = 0;
 	_moveDelay = 0;
@@ -987,18 +980,13 @@ void Hero::freeOldMove() {
 }
 
 void Hero::freeHeroAnim() {
-	if (_specAnim != nullptr) {
-		delete _specAnim;
-		_specAnim = nullptr;
-	}
+	delete _specAnim;
+	_specAnim = nullptr;
 }
 
 void Hero::freeZoomedSurface() {
-	if (_zoomedHeroSurface != nullptr) {
-		_zoomedHeroSurface->free();
-		delete _zoomedHeroSurface;
-		_zoomedHeroSurface = nullptr;
-	}
+	delete _zoomedHeroSurface;
+	_zoomedHeroSurface = nullptr;
 }
 
 } // End of namespace Prince

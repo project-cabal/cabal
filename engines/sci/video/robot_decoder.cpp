@@ -330,7 +330,6 @@ RobotDecoder::RobotVideoTrack::RobotVideoTrack(int frameCount) : _frameCount(fra
 }
 
 RobotDecoder::RobotVideoTrack::~RobotVideoTrack() {
-	_surface->free();
 	delete _surface;
 }
 

@@ -56,7 +56,6 @@ Indeo3Decoder::Indeo3Decoder(uint16 width, uint16 height) : _ModPred(0), _correc
 }
 
 Indeo3Decoder::~Indeo3Decoder() {
-	_surface->free();
 	delete _surface;
 
 	delete[] _iv_frame[0].the_buf;
@@ -311,8 +310,6 @@ const Graphics::Surface *Indeo3Decoder::decodeFrame(Common::SeekableReadStream &
 					*((uint32 *)_surface->getBasePtr(x, y)) = *((uint32 *)tempSurface.getBasePtr(x / scaleWidth, y / scaleHeight));
  			}
 		}
-
-		tempSurface.free();
 	}
 
 	delete[] tempU;

@@ -71,10 +71,7 @@ SVQ1Decoder::SVQ1Decoder(uint16 width, uint16 height) {
 }
 
 SVQ1Decoder::~SVQ1Decoder() {
-	if (_surface) {
-		_surface->free();
-		delete _surface;
-	}
+	delete _surface;
 
 	delete[] _last[0];
 	delete[] _last[1];
