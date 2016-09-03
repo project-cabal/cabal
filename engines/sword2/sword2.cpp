@@ -92,10 +92,10 @@ public:
 	}
 
 	const char *getName() const {
-		return "Sword2";
+		return "Broken Sword II: The Smoking Mirror";
 	}
 	const char *getOriginalCopyright() const {
-		return "Broken Sword Games (C) Revolution";
+		return "Broken Sword II: The Smoking Mirror (C) Revolution";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

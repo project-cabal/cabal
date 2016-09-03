@@ -142,7 +142,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Toon";
+		return "Toonstruck";
 	}
 
 	const char *getOriginalCopyright() const {

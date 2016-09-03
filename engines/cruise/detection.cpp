@@ -205,11 +205,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "CruisE";
+		return "Cinematique evo 2";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Cruise for a Corpse (C) Delphine Software";
+		return "Cinematique evo 2 (C) Delphine Software";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

@@ -93,11 +93,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Draci";
+		return "Draci Historie";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Copyright (C) 1995 NoSense";
+		return "Draci Historie (C) 1995 NoSense";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

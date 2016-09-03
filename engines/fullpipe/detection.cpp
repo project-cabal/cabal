@@ -85,11 +85,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Fullpipe Engine";
+		return "Full Pipe";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Fullpipe Engine (C) Pipe Studio";
+		return "Full Pipe Engine (C) Pipe Studio";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

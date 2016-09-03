@@ -127,7 +127,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Lab";
+		return "Labyrinth of Time";
 	}
 
 	const char *getOriginalCopyright() const {

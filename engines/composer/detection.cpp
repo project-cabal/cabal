@@ -396,7 +396,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Magic Composer Engine";
+		return "Magic Composer";
 	}
 
 	const char *getOriginalCopyright() const {

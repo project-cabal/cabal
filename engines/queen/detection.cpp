@@ -397,7 +397,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Queen";
+		return "Flight of the Amazon Queen";
 	}
 
 	const char *getOriginalCopyright() const {

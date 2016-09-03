@@ -472,9 +472,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "SCI [SCI0, SCI01, SCI10, SCI11"
+		return "SCI ["
 #ifdef ENABLE_SCI32
-			", SCI32"
+			"all games"
+#else
+			"SCI0, SCI01, SCI10, SCI11"
 #endif
 			"]";
 	}

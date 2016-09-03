@@ -117,7 +117,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Prince Engine";
+		return "The Prince and the Coward";
 	}
 
 	const char *getOriginalCopyright() const {

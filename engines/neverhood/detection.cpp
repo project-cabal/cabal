@@ -191,11 +191,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Neverhood Engine";
+		return "The Neverhood Chronicles";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Neverhood (C) The Neverhood, Inc.";
+		return "The Neverhood Chronicles (C) The Neverhood, Inc.";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

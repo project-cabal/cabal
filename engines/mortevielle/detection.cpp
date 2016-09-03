@@ -67,7 +67,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Mortevielle";
+		return "Mortville Manor";
 	}
 
 	const char *getOriginalCopyright() const {

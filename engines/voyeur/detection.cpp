@@ -77,7 +77,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Voyeur Engine";
+		return "Voyeur";
 	}
 
 	const char *getOriginalCopyright() const {

@@ -113,11 +113,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Hopkins Engine";
+		return "Hopkins FBI";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Hopkins FBI (c)1997-2003 MP Entertainment";
+		return "Hopkins FBI (c) 1997-2003 MP Entertainment";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

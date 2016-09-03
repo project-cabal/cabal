@@ -149,11 +149,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "MADS Engine";
+		return "MADS";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "MADS (c)";
+		return "MADS (c) Microprose";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

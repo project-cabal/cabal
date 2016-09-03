@@ -95,7 +95,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Access Engine";
+		return "Access";
 	}
 
 	const char *getOriginalCopyright() const {

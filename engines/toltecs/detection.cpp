@@ -215,11 +215,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Toltecs Engine";
+		return "3 Skulls of the Toltecs";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Toltecs Engine Revistronic (C) 1996";
+		return "3 Skulls of the Toltecs (C) Revistronic 1996";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

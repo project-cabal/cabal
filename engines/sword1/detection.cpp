@@ -86,11 +86,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Sword1";
+		return "Broken Sword: The Shadow of the Templars";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Broken Sword Games (C) Revolution";
+		return "Broken Sword: The Shadow of the Templars (C) Revolution";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

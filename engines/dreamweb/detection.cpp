@@ -77,7 +77,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "DreamWeb engine";
+		return "DreamWeb";
 	}
 
 	const char *getOriginalCopyright() const {

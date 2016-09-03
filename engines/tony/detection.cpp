@@ -78,11 +78,11 @@ public:
 	}
 
 	const char *getName() const {
-		return "Tony Engine";
+		return "Tony Tough and the Night of Roasted Moths";
 	}
 
 	const char *getOriginalCopyright() const {
-		return "Tony Engine (C) Protonic Interactive";
+		return "Tony Tough and the Night of Roasted Moths (C) Protonic Interactive";
 	}
 
 	bool hasFeature(MetaEngineFeature f) const;

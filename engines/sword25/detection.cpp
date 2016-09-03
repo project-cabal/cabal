@@ -56,7 +56,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Sword25";
+		return "Broken Sword 2.5";
 	}
 
 	const char *getOriginalCopyright() const {

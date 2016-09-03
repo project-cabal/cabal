@@ -191,7 +191,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Lure";
+		return "Lure of the Temptress";
 	}
 
 	const char *getOriginalCopyright() const {

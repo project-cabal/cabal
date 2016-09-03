@@ -125,7 +125,7 @@ public:
 	}
 
 	const char *getName() const {
-		return "Tucker";
+		return "Bud Tucker in Double Trouble";
 	}
 
 	const char *getOriginalCopyright() const {
