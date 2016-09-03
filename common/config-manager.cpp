@@ -351,7 +351,6 @@ void ConfigManager::writeDomain(WriteStream &stream, const String &name, const D
 
 const ConfigManager::Domain *ConfigManager::getDomain(const String &domName) const {
 	assert(!domName.empty());
-	assert(isValidDomainName(domName));
 
 	if (domName == kTransientDomain)
 		return &_transientDomain;
@@ -371,7 +370,6 @@ const ConfigManager::Domain *ConfigManager::getDomain(const String &domName) con
 
 ConfigManager::Domain *ConfigManager::getDomain(const String &domName) {
 	assert(!domName.empty());
-	assert(isValidDomainName(domName));
 
 	if (domName == kTransientDomain)
 		return &_transientDomain;
