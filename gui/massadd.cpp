@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "engines/metaengine.h"
 #include "common/algorithm.h"
@@ -121,13 +123,13 @@ MassAddDialog::MassAddDialog(const Common::FSNode &startDir)
 
 struct GameTargetLess {
 	bool operator()(const GameDescriptor &x, const GameDescriptor &y) const {
-		return x.preferredtarget().compareToIgnoreCase(y.preferredtarget()) < 0;
+		return x.getPreferredTarget().compareToIgnoreCase(y.getPreferredTarget()) < 0;
 	}
 };
 
 struct GameDescLess {
 	bool operator()(const GameDescriptor &x, const GameDescriptor &y) const {
-		return x.description().compareToIgnoreCase(y.description()) < 0;
+		return x.getDescription().compareToIgnoreCase(y.getDescription()) < 0;
 	}
 };
 
@@ -143,13 +145,13 @@ void MassAddDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 data
 	if (cmd == kOkCmd) {
 		// Sort the detected games. This is not strictly necessary, but nice for
 		// people who want to edit their config file by hand after a mass add.
-		sort(_games.begin(), _games.end(), GameTargetLess());
+		Common::sort(_games.begin(), _games.end(), GameTargetLess());
 		// Add all the detected games to the config
 		for (GameList::iterator iter = _games.begin(); iter != _games.end(); ++iter) {
 			debug(1, "  Added gameid '%s', desc '%s'\n",
-				(*iter)["gameid"].c_str(),
-				(*iter)["description"].c_str());
-			(*iter)["gameid"] = addGameToConf(*iter);
+				iter->getGameID().c_str(),
+				iter->getDescription().c_str());
+			iter->setGameID(addGameToConf(*iter));
 		}
 
 		// Write everything to disk
@@ -157,8 +159,8 @@ void MassAddDialog::handleCommand(CommandSender *sender, uint32 cmd, uint32 data
 
 		// And scroll to first detected game
 		if (!_games.empty()) {
-			sort(_games.begin(), _games.end(), GameDescLess());
-			ConfMan.set("temp_selection", _games.front().gameid());
+			Common::sort(_games.begin(), _games.end(), GameDescLess());
+			ConfMan.set("temp_selection", _games.front().getGameID());
 		}
 
 		close();
@@ -212,9 +214,9 @@ void MassAddDialog::handleTickle() {
 					Common::ConfigManager::Domain *dom = ConfMan.getDomain(*iter);
 					assert(dom);
 
-					if ((*dom)["gameid"] == result["gameid"] &&
-					    (*dom)["platform"] == result["platform"] &&
-					    (*dom)["language"] == result["language"]) {
+					if ((*dom)["gameid"] == result.getGameID() &&
+					    (*dom)["platform"] == result.getPlatformString() &&
+					    (*dom)["language"] == result.getLanguageString()) {
 						duplicate = true;
 						break;
 					}
@@ -224,10 +226,10 @@ void MassAddDialog::handleTickle() {
 					break;	// Skip duplicates
 				}
 			}
-			result["path"] = path;
+			result.setPath(path);
 			_games.push_back(result);
 
-			_list->append(result.description());
+			_list->append(result.getDescription());
 		}
 
 

@@ -34,7 +34,7 @@
 #include "engines/advancedDetector.h"
 #include "engines/obsolete.h"
 
-static GameDescriptor toGameDescriptor(const ADGameDescription &g, const PlainGameDescriptor *sg) {
+static GameDescriptor toGameDescriptor(const Common::String &engineID, const ADGameDescription &g, const PlainGameDescriptor *sg) {
 	const char *title = 0;
 	const char *extra;
 
@@ -55,7 +55,7 @@ static GameDescriptor toGameDescriptor(const ADGameDescription &g, const PlainGa
 	if (g.flags & ADGF_UNSTABLE)
 		gsl = kUnstableGame;
 
-	GameDescriptor gd(g.gameid, title, g.language, g.platform, 0, gsl);
+	GameDescriptor gd(engineID, g.gameid, title, g.language, g.platform, 0, gsl);
 	gd.updateDesc(extra);
 	return gd;
 }
@@ -89,18 +89,10 @@ static Common::String generatePreferredTarget(const Common::String &id, const AD
 }
 
 void AdvancedMetaEngine::updateGameDescriptor(GameDescriptor &desc, const ADGameDescription *realDesc) const {
-	if (_singleid != NULL) {
-		desc["preferredtarget"] = desc["gameid"];
-		desc["gameid"] = _singleid;
-	}
-
-	if (!desc.contains("preferredtarget"))
-		desc["preferredtarget"] = desc["gameid"];
-
-	desc["preferredtarget"] = generatePreferredTarget(desc["preferredtarget"], realDesc);
+	desc.setPreferredTarget(generatePreferredTarget(desc.getPreferredTarget(), realDesc));
 
 	if (_flags & kADFlagUseExtraAsHint)
-		desc["extra"] = realDesc->extra;
+		desc.setExtra(realDesc->extra);
 
 	desc.setGUIOptions(realDesc->guioptions + _guioptions);
 	desc.appendGUIOptions(getGameGUIOptionsDescriptionLanguage(realDesc->language));
@@ -148,7 +140,7 @@ GameList AdvancedMetaEngine::detectGames(const Common::FSList &fslist) const {
 		// Use fallback detector if there were no matches by other means
 		const ADGameDescription *fallbackDesc = fallbackDetect(allFiles, fslist);
 		if (fallbackDesc != 0) {
-			GameDescriptor desc(toGameDescriptor(*fallbackDesc, _gameids));
+			GameDescriptor desc(toGameDescriptor(getEngineID(), *fallbackDesc, _gameids));
 			updateGameDescriptor(desc, fallbackDesc);
 			detectedGames.push_back(desc);
 		}
@@ -156,7 +148,7 @@ GameList AdvancedMetaEngine::detectGames(const Common::FSList &fslist) const {
 		// Otherwise use the found matches
 		cleanupPirated(matches);
 		for (uint i = 0; i < matches.size(); i++) {
-			GameDescriptor desc(toGameDescriptor(*matches[i], _gameids));
+			GameDescriptor desc(toGameDescriptor(getEngineID(), *matches[i], _gameids));
 			updateGameDescriptor(desc, matches[i]);
 			detectedGames.push_back(desc);
 		}
@@ -251,7 +243,12 @@ Common::Error AdvancedMetaEngine::createInstance(OSystem *syst, Engine **engine)
 	if (cleanupPirated(matches))
 		return Common::kNoGameDataFoundError;
 
-	if (_singleid == NULL) {
+	// HACK: For the old single ID method, take the first match
+	bool isSingleID = getEngineID() == gameid;
+	if (isSingleID && !matches.empty())
+		agdDesc = matches[0];
+
+	if (!agdDesc) {
 		// Find the first match with correct gameid.
 		for (uint i = 0; i < matches.size(); i++) {
 			if (matches[i]->gameid == gameid) {
@@ -259,19 +256,16 @@ Common::Error AdvancedMetaEngine::createInstance(OSystem *syst, Engine **engine)
 				break;
 			}
 		}
-	} else if (matches.size() > 0) {
-		agdDesc = matches[0];
 	}
 
 	if (agdDesc == 0) {
 		// Use fallback detector if there were no matches by other means
 		agdDesc = fallbackDetect(allFiles, files);
-		if (agdDesc != 0) {
-			// Seems we found a fallback match. But first perform a basic
-			// sanity check: the gameid must match.
-			if (_singleid == NULL && agdDesc->gameid != gameid)
-				agdDesc = 0;
-		}
+
+		// If a fallback match was found, perform a basic sanity check: the
+		// game ID must match. For the legacy single ID mode, ignore this check.
+		if (!isSingleID && agdDesc && agdDesc->gameid != gameid)
+			agdDesc = 0;
 	}
 
 	if (agdDesc == 0)
@@ -285,14 +279,20 @@ Common::Error AdvancedMetaEngine::createInstance(OSystem *syst, Engine **engine)
 
 	Common::updateGameGUIOptions(agdDesc->guioptions + _guioptions, lang);
 
-	GameDescriptor gameDescriptor = toGameDescriptor(*agdDesc, _gameids);
+	GameDescriptor gameDescriptor = toGameDescriptor(getEngineID(), *agdDesc, _gameids);
+
+	// HACK: If this was a single ID, update to the found game ID
+	if (isSingleID) {
+		ConfMan.set("gameid", gameDescriptor.getGameID());
+		ConfMan.flushToDisk();
+	}
 
 #ifdef RELEASE_BUILD
 	if (gameDescriptor.getSupportLevel() == kUnstableGame && !Engine::warnUserAboutUnsupportedGame())
 		return Common::kUserCanceled;
 #endif
 
-	debug(2, "Running %s", gameDescriptor.description().c_str());
+	debug(2, "Running %s", gameDescriptor.getDescription().c_str());
 	initSubSystems(agdDesc);
 	if (!createInstance(syst, engine, agdDesc))
 		return Common::kNoGameDataFoundError;
@@ -307,7 +307,7 @@ void AdvancedMetaEngine::reportUnknown(const Common::FSNode &path, const ADFileP
 	// Might also be helpful to display the full path (for when this is used
 	// from the mass detector).
 	Common::String report = Common::String::format(_("The game in '%s' seems to be unknown."), path.getPath().c_str()) + "\n";
-	report += _("Please, report the following data to the ScummVM team along with name");
+	report += _("Please, report the following data to the Cabal team along with name");
 	report += "\n";
 	report += _("of the game you tried to add and its version/language/etc.:");
 	report += "\n";
@@ -560,29 +560,19 @@ const ADGameDescription *AdvancedMetaEngine::detectGameFilebased(const FileMap &
 }
 
 GameList AdvancedMetaEngine::getSupportedGames() const {
-	if (_singleid != NULL) {
-		GameList gl;
-
-		const PlainGameDescriptor *g = _gameids;
-		while (g->gameid) {
-			if (0 == scumm_stricmp(_singleid, g->gameid)) {
-				gl.push_back(GameDescriptor(g->gameid, g->description));
-
-				return gl;
-			}
-			g++;
-		}
-		error("Engine %s doesn't have its singleid specified in ids list", _singleid);
-	}
-
-	return GameList(_gameids);
+	return convertPlainGameDescriptors(getEngineID(), _gameids);
 }
 
 GameDescriptor AdvancedMetaEngine::findGame(const char *gameid) const {
 	// First search the list of supported gameids for a match.
 	const PlainGameDescriptor *g = findPlainGameDescriptor(gameid, _gameids);
 	if (g)
-		return GameDescriptor(*g);
+		return GameDescriptor(getEngineID(), *g);
+
+	// HACK: For backwards compatibility with engines that used the single ID
+	// system, provide a fake entry.
+	if (strcmp(gameid, getEngineID()) == 0)
+		return GameDescriptor(getEngineID(), gameid, Common::String::format("%s Game", getName()));
 
 	// No match found
 	return GameDescriptor();
@@ -593,7 +583,6 @@ AdvancedMetaEngine::AdvancedMetaEngine(const void *descs, uint descItemSize, con
 	  _extraGuiOptions(extraGuiOptions) {
 
 	_md5Bytes = 5000;
-	_singleid = NULL;
 	_flags = 0;
 	_guioptions = GUIO_NONE;
 	_maxScanDepth = 1;

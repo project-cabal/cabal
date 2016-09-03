@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sky/control.h"
 #include "sky/sky.h"
@@ -72,20 +74,24 @@ static const SkyVersion skyVersions[] = {
 
 class SkyMetaEngine : public MetaEngine {
 public:
-	virtual const char *getName() const;
-	virtual const char *getOriginalCopyright() const;
+	const char *getEngineID() const {
+		return "sky";
+	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual GameList getSupportedGames() const;
-	virtual const ExtraGuiOptions getExtraGuiOptions(const Common::String &target) const;
-	virtual GameDescriptor findGame(const char *gameid) const;
-	virtual GameList detectGames(const Common::FSList &fslist) const;
+	const char *getName() const;
+	const char *getOriginalCopyright() const;
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	GameList getSupportedGames() const;
+	const ExtraGuiOptions getExtraGuiOptions(const Common::String &target) const;
+	GameDescriptor findGame(const char *gameid) const;
+	GameList detectGames(const Common::FSList &fslist) const;
 
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	Common::Error createInstance(OSystem *syst, Engine **engine) const;
+
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
+	void removeSaveState(const char *target, int slot) const;
 };
 
 const char *SkyMetaEngine::getName() const {
@@ -112,7 +118,7 @@ bool Sky::SkyEngine::hasFeature(EngineFeature f) const {
 
 GameList SkyMetaEngine::getSupportedGames() const {
 	GameList games;
-	games.push_back(skySetting);
+	games.push_back(GameDescriptor("sky", skySetting));
 	return games;
 }
 
@@ -137,7 +143,7 @@ const ExtraGuiOptions SkyMetaEngine::getExtraGuiOptions(const Common::String &ta
 
 GameDescriptor SkyMetaEngine::findGame(const char *gameid) const {
 	if (0 == scumm_stricmp(gameid, skySetting.gameid))
-		return skySetting;
+		return GameDescriptor("sky", skySetting);
 	return GameDescriptor();
 }
 
@@ -175,7 +181,7 @@ GameList SkyMetaEngine::detectGames(const Common::FSList &fslist) const {
 		// Match found, add to list of candidates, then abort inner loop.
 		// The game detector uses US English by default. We want British
 		// English to match the recorded voices better.
-		GameDescriptor dg(skySetting.gameid, skySetting.description, Common::UNK_LANG, Common::kPlatformUnknown);
+		GameDescriptor dg("sky", skySetting.gameid, skySetting.description, Common::UNK_LANG, Common::kPlatformUnknown);
 		const SkyVersion *sv = skyVersions;
 		while (sv->dinnerTableEntries) {
 			if (dinnerTableEntries == sv->dinnerTableEntries &&

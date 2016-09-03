@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "groovie/groovie.h"
 #include "groovie/detection.h"
@@ -42,8 +44,6 @@ static const PlainGameDescriptor groovieGames[] = {
 	{"tlc", "Tender Loving Care"},
 #endif
 
-	// Unknown
-	{"groovie", "Groovie engine game"},
 	{0, 0}
 };
 
@@ -322,8 +322,6 @@ static const ADExtraGuiOptionsMap optionsList[] = {
 class GroovieMetaEngine : public AdvancedMetaEngine {
 public:
 	GroovieMetaEngine() : AdvancedMetaEngine(gameDescriptions, sizeof(GroovieGameDescription), groovieGames, optionsList) {
-		_singleid = "groovie";
-
 		// Use kADFlagUseExtraAsHint in order to distinguish the 11th hour from
 		// its "Making of" as well as the Clandestiny Trailer; they all share
 		// the same MD5.
@@ -338,6 +336,10 @@ public:
 		// Need MIDI directory to detect 11H Mac Installed
 		_maxScanDepth = 2;
 		_directoryGlobs = directoryGlobs;
+	}
+
+	const char *getEngineID() const {
+		return "groovie";
 	}
 
 	const char *getName() const {

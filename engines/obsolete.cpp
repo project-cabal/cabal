@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "engines/obsolete.h"
 
@@ -56,14 +58,14 @@ void upgradeTargetIfNecessary(const ObsoleteGameID *obsoleteList) {
 }
 
 GameDescriptor findGameID(
+	const char *engineID,
 	const char *gameid,
 	const PlainGameDescriptor *gameids,
-	const ObsoleteGameID *obsoleteList
-	) {
+	const ObsoleteGameID *obsoleteList) {
 	// First search the list of supported gameids for a match.
 	const PlainGameDescriptor *g = findPlainGameDescriptor(gameid, gameids);
 	if (g)
-		return GameDescriptor(*g);
+		return GameDescriptor(engineID, *g);
 
 	// If we didn't find the gameid in the main list, check if it
 	// is an obsolete game id.
@@ -73,9 +75,9 @@ GameDescriptor findGameID(
 			if (0 == scumm_stricmp(gameid, o->from)) {
 				g = findPlainGameDescriptor(o->to, gameids);
 				if (g && g->description)
-					return GameDescriptor(gameid, "Obsolete game ID (" + Common::String(g->description) + ")");
+					return GameDescriptor(engineID, gameid, "Obsolete game ID (" + Common::String(g->description) + ")");
 				else
-					return GameDescriptor(gameid, "Obsolete game ID");
+					return GameDescriptor(engineID, gameid, "Obsolete game ID");
 			}
 			o++;
 		}

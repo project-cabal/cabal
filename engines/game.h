@@ -64,16 +64,21 @@ enum GameSupportLevel {
  * can be contained in a GameDescriptor.
  * This is an essential part of the glue between the game engines and the launcher code.
  */
-class GameDescriptor : public Common::StringMap {
+class GameDescriptor {
 public:
 	GameDescriptor();
-	GameDescriptor(const PlainGameDescriptor &pgd, Common::String guioptions = Common::String());
-	GameDescriptor(const Common::String &gameid,
-	              const Common::String &description,
-	              Common::Language language = Common::UNK_LANG,
-				  Common::Platform platform = Common::kPlatformUnknown,
-				  Common::String guioptions = Common::String(),
-				  GameSupportLevel gsl = kStableGame);
+	GameDescriptor(
+		const Common::String &engineID,
+		const PlainGameDescriptor &pgd,
+		Common::String guioptions = Common::String());
+	GameDescriptor(
+		const Common::String &engineID,
+		const Common::String &gameid,
+		const Common::String &description,
+		Common::Language language = Common::UNK_LANG,
+		Common::Platform platform = Common::kPlatformUnknown,
+		Common::String guioptions = Common::String(),
+		GameSupportLevel gsl = kStableGame);
 
 	/**
 	 * Update the description string by appending (EXTRA/PLATFORM/LANG) to it.
@@ -82,38 +87,61 @@ public:
 	 */
 	void updateDesc(const char *extra = 0);
 
-	void setGUIOptions(Common::String options);
+	void setGUIOptions(const Common::String &options);
 	void appendGUIOptions(const Common::String &str);
+	Common::String getGUIOptions() const { return _guiOptions; }
 
 	/**
 	 * What level of support is expected of this game
 	 */
-	GameSupportLevel getSupportLevel();
+	GameSupportLevel getSupportLevel() const;
 	void setSupportLevel(GameSupportLevel gsl);
+	Common::String getSupportLevelString() const { return _gameSupportLevel; }
 
-	Common::String &gameid() { return getVal("gameid"); }
-	Common::String &description() { return getVal("description"); }
-	const Common::String &gameid() const { return getVal("gameid"); }
-	const Common::String &description() const { return getVal("description"); }
-	Common::Language language() const { return contains("language") ? Common::parseLanguage(getVal("language")) : Common::UNK_LANG; }
-	Common::Platform platform() const { return contains("platform") ? Common::parsePlatform(getVal("platform")) : Common::kPlatformUnknown; }
-
-	const Common::String &preferredtarget() const {
-		return contains("preferredtarget") ? getVal("preferredtarget") : getVal("gameid");
+	void setEngineID(const Common::String &engineID) { _engineID = engineID; }
+	Common::String getEngineID() const { return _engineID; }
+	void setGameID(const Common::String &gameID) { _gameID = gameID; }
+	Common::String getGameID() const { return _gameID; }
+	void setPreferredTarget(const Common::String &target) { _preferredTarget = target; }
+	Common::String getPreferredTarget() const {
+		return _preferredTarget.empty() ? _gameID : _preferredTarget;
 	}
+
+	Common::String getDescription() const { return _description; }
+	void setDescription(const Common::String &desc) { _description = desc; }
+
+	Common::String getLanguageString() const { return _language; }
+	void setLanguageString(const Common::String &lang) { _language = lang; }
+	Common::Language getLanguage() const { return _language.empty() ? Common::UNK_LANG : Common::parseLanguage(_language); }
+
+	Common::String getPlatformString() const { return _platform; }
+	void setPlatformString(const Common::String &platform) { _platform = platform; }
+	Common::Platform getPlatform() const { return _platform.empty() ? Common::kPlatformUnknown : Common::parsePlatform(_platform); }
+
+	Common::String getPath() const { return _path; }
+	void setPath(const Common::String &path) { _path = path; }
+
+	Common::String getExtra() const { return _extra; }
+	void setExtra(const Common::String &extra) { _extra = extra; }
+
+private:
+	Common::String _engineID;
+	Common::String _gameID;
+	Common::String _preferredTarget;
+	Common::String _description;
+	Common::String _language;
+	Common::String _platform;
+	Common::String _path;
+	Common::String _guiOptions;
+	Common::String _extra;
+	Common::String _gameSupportLevel;
 };
 
 /** List of games. */
-class GameList : public Common::Array<GameDescriptor> {
-public:
-	GameList() {}
-	GameList(const GameList &list) : Common::Array<GameDescriptor>(list) {}
-	GameList(const PlainGameDescriptor *g) {
-		while (g->gameid) {
-			push_back(GameDescriptor(*g));
-			g++;
-		}
-	}
-};
+typedef Common::Array<GameDescriptor> GameList;
+
+/// Construct a game list from an engine ID and a set of PlainGameDescriptors,
+/// whose terminal entry has a NULL gameid.
+GameList convertPlainGameDescriptors(const Common::String &engineID, const PlainGameDescriptor *gameList);
 
 #endif

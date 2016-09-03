@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "kyra/kyra_lok.h"
 #include "kyra/lol.h"
@@ -144,6 +146,11 @@ public:
 		_maxScanDepth = 2;
 		_directoryGlobs = directoryGlobs;
 	}
+
+	const char *getEngineID() const {
+		return "kyra";
+	}
+
 	const char *getName() const {
 		return "Kyra";
 	}
@@ -162,7 +169,7 @@ public:
 	bool hasFeature(MetaEngineFeature f) const;
 	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
 	SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
+	int getMaximumSaveSlot() const;
 	void removeSaveState(const char *target, int slot) const;
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
 };

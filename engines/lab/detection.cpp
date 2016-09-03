@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
  /*
  * This code is based on Labyrinth of Time code with assistance of
@@ -115,30 +117,32 @@ uint32 LabEngine::getFeatures() const {
 class LabMetaEngine : public AdvancedMetaEngine {
 public:
 	LabMetaEngine() : AdvancedMetaEngine(labDescriptions, sizeof(ADGameDescription), lab_setting) {
-		_singleid = "lab";
-
 		_maxScanDepth = 4;
 		_directoryGlobs = directoryGlobs;
 		_flags = kADFlagUseExtraAsHint;
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "lab";
+	}
+
+	const char *getName() const {
 		return "Lab";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "Labyrinth of Time (c) 2004 The Wyrmkeep Entertainment Co. and Terra Nova Development";
 	}
 
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
 		// Instantiate Engine even if the game data is not found.
 		*engine = new Lab::LabEngine(syst, desc);
 		return true;
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
+	bool hasFeature(MetaEngineFeature f) const;
 	SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
+	int getMaximumSaveSlot() const;
 	void removeSaveState(const char *target, int slot) const;
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
 };

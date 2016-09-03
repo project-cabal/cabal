@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "base/plugins.h"
 
@@ -943,20 +945,24 @@ using namespace Scumm;
 
 class ScummMetaEngine : public MetaEngine {
 public:
-	virtual const char *getName() const;
-	virtual const char *getOriginalCopyright() const;
+	const char *getEngineID() const {
+		return "scumm";
+	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual GameList getSupportedGames() const;
-	virtual GameDescriptor findGame(const char *gameid) const;
-	virtual GameList detectGames(const Common::FSList &fslist) const;
+	const char *getName() const;
+	const char *getOriginalCopyright() const;
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	GameList getSupportedGames() const;
+	GameDescriptor findGame(const char *gameid) const;
+	GameList detectGames(const Common::FSList &fslist) const;
 
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
-	virtual SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
+	Common::Error createInstance(OSystem *syst, Engine **engine) const;
+
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
+	void removeSaveState(const char *target, int slot) const;
+	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
 };
 
 bool ScummMetaEngine::hasFeature(MetaEngineFeature f) const {
@@ -979,11 +985,11 @@ bool ScummEngine::hasFeature(EngineFeature f) const {
 }
 
 GameList ScummMetaEngine::getSupportedGames() const {
-	return GameList(gameDescriptions);
+	return convertPlainGameDescriptors(getEngineID(), gameDescriptions);
 }
 
 GameDescriptor ScummMetaEngine::findGame(const char *gameid) const {
-	return Engines::findGameID(gameid, gameDescriptions, obsoleteGameIDsTable);
+	return Engines::findGameID(getEngineID(), gameid, gameDescriptions, obsoleteGameIDsTable);
 }
 
 static Common::String generatePreferredTarget(const DetectorResult &x) {
@@ -1022,14 +1028,14 @@ GameList ScummMetaEngine::detectGames(const Common::FSList &fslist) const {
 	          x = results.begin(); x != results.end(); ++x) {
 		const PlainGameDescriptor *g = findPlainGameDescriptor(x->game.gameid, gameDescriptions);
 		assert(g);
-		GameDescriptor dg(x->game.gameid, g->description, x->language, x->game.platform);
+		GameDescriptor dg("scumm", x->game.gameid, g->description, x->language, x->game.platform);
 
 		// Append additional information, if set, to the description.
 		dg.updateDesc(x->extra);
 
 		// Compute and set the preferred target name for this game.
 		// Based on generateComplexID() in advancedDetector.cpp.
-		dg["preferredtarget"] = generatePreferredTarget(*x);
+		dg.setPreferredTarget(generatePreferredTarget(*x));
 
 		dg.setGUIOptions(x->game.guioptions + MidiDriver::musicType2GUIO(x->game.midi));
 		dg.appendGUIOptions(getGameGUIOptionsDescriptionLanguage(x->language));

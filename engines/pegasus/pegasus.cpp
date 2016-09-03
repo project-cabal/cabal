@@ -357,12 +357,7 @@ void PegasusEngine::runIntro() {
 Common::Error PegasusEngine::showLoadDialog() {
 	GUI::SaveLoadChooser slc(_("Load game:"), _("Load"), false);
 
-	Common::String gameId = ConfMan.get("gameid");
-
-	const EnginePlugin *plugin = 0;
-	EngineMan.findGame(gameId, &plugin);
-
-	int slot = slc.runModalWithPluginAndTarget(plugin, ConfMan.getActiveDomainName());
+	int slot = slc.runModalWithCurrentTarget();
 
 	Common::Error result;
 
@@ -381,12 +376,7 @@ Common::Error PegasusEngine::showLoadDialog() {
 Common::Error PegasusEngine::showSaveDialog() {
 	GUI::SaveLoadChooser slc(_("Save game:"), _("Save"), true);
 
-	Common::String gameId = ConfMan.get("gameid");
-
-	const EnginePlugin *plugin = 0;
-	EngineMan.findGame(gameId, &plugin);
-
-	int slot = slc.runModalWithPluginAndTarget(plugin, ConfMan.getActiveDomainName());
+	int slot = slc.runModalWithCurrentTarget();
 
 	if (slot >= 0)
 		return saveGameState(slot, slc.getResultString());

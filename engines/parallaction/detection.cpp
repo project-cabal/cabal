@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "base/plugins.h"
 
@@ -45,7 +47,6 @@ Common::Platform Parallaction::getPlatform() const { return _gameDescription->de
 }
 
 static const PlainGameDescriptor parallactionGames[] = {
-	{"parallaction", "Parallaction engine game"},
 	{"nippon", "Nippon Safes Inc."},
 	{"bra", "The Big Red Adventure"},
 	{0, 0}
@@ -223,19 +224,23 @@ public:
 		_guioptions = GUIO1(GUIO_NOLAUNCHLOAD);
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "parallaction";
+	}
+
+	const char *getName() const {
 		return "Parallaction";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "Nippon Safes Inc. (C) Dynabyte";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
+	void removeSaveState(const char *target, int slot) const;
 };
 
 bool ParallactionMetaEngine::hasFeature(MetaEngineFeature f) const {

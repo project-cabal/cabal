@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "common/system.h"
 #include "common/savefile.h"
@@ -88,18 +90,21 @@ enum {
 class TeenAgentMetaEngine : public AdvancedMetaEngine {
 public:
 	TeenAgentMetaEngine() : AdvancedMetaEngine(teenAgentGameDescriptions, sizeof(ADGameDescription), teenAgentGames) {
-		_singleid = "teenagent";
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "teenagent";
+	} 
+
+	const char *getName() const {
 		return "TeenAgent";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "TEENAGENT (C) 1994 Metropolis";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const {
+	bool hasFeature(MetaEngineFeature f) const {
 		switch (f) {
 		case kSupportsListSaves:
 		case kSupportsDeleteSave:
@@ -112,7 +117,7 @@ public:
 		}
 	}
 
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
 		if (desc) {
 			*engine = new TeenAgent::TeenAgentEngine(syst, desc);
 		}
@@ -123,7 +128,7 @@ public:
 		return Common::String::format("%s.%02d", target, slot);
 	}
 
-	virtual SaveStateList listSaves(const char *target) const {
+	SaveStateList listSaves(const char *target) const {
 		Common::String pattern = target;
 		pattern += ".??";
 
@@ -148,16 +153,16 @@ public:
 		return saveList;
 	}
 
-	virtual int getMaximumSaveSlot() const {
+	int getMaximumSaveSlot() const {
 		return MAX_SAVES - 1;
 	}
 
-	virtual void removeSaveState(const char *target, int slot) const {
+	void removeSaveState(const char *target, int slot) const {
 		Common::String filename = generateGameStateFileName(target, slot);
 		g_system->getSavefileManager()->removeSavefile(filename);
 	}
 
-	virtual SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const {
+	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const {
 		Common::String filename = generateGameStateFileName(target, slot);
 		Common::ScopedPtr<Common::InSaveFile> in(g_system->getSavefileManager()->openForLoading(filename));
 		if (!in)

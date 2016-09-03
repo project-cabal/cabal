@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -20,6 +20,8 @@
  *
  */
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #include "base/plugins.h"
 #include "engines/advancedDetector.h"
 #include "engines/obsolete.h"
@@ -33,17 +35,21 @@ class GobMetaEngine : public AdvancedMetaEngine {
 public:
 	GobMetaEngine();
 
-	virtual GameDescriptor findGame(const char *gameid) const;
+	const char *getEngineID() const {
+		return "gob";
+	}
 
-	virtual const ADGameDescription *fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const;
+	GameDescriptor findGame(const char *gameid) const;
 
-	virtual const char *getName() const;
-	virtual const char *getOriginalCopyright() const;
+	const ADGameDescription *fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const;
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
+	const char *getName() const;
+	const char *getOriginalCopyright() const;
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool hasFeature(MetaEngineFeature f) const;
+
+	Common::Error createInstance(OSystem *syst, Engine **engine) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
 
 private:
 	/**
@@ -55,12 +61,11 @@ private:
 GobMetaEngine::GobMetaEngine() :
 	AdvancedMetaEngine(Gob::gameDescriptions, sizeof(Gob::GOBGameDescription), gobGames) {
 
-	_singleid   = "gob";
 	_guioptions = GUIO1(GUIO_NOLAUNCHLOAD);
 }
 
 GameDescriptor GobMetaEngine::findGame(const char *gameid) const {
-	return Engines::findGameID(gameid, _gameids, obsoleteGameIDsTable);
+	return Engines::findGameID(getEngineID(), gameid, _gameids, obsoleteGameIDsTable);
 }
 
 const ADGameDescription *GobMetaEngine::fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const {

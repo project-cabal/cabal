@@ -37,50 +37,54 @@ const PlainGameDescriptor *findPlainGameDescriptor(const char *gameid, const Pla
 }
 
 GameDescriptor::GameDescriptor() {
-	setVal("gameid", "");
-	setVal("description", "");
 }
 
-GameDescriptor::GameDescriptor(const PlainGameDescriptor &pgd, Common::String guioptions) {
-	setVal("gameid", pgd.gameid);
-	setVal("description", pgd.description);
+GameDescriptor::GameDescriptor(const Common::String &engineID, const PlainGameDescriptor &pgd, Common::String guioptions) {
+	_engineID = engineID;
+	_gameID = pgd.gameid;
+	_description = pgd.description;
 
 	if (!guioptions.empty())
-		setVal("guioptions", Common::getGameGUIOptionsDescription(guioptions));
+		_guiOptions = Common::getGameGUIOptionsDescription(guioptions);
 }
 
-GameDescriptor::GameDescriptor(const Common::String &g, const Common::String &d, Common::Language l, Common::Platform p, Common::String guioptions, GameSupportLevel gsl) {
-	setVal("gameid", g);
-	setVal("description", d);
+GameDescriptor::GameDescriptor(const Common::String &engineID, const Common::String &g, const Common::String &d, Common::Language l, Common::Platform p, Common::String guioptions, GameSupportLevel gsl) {
+	_engineID = engineID;
+	_gameID = g;
+	_description = d;
+
 	if (l != Common::UNK_LANG)
-		setVal("language", Common::getLanguageCode(l));
+		_language = Common::getLanguageCode(l);
 	if (p != Common::kPlatformUnknown)
-		setVal("platform", Common::getPlatformCode(p));
+		_platform = Common::getPlatformCode(p);
 	if (!guioptions.empty())
-		setVal("guioptions", Common::getGameGUIOptionsDescription(guioptions));
+		_guiOptions = Common::getGameGUIOptionsDescription(guioptions);
 
 	setSupportLevel(gsl);
 }
 
-void GameDescriptor::setGUIOptions(Common::String guioptions) {
-	if (!guioptions.empty())
-		setVal("guioptions", Common::getGameGUIOptionsDescription(guioptions));
+void GameDescriptor::setGUIOptions(const Common::String &guioptions) {
+	if (guioptions.empty())
+		_guiOptions.clear();
 	else
-		erase("guioptions");
+		_guiOptions = Common::getGameGUIOptionsDescription(guioptions);
 }
 
 void GameDescriptor::appendGUIOptions(const Common::String &str) {
-	setVal("guioptions", getVal("guioptions", "") + " " + str);
+	if (!_guiOptions.empty())
+		_guiOptions += " ";
+
+	_guiOptions += str;
 }
 
 void GameDescriptor::updateDesc(const char *extra) {
-	const bool hasCustomLanguage = (language() != Common::UNK_LANG);
-	const bool hasCustomPlatform = (platform() != Common::kPlatformUnknown);
+	const bool hasCustomLanguage = (getLanguage() != Common::UNK_LANG);
+	const bool hasCustomPlatform = (getPlatform() != Common::kPlatformUnknown);
 	const bool hasExtraDesc = (extra && extra[0]);
 
 	// Adapt the description string if custom platform/language is set.
 	if (hasCustomLanguage || hasCustomPlatform || hasExtraDesc) {
-		Common::String descr = description();
+		Common::String descr = getDescription();
 
 		descr += " (";
 		if (hasExtraDesc)
@@ -88,36 +92,44 @@ void GameDescriptor::updateDesc(const char *extra) {
 		if (hasCustomPlatform) {
 			if (hasExtraDesc)
 				descr += "/";
-			descr += Common::getPlatformDescription(platform());
+			descr += Common::getPlatformDescription(getPlatform());
 		}
 		if (hasCustomLanguage) {
 			if (hasExtraDesc || hasCustomPlatform)
 				descr += "/";
-			descr += Common::getLanguageDescription(language());
+			descr += Common::getLanguageDescription(getLanguage());
 		}
 		descr += ")";
-		setVal("description", descr);
+		_description = descr;
 	}
 }
 
-GameSupportLevel GameDescriptor::getSupportLevel() {
-	GameSupportLevel gsl = kStableGame;
-	if (contains("gsl")) {
-		Common::String gslString = getVal("gsl");
-		if (gslString.equals("unstable"))
-			gsl = kUnstableGame;
-	}
-	return gsl;
+GameSupportLevel GameDescriptor::getSupportLevel() const {
+	if (_gameSupportLevel == "unstable")
+		return kUnstableGame;
+
+	return kStableGame;
 }
 
 void GameDescriptor::setSupportLevel(GameSupportLevel gsl) {
 	switch (gsl) {
 	case kUnstableGame:
-		setVal("gsl", "unstable");
+		_gameSupportLevel = "unstable";
 		break;
 	case kStableGame:
 		// Fall Through intended
 	default:
-		erase("gsl");
+		_gameSupportLevel.clear();
+		break;
 	}
+}
+
+GameList convertPlainGameDescriptors(const Common::String &engineID, const PlainGameDescriptor *gameList) {
+	GameList output;
+	while (gameList->gameid) {
+		output.push_back(GameDescriptor(engineID, *gameList));
+		gameList++;
+	}
+
+	return output;
 }

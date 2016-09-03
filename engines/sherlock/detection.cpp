@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sherlock/sherlock.h"
 #include "sherlock/saveload.h"
@@ -136,38 +138,42 @@ public:
 	SherlockMetaEngine() : AdvancedMetaEngine(Sherlock::gameDescriptions, sizeof(Sherlock::SherlockGameDescription),
 		sherlockGames, optionsList) {}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "sherlock";
+	}
+
+	const char *getName() const {
 		return "Sherlock Engine";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "Sherlock Engine (C) 1992-1996 Mythos Software, 1992-1996 (C) Electronic Arts";
 	}
 
 	/**
 	 * Creates an instance of the game engine
 	 */
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
 
 	/**
 	 * Returns a list of features the game's MetaEngine support
 	 */
-	virtual bool hasFeature(MetaEngineFeature f) const;
+	bool hasFeature(MetaEngineFeature f) const;
 
 	/**
 	 * Return a list of savegames
 	 */
-	virtual SaveStateList listSaves(const char *target) const;
+	SaveStateList listSaves(const char *target) const;
 
 	/**
 	 * Returns the maximum number of allowed save slots
 	 */
-	virtual int getMaximumSaveSlot() const;
+	int getMaximumSaveSlot() const;
 
 	/**
 	 * Deletes a savegame in the specified slot
 	 */
-	virtual void removeSaveState(const char *target, int slot) const;
+	void removeSaveState(const char *target, int slot) const;
 
 	/**
 	 * Given a specified savegame slot, returns extended information for the save

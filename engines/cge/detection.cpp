@@ -117,24 +117,27 @@ static const ADExtraGuiOptionsMap optionsList[] = {
 class CGEMetaEngine : public AdvancedMetaEngine {
 public:
 	CGEMetaEngine() : AdvancedMetaEngine(CGE::gameDescriptions, sizeof(ADGameDescription), CGEGames, optionsList) {
-		_singleid = "soltys";
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "cge";
+	}
+
+	const char *getName() const {
 		return "CGE";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "Soltys (c) 1994-1996 L.K. Avalon";
 	}
 
-	virtual const ADGameDescription *fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const;
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual SaveStateList listSaves(const char *target) const;
+	const ADGameDescription *fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	int getMaximumSaveSlot() const;
+	SaveStateList listSaves(const char *target) const;
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	void removeSaveState(const char *target, int slot) const;
 };
 
 static const ADFileBasedFallback fileBasedFallback[] = {
@@ -143,7 +146,7 @@ static const ADFileBasedFallback fileBasedFallback[] = {
 };
 
 static ADGameDescription s_fallbackDesc = {
-	"Soltys",
+	"soltys",
 	"Unknown version",
 	AD_ENTRY1(0, 0), // This should always be AD_ENTRY1(0, 0) in the fallback descriptor
 	Common::UNK_LANG,

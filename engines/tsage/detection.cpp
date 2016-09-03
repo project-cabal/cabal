@@ -60,7 +60,6 @@ Common::String TSageEngine::getPrimaryFilename() const {
 } // End of namespace TsAGE
 
 static const PlainGameDescriptor tSageGameTitles[] = {
-	{ "tsage", "Tsunami TsAGE-based Game" },
 	{ "ringworld", "Ringworld: Revenge of the Patriarch" },
 	{ "blueforce", "Blue Force" },
 	{ "ringworld2", "Return to Ringworld" },
@@ -77,18 +76,21 @@ enum {
 class TSageMetaEngine : public AdvancedMetaEngine {
 public:
 	TSageMetaEngine() : AdvancedMetaEngine(TsAGE::gameDescriptions, sizeof(TsAGE::tSageGameDescription), tSageGameTitles) {
-		_singleid = "tsage";
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "tsage";
+	}
+
+	const char *getName() const {
 		return "TsAGE";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "(c) Tsunami Media";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const {
+	bool hasFeature(MetaEngineFeature f) const {
 		switch (f) {
 		case kSupportsListSaves:
 		case kSupportsDeleteSave:
@@ -103,7 +105,7 @@ public:
 		}
 	}
 
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
 		if (desc) {
 			*engine = new TsAGE::TSageEngine(syst, (const TsAGE::tSageGameDescription *)desc);
 		}
@@ -114,7 +116,7 @@ public:
 		return Common::String::format("%s.%03d", target, slot);
 	}
 
-	virtual SaveStateList listSaves(const char *target) const {
+	SaveStateList listSaves(const char *target) const {
 		Common::String pattern = target;
 		pattern += ".???";
 
@@ -140,11 +142,11 @@ public:
 		return saveList;
 	}
 
-	virtual int getMaximumSaveSlot() const {
+	int getMaximumSaveSlot() const {
 		return MAX_SAVES - 1;
 	}
 
-	virtual void removeSaveState(const char *target, int slot) const {
+	void removeSaveState(const char *target, int slot) const {
 		Common::String filename = Common::String::format("%s.%03d", target, slot);
 		g_system->getSavefileManager()->removeSavefile(filename);
 	}

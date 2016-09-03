@@ -71,25 +71,28 @@ static const char * const directoryGlobs[] = {
 class BbvsMetaEngine : public AdvancedMetaEngine {
 public:
 	BbvsMetaEngine() : AdvancedMetaEngine(Bbvs::gameDescriptions, sizeof(ADGameDescription), bbvsGames) {
-		_singleid = "bbvs";
 		_maxScanDepth = 3;
 		_directoryGlobs = directoryGlobs;
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "bbvs";
+	}
+
+	const char *getName() const {
 		return "MTV's Beavis and Butt-head in Virtual Stupidity";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "(C) 1995 Viacom New Media";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual SaveStateList listSaves(const char *target) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	int getMaximumSaveSlot() const;
+	SaveStateList listSaves(const char *target) const;
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	void removeSaveState(const char *target, int slot) const;
 };
 
 bool BbvsMetaEngine::hasFeature(MetaEngineFeature f) const {

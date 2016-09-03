@@ -102,6 +102,43 @@ protected:
 	}
 };
 
+namespace {
+
+// Helper function to find a plugin for a domain/target
+const EnginePlugin *findPluginForDomain(const Common::String &domain) {
+	// Look up the engine via the engine ID. This is the current method.
+	if (ConfMan.hasKey("engineid", domain))		
+		return EngineMan.findPlugin(ConfMan.get("engineid", domain));
+
+	// Fallback on game ID. And if that isn't found, fallback on the domain
+	// itself, which is a really ancient method of identifying a game.
+	Common::String gameID(ConfMan.get("gameid", domain));
+	if (gameID.empty())
+		gameID = domain;
+
+	const EnginePlugin *plugin = 0;
+	EngineMan.findGame(gameID, &plugin);
+	return plugin;
+}
+
+// Helper function to find a descriptor for a domain/target
+GameDescriptor findDescriptorForDomain(const Common::String &domain) {
+	// Figure out the game ID. And if that isn't found, fallback on the domain
+	// itself, which is a really ancient method of identifying a game.
+	Common::String gameID(ConfMan.get("gameid", domain));
+	if (gameID.empty())
+		gameID = domain;
+
+	// Look up the engine via the engine ID. This is the current method.
+	if (ConfMan.hasKey("engineid", domain))		
+		return EngineMan.findGame(ConfMan.get("engineid", domain), gameID);
+
+	// Fallback on using only the game ID
+	return EngineMan.findGame(gameID);
+}
+
+} // End of anonymous namespace
+
 /*
  * A dialog that allows the user to edit a config game entry.
  * TODO: add widgets for some/all of the following
@@ -152,18 +189,10 @@ protected:
 	ExtraGuiOptions _engineOptions;
 };
 
-EditGameDialog::EditGameDialog(const String &domain, const String &desc)
-	: OptionsDialog(domain, "GameOptions") {
+EditGameDialog::EditGameDialog(const String &domain, const String &desc) : OptionsDialog(domain, "GameOptions") {
 	// Retrieve all game specific options.
-	const EnginePlugin *plugin = 0;
-	// To allow for game domains without a gameid.
-	// TODO: Is it intentional that this is still supported?
-	String gameId(ConfMan.get("gameid", domain));
-	if (gameId.empty())
-		gameId = domain;
-	// Retrieve the plugin, since we need to access the engine's MetaEngine
-	// implementation.
-	EngineMan.findGame(gameId, &plugin);
+	const EnginePlugin *plugin = findPluginForDomain(domain);
+	
 	if (plugin) {
 		_engineOptions = (*plugin)->getExtraGuiOptions(domain);
 	} else {
@@ -745,11 +774,9 @@ void LauncherDialog::updateListing() {
 
 		if (gameid.empty())
 			gameid = iter->_key;
-		if (description.empty()) {
-			GameDescriptor g = EngineMan.findGame(gameid);
-			if (g.contains("description"))
-				description = g.description();
-		}
+
+		if (description.empty())
+			description = findDescriptorForDomain(iter->_key).getDescription();
 
 		if (description.empty()) {
 			description = Common::String::format("Unknown (target %s, gameid %s)", iter->_key.c_str(), gameid.c_str());
@@ -859,7 +886,7 @@ void LauncherDialog::addGame() {
 				// Display the candidates to the user and let her/him pick one
 				StringArray list;
 				for (idx = 0; idx < (int)candidates.size(); idx++)
-					list.push_back(candidates[idx].description());
+					list.push_back(candidates[idx].getDescription());
 
 				ChooserDialog dialog(_("Pick the game:"));
 				dialog.setList(list);
@@ -869,12 +896,12 @@ void LauncherDialog::addGame() {
 				GameDescriptor result = candidates[idx];
 
 				// TODO: Change the detectors to set "path" !
-				result["path"] = dir.getPath();
+				result.setPath(dir.getPath());
 
 				Common::String domain = addGameToConf(result);
 
 				// Display edit dialog for the new entry
-				EditGameDialog editDialog(domain, result.description());
+				EditGameDialog editDialog(domain, result.getDescription());
 				if (editDialog.runModal() > 0) {
 					// User pressed OK, so make changes permanent
 
@@ -895,11 +922,20 @@ void LauncherDialog::addGame() {
 	} while (looping);
 }
 
+namespace {
+
+inline void addStringToConf(const Common::String &key, const Common::String &value, const Common::String &domain) {
+	if (!value.empty())
+		ConfMan.set(key, value, domain);
+}
+
+} // End of anonymous namespace
+
 Common::String addGameToConf(const GameDescriptor &result) {
 	// The auto detector or the user made a choice.
 	// Pick a domain name which does not yet exist (after all, we
 	// are *adding* a game to the config, not replacing).
-	Common::String domain = result.preferredtarget();
+	Common::String domain = result.getPreferredTarget();
 
 	assert(!domain.empty());
 	if (ConfMan.hasGameDomain(domain)) {
@@ -915,11 +951,16 @@ Common::String addGameToConf(const GameDescriptor &result) {
 	// Add the name domain
 	ConfMan.addGameDomain(domain);
 
-	// Copy all non-empty key/value pairs into the new domain
-	for (GameDescriptor::const_iterator iter = result.begin(); iter != result.end(); ++iter) {
-		if (!iter->_value.empty() && iter->_key != "preferredtarget")
-			ConfMan.set(iter->_key, iter->_value, domain);
-	}
+	// Copy all non-empty relevant values into the new domain
+	addStringToConf("engineid", result.getEngineID(), domain);
+	addStringToConf("gameid", result.getGameID(), domain);
+	addStringToConf("description", result.getDescription(), domain);
+	addStringToConf("language", result.getLanguageString(), domain);
+	addStringToConf("platform", result.getPlatformString(), domain);
+	addStringToConf("path", result.getPath(), domain);
+	addStringToConf("extra", result.getExtra(), domain);
+	addStringToConf("gsl", result.getSupportLevelString(), domain);
+	addStringToConf("guioptions", result.getGUIOptions(), domain);
 
 	// TODO: Setting the description field here has the drawback
 	// that the user does never notice when we upgrade our descriptions.
@@ -959,10 +1000,8 @@ void LauncherDialog::editGame(int item) {
 	// This is useful because e.g. MonkeyVGA needs AdLib music to have decent
 	// music support etc.
 	assert(item >= 0);
-	String gameId(ConfMan.get("gameid", _domains[item]));
-	if (gameId.empty())
-		gameId = _domains[item];
-	EditGameDialog editDialog(_domains[item], EngineMan.findGame(gameId).description());
+
+	EditGameDialog editDialog(_domains[item], findDescriptorForDomain(_domains[item]).getDescription());
 	if (editDialog.runModal() > 0) {
 		// User pressed OK, so make changes permanent
 
@@ -980,16 +1019,10 @@ void LauncherDialog::loadGameButtonPressed(int item) {
 	loadGame(item);
 }
 
-void LauncherDialog::loadGame(int item) {
-	String gameId = ConfMan.get("gameid", _domains[item]);
-	if (gameId.empty())
-		gameId = _domains[item];
-
-	const EnginePlugin *plugin = 0;
-
-	EngineMan.findGame(gameId, &plugin);
-
+void LauncherDialog::loadGame(int item) {	
 	String target = _domains[item];
+	const EnginePlugin *plugin = findPluginForDomain(target);
+
 	target.toLowercase();
 
 	if (plugin) {

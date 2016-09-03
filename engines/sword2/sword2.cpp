@@ -1,11 +1,8 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
- *
- * Additional copyright for this file:
- * Copyright (C) 1994-1998 Revolution Software Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
+
+// Additional copyright for this file:
+// Copyright (C) 1994-1998 Revolution Software Ltd.
 
 #include "base/plugins.h"
 
@@ -84,23 +87,27 @@ static const ExtraGuiOption sword2ExtraGuiOption = {
 
 class Sword2MetaEngine : public MetaEngine {
 public:
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "sword2";
+	}
+
+	const char *getName() const {
 		return "Sword2";
 	}
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "Broken Sword Games (C) Revolution";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual GameList getSupportedGames() const;
-	virtual const ExtraGuiOptions getExtraGuiOptions(const Common::String &target) const;
-	virtual GameDescriptor findGame(const char *gameid) const;
-	virtual GameList detectGames(const Common::FSList &fslist) const;
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	GameList getSupportedGames() const;
+	const ExtraGuiOptions getExtraGuiOptions(const Common::String &target) const;
+	GameDescriptor findGame(const char *gameid) const;
+	GameList detectGames(const Common::FSList &fslist) const;
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
+	void removeSaveState(const char *target, int slot) const;
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const;
+	Common::Error createInstance(OSystem *syst, Engine **engine) const;
 };
 
 bool Sword2MetaEngine::hasFeature(MetaEngineFeature f) const {
@@ -122,7 +129,7 @@ GameList Sword2MetaEngine::getSupportedGames() const {
 	const Sword2::GameSettings *g = Sword2::sword2_settings;
 	GameList games;
 	while (g->gameid) {
-		games.push_back(GameDescriptor(g->gameid, g->description));
+		games.push_back(GameDescriptor("sword2", g->gameid, g->description));
 		g++;
 	}
 	return games;
@@ -141,7 +148,7 @@ GameDescriptor Sword2MetaEngine::findGame(const char *gameid) const {
 			break;
 		g++;
 	}
-	return GameDescriptor(g->gameid, g->description);
+	return GameDescriptor("sword2", g->gameid, g->description);
 }
 
 bool isFullGame(const Common::FSList &fslist) {
@@ -191,7 +198,7 @@ GameList detectGamesImpl(const Common::FSList &fslist, bool recursion = false) {
 						continue;
 
 					// Match found, add to list of candidates, then abort inner loop.
-					detectedGames.push_back(GameDescriptor(g->gameid, g->description, Common::UNK_LANG, Common::kPlatformUnknown, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+					detectedGames.push_back(GameDescriptor("sword2", g->gameid, g->description, Common::UNK_LANG, Common::kPlatformUnknown, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 					break;
 				}
 			}
@@ -279,7 +286,7 @@ Common::Error Sword2MetaEngine::createInstance(OSystem *syst, Engine **engine) c
 	GameList detectedGames = detectGames(fslist);
 
 	for (uint i = 0; i < detectedGames.size(); i++) {
-		if (detectedGames[i].gameid() == gameid) {
+		if (detectedGames[i].getGameID() == gameid) {
 			*engine = new Sword2::Sword2Engine(syst);
 			return Common::kNoError;
 		}

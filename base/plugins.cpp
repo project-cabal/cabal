@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "base/plugins.h"
 
@@ -463,7 +465,7 @@ GameDescriptor EngineManager::findGame(const Common::String &gameName, const Eng
 	// First look for the game using the plugins in memory. This is critical
 	// for calls coming from inside games
 	result = findGameInLoadedPlugins(gameName, plugin);
-	if (!result.gameid().empty()) {
+	if (!result.getGameID().empty()) {
 		return result;
 	}
 
@@ -471,7 +473,7 @@ GameDescriptor EngineManager::findGame(const Common::String &gameName, const Eng
 	// by plugin
 	if (PluginMan.loadPluginFromGameId(gameName))  {
 		result = findGameInLoadedPlugins(gameName, plugin);
-		if (!result.gameid().empty()) {
+		if (!result.getGameID().empty()) {
 			return result;
 		}
 	}
@@ -480,7 +482,7 @@ GameDescriptor EngineManager::findGame(const Common::String &gameName, const Eng
 	PluginMan.loadFirstPlugin();
 	do {
 		result = findGameInLoadedPlugins(gameName, plugin);
-		if (!result.gameid().empty()) {
+		if (!result.getGameID().empty()) {
 			// Update with new plugin file name
 			PluginMan.updateConfigWithFileName(gameName);
 			break;
@@ -490,9 +492,28 @@ GameDescriptor EngineManager::findGame(const Common::String &gameName, const Eng
 	return result;
 }
 
-/**
- * Find the game within the plugins loaded in memory
- **/
+GameDescriptor EngineManager::findGame(const Common::String &engineID, const Common::String &gameID, const EnginePlugin **plugin) const {
+	// Reset the pointer to 0
+	if (plugin)
+		*plugin = 0;
+
+	// Look for the engine plugin
+	const EnginePlugin *foundPlugin = findPlugin(engineID);
+	if (!foundPlugin)
+		return GameDescriptor();
+
+	// Try to find the game
+	GameDescriptor result = (*foundPlugin)->findGame(gameID.c_str());
+	if (result.getGameID().empty())
+		return GameDescriptor();
+
+	// Set the result
+	if (plugin)
+		*plugin = foundPlugin;
+
+	return result;
+}
+
 GameDescriptor EngineManager::findGameInLoadedPlugins(const Common::String &gameName, const EnginePlugin **plugin) const {
 	// Find the GameDescriptor for this target
 	const EnginePlugin::List &plugins = getPlugins();
@@ -505,7 +526,7 @@ GameDescriptor EngineManager::findGameInLoadedPlugins(const Common::String &game
 
 	for (iter = plugins.begin(); iter != plugins.end(); ++iter) {
 		result = (**iter)->findGame(gameName.c_str());
-		if (!result.gameid().empty()) {
+		if (!result.getGameID().empty()) {
 			if (plugin)
 				*plugin = *iter;
 			return result;
@@ -534,6 +555,33 @@ const EnginePlugin::List &EngineManager::getPlugins() const {
 	return (const EnginePlugin::List &)PluginManager::instance().getPlugins(PLUGIN_TYPE_ENGINE);
 }
 
+const EnginePlugin *EngineManager::findLoadedPlugin(const Common::String &engineID) const {
+	const EnginePlugin::List &plugins = getPlugins();
+
+	for (EnginePlugin::List::const_iterator iter = plugins.begin(); iter != plugins.end(); iter++)
+		if (engineID == (**iter)->getEngineID())
+			return *iter;
+
+	return 0;
+}
+
+const EnginePlugin *EngineManager::findPlugin(const Common::String &engineID) const {
+	// First look for the game using the plugins in memory. This is critical
+	// for calls coming from inside games
+	const EnginePlugin *plugin = findLoadedPlugin(engineID);
+	if (plugin)
+		return plugin;
+
+	// We failed to find it using the engine ID. Scan the list of plugins
+	PluginMan.loadFirstPlugin();
+	do {
+		plugin = findLoadedPlugin(engineID);
+		if (plugin)
+			return plugin;
+	} while (PluginMan.loadNextPlugin());
+
+	return 0;
+}
 
 // Music plugins
 

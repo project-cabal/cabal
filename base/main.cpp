@@ -91,36 +91,79 @@ static bool launcherDialog() {
 }
 
 static const EnginePlugin *detectPlugin() {
-	const EnginePlugin *plugin = 0;
+	// Try to figure out what the engine ID is
+	Common::String engineID;
+	if (ConfMan.hasKey("engineid"))
+		engineID = ConfMan.get("engineid");
 
-	// Make sure the gameid is set in the config manager, and that it is lowercase.
-	Common::String gameid(ConfMan.getActiveDomainName());
-	assert(!gameid.empty());
+	// Figure out the target
+	Common::String target(ConfMan.getActiveDomainName());
+
+	// Try to figure out what the game ID is. Use the target if the game ID
+	// is not available (for compatibility? Why is this being done?).
+	Common::String gameID;
 	if (ConfMan.hasKey("gameid")) {
-		gameid = ConfMan.get("gameid");
-
-		// Set last selected game, that the game will be highlighted
-		// on RTL
-		ConfMan.set("lastselectedgame", ConfMan.getActiveDomainName(), Common::ConfigManager::kApplicationDomain);
-		ConfMan.flushToDisk();
-	}
-
-	gameid.toLowercase();
-	ConfMan.set("gameid", gameid);
-
-	// Query the plugins and find one that will handle the specified gameid
-	printf("User picked target '%s' (gameid '%s')...\n", ConfMan.getActiveDomainName().c_str(), gameid.c_str());
-	printf("  Looking for a plugin supporting this gameid... ");
-
- 	GameDescriptor game = EngineMan.findGame(gameid, &plugin);
-
-	if (plugin == 0) {
-		printf("failed\n");
-		warning("%s is an invalid gameid. Use the --list-games option to list supported gameid", gameid.c_str());
+		gameID = ConfMan.get("gameid");
 	} else {
-		printf("%s\n  Starting '%s'\n", plugin->getName(), game.description().c_str());
+		gameID = target;
+		ConfMan.set("gameid", gameID);
 	}
 
+	// Set the last selected game, so the game will be highlighted next time the user
+	// returns to the launcher.
+	ConfMan.set("lastselectedgame", target, Common::ConfigManager::kApplicationDomain);
+	ConfMan.flushToDisk();
+
+	// Query the plugins looking for the game
+	const EnginePlugin *plugin = 0;
+	GameDescriptor game;
+
+	if (engineID.empty()) {
+		// Compatibility mode for entries without 'engineid'
+		printf("User picked target '%s' (game ID '%s')...\n", ConfMan.getActiveDomainName().c_str(), gameID.c_str());
+		printf("  Looking for a plugin supporting this game ID... ");
+
+		// Request that the game be found via the game ID
+		game = EngineMan.findGame(gameID, &plugin);
+
+		// If we couldn't find the plugin, print a specific message for the case
+		if (!plugin) {
+			printf("failed\n");
+			warning("%s is an invalid game ID. Use the --list-games option to list supported game IDs", gameID.c_str());
+			return 0;
+		}
+
+		// Print that the engine was found
+		printf("%s\n", plugin->getName());
+
+		// Update the engine ID in the ConfMan. We won't hit this case again.
+		ConfMan.set("engineid", (*plugin)->getEngineID());
+		ConfMan.flushToDisk();
+	} else {
+		// Look for the plugin with that engine ID
+		printf("User picked target '%s' (engine ID '%s', game ID '%s')...\n", ConfMan.getActiveDomainName().c_str(), engineID.c_str(), gameID.c_str());
+		printf("  Looking for a plugin supporting this engine ID... ");
+		plugin = EngineMan.findPlugin(engineID);
+		if (!plugin) {
+			printf("failed\n");
+			warning("%s is an invalid engine ID. Use the --list-engines option to list supported engine IDs", engineID.c_str());
+			return 0;
+		}
+
+		// Look for the game now
+		printf("%s\n  Looking for the game ID... ", plugin->getName());
+		game = (*plugin)->findGame(gameID.c_str());
+		if (game.getGameID().empty()) {
+			printf("failed\n");
+			warning("%s is an invalid game ID for the engine. Use the --list-games option to list supported game IDs", gameID.c_str());
+			return 0;
+		}
+
+		// Print the game ID
+		printf("found\n");
+	}
+
+	printf("Starting '%s'\n", game.getDescription().c_str());
 	return plugin;
 }
 
@@ -181,7 +224,10 @@ static Common::Error runGame(const EnginePlugin *plugin, OSystem &system, const 
 	Common::String caption(ConfMan.get("description"));
 
 	if (caption.empty()) {
-		caption = EngineMan.findGame(ConfMan.get("gameid")).description();
+		if (ConfMan.hasKey("engineid"))
+			caption = EngineMan.findGame(ConfMan.get("engineid"), ConfMan.get("gameid")).getDescription();
+		else
+			caption = EngineMan.findGame(ConfMan.get("gameid")).getDescription();
 	}
 	if (caption.empty())
 		caption = ConfMan.getActiveDomainName();	// Use the domain (=target) name

@@ -20,7 +20,7 @@
  *
  */
 
-// Based on the ScummVM (GPLv2+) file of the same namea
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include <limits.h>
 
@@ -64,6 +64,7 @@ static const char HELP_STRING[] =
 	"  -h, --help               Display a brief help text and exit\n"
 	"  -z, --list-games         Display list of supported games and exit\n"
 	"  -t, --list-targets       Display list of configured targets and exit\n"
+	"  --list-engines           Display list of suppported engines and exit\n"
 	"  --list-saves=TARGET      Display a list of saved games for the game (TARGET) specified\n"
 #if defined(WIN32) && !defined(_WIN32_WCE) && !defined(__SYMBIAN32__)
 	"  --console                Enable the console window (default:enabled)\n"
@@ -378,6 +379,9 @@ Common::String parseCommandLine(Common::StringMap &settings, int argc, const cha
 			DO_COMMAND('z', "list-games")
 			END_COMMAND
 
+			DO_LONG_COMMAND("list-engines")
+			END_COMMAND
+
 #ifdef DETECTOR_TESTING_HACK
 			// HACK FIXME TODO: This command is intentionally *not* documented!
 			DO_LONG_COMMAND("test-detector")
@@ -596,9 +600,19 @@ static void listGames() {
 	for (EnginePlugin::List::const_iterator iter = plugins.begin(); iter != plugins.end(); ++iter) {
 		GameList list = (**iter)->getSupportedGames();
 		for (GameList::iterator v = list.begin(); v != list.end(); ++v) {
-			printf("%-20s %s\n", v->gameid().c_str(), v->description().c_str());
+			printf("%-20s %s\n", v->getGameID().c_str(), v->getDescription().c_str());
 		}
 	}
+}
+
+/** List all supported engines, i.e. all loaded plugin. */
+static void listEngines() {
+	printf("Engine ID            Engine Name                                           \n"
+	       "-------------------- ------------------------------------------------------\n");
+
+	const EnginePlugin::List &plugins = EngineMan.getPlugins();
+	for (EnginePlugin::List::const_iterator iter = plugins.begin(); iter != plugins.end(); ++iter)
+		printf("%-20s %s\n", (**iter)->getEngineID(), (**iter)->getName());
 }
 
 /** List all targets which are configured in the config file. */
@@ -606,25 +620,32 @@ static void listTargets() {
 	printf("Target               Description                                           \n"
 	       "-------------------- ------------------------------------------------------\n");
 
-	using namespace Common;
-	const ConfigManager::DomainMap &domains = ConfMan.getGameDomains();
-	ConfigManager::DomainMap::const_iterator iter;
+	const Common::ConfigManager::DomainMap &domains = ConfMan.getGameDomains();
 
 	Common::Array<Common::String> targets;
 	targets.reserve(domains.size());
 
-	for (iter = domains.begin(); iter != domains.end(); ++iter) {
+	for (Common::ConfigManager::DomainMap::const_iterator iter = domains.begin(); iter != domains.end(); ++iter) {
 		Common::String name(iter->_key);
 		Common::String description(iter->_value.getVal("description"));
 
 		if (description.empty()) {
-			// FIXME: At this point, we should check for a "gameid" override
-			// to find the proper desc. In fact, the platform probably should
-			// be taken into account, too.
-			Common::String gameid(name);
-			GameDescriptor g = EngineMan.findGame(gameid);
-			if (g.description().size() > 0)
-				description = g.description();
+			// Figure out the game ID for the target
+			Common::String gameID;
+			if (iter->_value.contains("gameid"))
+				gameID = iter->_value.getVal("gameid");
+			else
+				gameID = name;
+
+			GameDescriptor g;
+			if (iter->_value.contains("engineid"))
+				g = EngineMan.findGame(iter->_value.getVal("engineid"), gameID);
+			else
+				g = EngineMan.findGame(gameID);
+
+			description = g.getDescription();
+			if (description.empty())
+				description = "<Unknown game>";
 		}
 
 		targets.push_back(Common::String::format("%-20s %s", name.c_str(), description.c_str()));
@@ -646,39 +667,45 @@ static Common::Error listSaves(const char *target) {
 	// Grab the "target" domain, if any
 	const Common::ConfigManager::Domain *domain = ConfMan.getDomain(target);
 
-	// Set up the game domain as newly active domain, so
-	// target specific savepath will be checked
+	// If we actually found a domain, we're going to change the domain
 	Common::String oldDomain = ConfMan.getActiveDomainName();
-	ConfMan.setActiveDomain(target);
+	if (domain)
+		ConfMan.setActiveDomain(target);
 
 	// Grab the gameid from the domain resp. use the target as gameid
-	Common::String gameid;
+	Common::String gameID;
 	if (domain)
-		gameid = domain->getVal("gameid");
-	if (gameid.empty())
-		gameid = target;
-	gameid.toLowercase();	// Normalize it to lower case
+		gameID = domain->getVal("gameid");
+	if (gameID.empty())
+		gameID = target;
+	gameID.toLowercase();	// Normalize it to lower case
 
-	// Find the plugin that will handle the specified gameid
+	// Find the plugin that will handle the game
 	const EnginePlugin *plugin = 0;
-	GameDescriptor game = EngineMan.findGame(gameid, &plugin);
-
-	if (!plugin) {
-		return Common::Error(Common::kEnginePluginNotFound,
-						Common::String::format("target '%s', gameid '%s", target, gameid.c_str()));
+	GameDescriptor game;
+	Common::String idString;
+	if (domain && domain->contains("engineid")) {
+		Common::String engineID = domain->getVal("engineid");
+		game = EngineMan.findGame(engineID, gameID, &plugin);
+		idString = Common::String::format("engine ID '%s', game ID '%s'", engineID.c_str(), gameID.c_str());
+	} else {
+		game = EngineMan.findGame(gameID, &plugin);
+		idString = Common::String::format("game ID '%s'", gameID.c_str());
 	}
+
+	if (!plugin)
+		return Common::Error(Common::kEnginePluginNotFound, Common::String::format("target '%s', %s", target, idString.c_str()));
 
 	if (!(*plugin)->hasFeature(MetaEngine::kSupportsListSaves)) {
 		// TODO: Include more info about the target (desc, engine name, ...) ???
-		return Common::Error(Common::kEnginePluginNotSupportSaves,
-						Common::String::format("target '%s', gameid '%s", target, gameid.c_str()));
+		return Common::Error(Common::kEnginePluginNotSupportSaves, Common::String::format("target '%s', %s", target, idString.c_str()));
 	} else {
 		// Query the plugin for a list of saved games
 		SaveStateList saveList = (*plugin)->listSaves(target);
 
 		if (saveList.size() > 0) {
 			// TODO: Include more info about the target (desc, engine name, ...) ???
-			printf("Save states for target '%s' (gameid '%s'):\n", target, gameid.c_str());
+			printf("Save states for target '%s' (%s):\n", target, idString.c_str());
 			printf("  Slot Description                                           \n"
 				   "  ---- ------------------------------------------------------\n");
 
@@ -687,12 +714,13 @@ static Common::Error listSaves(const char *target) {
 				// TODO: Could also iterate over the full hashmap, printing all key-value pairs
 			}
 		} else {
-			printf("There are no save states for target '%s' (gameid '%s'):\n", target, gameid.c_str());
+			printf("There are no save states for target '%s' (%s):\n", target, idString.c_str());
 		}
 	}
 
 	// Revert to the old active domain
-	ConfMan.setActiveDomain(oldDomain);
+	if (domain)
+		ConfMan.setActiveDomain(oldDomain);
 
 	return result;
 }
@@ -761,7 +789,7 @@ static void runDetectorTest() {
 		bool gameidDiffers = false;
 		GameList::iterator x;
 		for (x = candidates.begin(); x != candidates.end(); ++x) {
-			gameidDiffers |= (scumm_stricmp(gameid.c_str(), x->gameid().c_str()) != 0);
+			gameidDiffers |= !gameid.equalsIgnoreCase(x->getGameID());
 		}
 
 		if (candidates.empty()) {
@@ -784,10 +812,10 @@ static void runDetectorTest() {
 
 		for (x = candidates.begin(); x != candidates.end(); ++x) {
 			printf("    gameid '%s', desc '%s', language '%s', platform '%s'\n",
-				   x->gameid().c_str(),
-				   x->description().c_str(),
-				   Common::getLanguageCode(x->language()),
-				   Common::getPlatformCode(x->platform()));
+				   x->getGameID().c_str(),
+				   x->getDescription().c_str(),
+				   Common::getLanguageCode(x->getLanguage()),
+				   Common::getPlatformCode(x->getPlatform()));
 		}
 	}
 	int total = domains.size();
@@ -852,7 +880,7 @@ void upgradeTargets() {
 			GameList::iterator x;
 			int matchesFound = 0;
 			for (x = candidates.begin(); x != candidates.end(); ++x) {
-				if (x->gameid() == gameid && x->language() == lang && x->platform() == plat) {
+				if (x->getGameID() == gameid && x->getLanguage() == lang && x->getPlatform() == plat) {
 					matchesFound++;
 					g = &(*x);
 				}
@@ -870,27 +898,28 @@ void upgradeTargets() {
 		// the target referred to by dom. We update several things
 
 		// Always set the gameid explicitly (in case of legacy targets)
-		dom["gameid"] = g->gameid();
+		dom["gameid"] = g->getGameID();
 
 		// Always set the GUI options. The user should not modify them, and engines might
 		// gain more features over time, so we want to keep this list up-to-date.
-		if (g->contains("guioptions")) {
-			printf("  -> update guioptions to '%s'\n", (*g)["guioptions"].c_str());
-			dom["guioptions"] = (*g)["guioptions"];
+		Common::String guiOptions = g->getGUIOptions();
+		if (!guiOptions.empty()) {
+			printf("  -> update guioptions to '%s'\n", guiOptions.c_str());
+			dom["guioptions"] = guiOptions;
 		} else if (dom.contains("guioptions")) {
 			dom.erase("guioptions");
 		}
 
 		// Update the language setting but only if none has been set yet.
-		if (lang == Common::UNK_LANG && g->language() != Common::UNK_LANG) {
-			printf("  -> set language to '%s'\n", Common::getLanguageCode(g->language()));
-			dom["language"] = (*g)["language"];
+		if (lang == Common::UNK_LANG && g->getLanguage() != Common::UNK_LANG) {
+			printf("  -> set language to '%s'\n", Common::getLanguageCode(g->getLanguage()));
+			dom["language"] = g->getLanguageString();
 		}
 
 		// Update the platform setting but only if none has been set yet.
-		if (plat == Common::kPlatformUnknown && g->platform() != Common::kPlatformUnknown) {
-			printf("  -> set platform to '%s'\n", Common::getPlatformCode(g->platform()));
-			dom["platform"] = (*g)["platform"];
+		if (plat == Common::kPlatformUnknown && g->getPlatform() != Common::kPlatformUnknown) {
+			printf("  -> set platform to '%s'\n", Common::getPlatformCode(g->getPlatform()));
+			dom["platform"] = g->getPlatformString();
 		}
 
 		// TODO: We could also update the description. But not everybody will want that.
@@ -935,6 +964,9 @@ bool processSettings(Common::String &command, Common::StringMap &settings, Commo
 	} else if (command == "list-games") {
 		listGames();
 		return true;
+	} else if (command == "list-engines") {
+		listEngines();
+		return true;
 	} else if (command == "list-saves") {
 		err = listSaves(settings["list-saves"].c_str());
 		return true;
@@ -972,8 +1004,9 @@ bool processSettings(Common::String &command, Common::StringMap &settings, Commo
 	// domain (i.e. a target) matching this argument, or alternatively
 	// whether there is a gameid matching that name.
 	if (!command.empty()) {
+		// FIXME: Using the command as game ID instead of target is bogus
 		GameDescriptor gd = EngineMan.findGame(command);
-		if (ConfMan.hasGameDomain(command) || !gd.gameid().empty()) {
+		if (ConfMan.hasGameDomain(command) || !gd.getGameID().empty()) {
 			bool idCameFromCommandLine = false;
 
 			// WORKAROUND: Fix for bug #1719463: "DETECTOR: Launching

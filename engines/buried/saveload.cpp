@@ -514,12 +514,7 @@ bool BuriedEngine::syncGlobalFlags(Common::Serializer &s, GlobalFlags &flags) {
 Common::Error BuriedEngine::runLoadDialog() {
 	GUI::SaveLoadChooser slc(_("Load game:"), _("Load"), false);
 
-	Common::String gameId = ConfMan.get("gameid");
-
-	const EnginePlugin *plugin = 0;
-	EngineMan.findGame(gameId, &plugin);
-
-	int slot = slc.runModalWithPluginAndTarget(plugin, ConfMan.getActiveDomainName());
+	int slot = slc.runModalWithCurrentTarget();
 
 	Common::Error result;
 
@@ -538,12 +533,7 @@ Common::Error BuriedEngine::runLoadDialog() {
 Common::Error BuriedEngine::runSaveDialog() {
 	GUI::SaveLoadChooser slc(_("Save game:"), _("Save"), true);
 
-	Common::String gameId = ConfMan.get("gameid");
-
-	const EnginePlugin *plugin = 0;
-	EngineMan.findGame(gameId, &plugin);
-
-	int slot = slc.runModalWithPluginAndTarget(plugin, ConfMan.getActiveDomainName());
+	int slot = slc.runModalWithCurrentTarget();
 
 	Common::Error result;
 

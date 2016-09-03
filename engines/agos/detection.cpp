@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "base/plugins.h"
 
@@ -99,28 +101,32 @@ public:
 		_directoryGlobs = directoryGlobs;
 	}
 
-	virtual GameDescriptor findGame(const char *gameid) const {
-		return Engines::findGameID(gameid, _gameids, obsoleteGameIDsTable);
+	const char *getEngineID() const {
+		return "agos";
 	}
 
-	virtual const char *getName() const {
+	GameDescriptor findGame(const char *gameid) const {
+		return Engines::findGameID(getEngineID(), gameid, _gameids, obsoleteGameIDsTable);
+	}
+
+	const char *getName() const {
 		return "AGOS";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "AGOS (C) Adventure Soft";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
+	bool hasFeature(MetaEngineFeature f) const;
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const {
+	Common::Error createInstance(OSystem *syst, Engine **engine) const {
 		Engines::upgradeTargetIfNecessary(obsoleteGameIDsTable);
 		return AdvancedMetaEngine::createInstance(syst, engine);
 	}
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
 
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
 };
 
 bool AgosMetaEngine::hasFeature(MetaEngineFeature f) const {

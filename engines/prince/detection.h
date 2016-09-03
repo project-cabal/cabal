@@ -22,6 +22,8 @@
 
 // Based on the ScummVM (GPLv2+) file of the same name
 
+// Based on the ScummVM (GPLv2+) file of the same name
+
 #ifndef PRINCE_DETECTION_H
 #define PRINCE_DETECTION_H
 
@@ -42,7 +44,7 @@ struct PrinceGameDescription {
 };
 
 static const PlainGameDescriptor princeGames[] = {
-	{"prince", "Prince Game"},
+	{"prince", "The Prince and the Coward"},
 	{0, 0}
 };
 
@@ -50,7 +52,7 @@ static const PrinceGameDescription gameDescriptions[] = {
 	{
 		{
 			"prince",
-			"Galador",
+			"",
 			AD_ENTRY1s("databank.ptc", "5fa03833177331214ec1354761b1d2ee", 3565031),
 			Common::DE_DEU,
 			Common::kPlatformWindows,
@@ -62,7 +64,7 @@ static const PrinceGameDescription gameDescriptions[] = {
 	{
 		{
 			"prince",
-			"Ksiaze i Tchorz",
+			"",
 			AD_ENTRY1s("databank.ptc", "48ec9806bda9d152acbea8ce31c93c49", 3435298),
 			Common::PL_POL,
 			Common::kPlatformWindows,
@@ -74,7 +76,7 @@ static const PrinceGameDescription gameDescriptions[] = {
 	{
 		{
 			"prince",
-			"The Prince and the Coward",
+			"",
 			AD_ENTRY1s("databank.ptc", "5fa03833177331214ec1354761b1d2ee", 3565031),
 			Common::EN_ANY,
 			Common::kPlatformWindows,
@@ -86,7 +88,7 @@ static const PrinceGameDescription gameDescriptions[] = {
 	{
 		{
 			"prince",
-			"The Prince and the Coward",
+			"",
 			AD_ENTRY1s("databank.ptc", "48ec9806bda9d152acbea8ce31c93c49", 3435298),
 			Common::EN_ANY,
 			Common::kPlatformWindows,
@@ -106,25 +108,28 @@ const static char *directoryGlobs[] = {
 class PrinceMetaEngine : public AdvancedMetaEngine {
 public:
 	PrinceMetaEngine() : AdvancedMetaEngine(Prince::gameDescriptions, sizeof(Prince::PrinceGameDescription), princeGames) {
-		_singleid = "prince";
 		_maxScanDepth = 2;
 		_directoryGlobs = directoryGlobs;
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "prince";
+	}
+
+	const char *getName() const {
 		return "Prince Engine";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "The Prince and the Coward (C) 1996-97 Metropolis";
 	}
 
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual SaveStateList listSaves(const char *target) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	int getMaximumSaveSlot() const;
+	SaveStateList listSaves(const char *target) const;
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	void removeSaveState(const char *target, int slot) const;
 };
 
 } // End of namespace Prince

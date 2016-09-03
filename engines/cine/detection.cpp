@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "base/plugins.h"
 
@@ -47,7 +49,6 @@ Common::Platform CineEngine::getPlatform() const { return _gameDescription->desc
 } // End of namespace Cine
 
 static const PlainGameDescriptor cineGames[] = {
-	{"cine", "Cinematique evo.1 engine game"},
 	{"fw", "Future Wars"},
 	{"os", "Operation Stealth"},
 	{0, 0}
@@ -64,32 +65,35 @@ static const Engines::ObsoleteGameID obsoleteGameIDsTable[] = {
 class CineMetaEngine : public AdvancedMetaEngine {
 public:
 	CineMetaEngine() : AdvancedMetaEngine(Cine::gameDescriptions, sizeof(Cine::CINEGameDescription), cineGames) {
-		_singleid = "cine";
 		_guioptions = GUIO1(GUIO_NOSPEECH);
 	}
 
-	virtual GameDescriptor findGame(const char *gameid) const {
-		return Engines::findGameID(gameid, _gameids, obsoleteGameIDsTable);
+	const char *getEngineID() const {
+		return "cine";
 	}
 
-	virtual const char *getName() const {
+	GameDescriptor findGame(const char *gameid) const {
+		return Engines::findGameID(getEngineID(), gameid, _gameids, obsoleteGameIDsTable);
+	}
+
+	const char *getName() const {
 		return "Cine";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "Future Wars & Operation Stealth (C) Delphine Software";
 	}
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const {
+	Common::Error createInstance(OSystem *syst, Engine **engine) const {
 		Engines::upgradeTargetIfNecessary(obsoleteGameIDsTable);
 		return AdvancedMetaEngine::createInstance(syst, engine);
 	}
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
+	void removeSaveState(const char *target, int slot) const;
 };
 
 bool CineMetaEngine::hasFeature(MetaEngineFeature f) const {

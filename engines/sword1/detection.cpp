@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #include "sword1/sword1.h"
 #include "sword1/control.h"
@@ -79,23 +81,28 @@ static const char *const g_filesToCheck[NUM_FILES_TO_CHECK] = { // these files h
 
 class SwordMetaEngine : public MetaEngine {
 public:
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "sword1";
+	}
+
+	const char *getName() const {
 		return "Sword1";
 	}
-	virtual const char *getOriginalCopyright() const {
+
+	const char *getOriginalCopyright() const {
 		return "Broken Sword Games (C) Revolution";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual GameList getSupportedGames() const;
-	virtual GameDescriptor findGame(const char *gameid) const;
-	virtual GameList detectGames(const Common::FSList &fslist) const;
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	GameList getSupportedGames() const;
+	GameDescriptor findGame(const char *gameid) const;
+	GameList detectGames(const Common::FSList &fslist) const;
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const;
+	void removeSaveState(const char *target, int slot) const;
 	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
 
-	virtual Common::Error createInstance(OSystem *syst, Engine **engine) const;
+	Common::Error createInstance(OSystem *syst, Engine **engine) const;
 };
 
 bool SwordMetaEngine::hasFeature(MetaEngineFeature f) const {
@@ -118,28 +125,28 @@ bool Sword1::SwordEngine::hasFeature(EngineFeature f) const {
 
 GameList SwordMetaEngine::getSupportedGames() const {
 	GameList games;
-	games.push_back(GameDescriptor(sword1FullSettings, GUIO_NOMIDI));
-	games.push_back(GameDescriptor(sword1DemoSettings, GUIO_NOMIDI));
-	games.push_back(GameDescriptor(sword1MacFullSettings, GUIO_NOMIDI));
-	games.push_back(GameDescriptor(sword1MacDemoSettings, GUIO_NOMIDI));
-	games.push_back(GameDescriptor(sword1PSXSettings, GUIO_NOMIDI));
-	games.push_back(GameDescriptor(sword1PSXDemoSettings, GUIO_NOMIDI));
+	games.push_back(GameDescriptor(getEngineID(), sword1FullSettings, GUIO_NOMIDI));
+	games.push_back(GameDescriptor(getEngineID(), sword1DemoSettings, GUIO_NOMIDI));
+	games.push_back(GameDescriptor(getEngineID(), sword1MacFullSettings, GUIO_NOMIDI));
+	games.push_back(GameDescriptor(getEngineID(), sword1MacDemoSettings, GUIO_NOMIDI));
+	games.push_back(GameDescriptor(getEngineID(), sword1PSXSettings, GUIO_NOMIDI));
+	games.push_back(GameDescriptor(getEngineID(), sword1PSXDemoSettings, GUIO_NOMIDI));
 	return games;
 }
 
 GameDescriptor SwordMetaEngine::findGame(const char *gameid) const {
 	if (0 == scumm_stricmp(gameid, sword1FullSettings.gameid))
-		return sword1FullSettings;
+		return GameDescriptor(getEngineID(), sword1FullSettings);
 	if (0 == scumm_stricmp(gameid, sword1DemoSettings.gameid))
-		return sword1DemoSettings;
+		return GameDescriptor(getEngineID(), sword1DemoSettings);
 	if (0 == scumm_stricmp(gameid, sword1MacFullSettings.gameid))
-		return sword1MacFullSettings;
+		return GameDescriptor(getEngineID(), sword1MacFullSettings);
 	if (0 == scumm_stricmp(gameid, sword1MacDemoSettings.gameid))
-		return sword1MacDemoSettings;
+		return GameDescriptor(getEngineID(), sword1MacDemoSettings);
 	if (0 == scumm_stricmp(gameid, sword1PSXSettings.gameid))
-		return sword1PSXSettings;
+		return GameDescriptor(getEngineID(), sword1PSXSettings);
 	if (0 == scumm_stricmp(gameid, sword1PSXDemoSettings.gameid))
-		return sword1PSXDemoSettings;
+		return GameDescriptor(getEngineID(), sword1PSXDemoSettings);
 	return GameDescriptor();
 }
 
@@ -214,17 +221,17 @@ GameList SwordMetaEngine::detectGames(const Common::FSList &fslist) const {
 			psxDemoFilesFound = false;
 
 	if (mainFilesFound && pcFilesFound && demoFilesFound)
-		detectedGames.push_back(GameDescriptor(sword1DemoSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+		detectedGames.push_back(GameDescriptor(getEngineID(), sword1DemoSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 	else if (mainFilesFound && pcFilesFound && psxFilesFound)
-		detectedGames.push_back(GameDescriptor(sword1PSXSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+		detectedGames.push_back(GameDescriptor(getEngineID(), sword1PSXSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 	else if (mainFilesFound && pcFilesFound && psxDemoFilesFound)
-		detectedGames.push_back(GameDescriptor(sword1PSXDemoSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+		detectedGames.push_back(GameDescriptor(getEngineID(), sword1PSXDemoSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 	else if (mainFilesFound && pcFilesFound && !psxFilesFound)
-		detectedGames.push_back(GameDescriptor(sword1FullSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+		detectedGames.push_back(GameDescriptor(getEngineID(), sword1FullSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 	else if (mainFilesFound && macFilesFound)
-		detectedGames.push_back(GameDescriptor(sword1MacFullSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+		detectedGames.push_back(GameDescriptor(getEngineID(), sword1MacFullSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 	else if (mainFilesFound && macDemoFilesFound)
-		detectedGames.push_back(GameDescriptor(sword1MacDemoSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
+		detectedGames.push_back(GameDescriptor(getEngineID(), sword1MacDemoSettings, GUIO2(GUIO_NOMIDI, GUIO_NOASPECT)));
 
 	return detectedGames;
 }

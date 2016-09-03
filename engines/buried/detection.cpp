@@ -473,25 +473,28 @@ static const char *directoryGlobs[] = {
 class BuriedMetaEngine : public AdvancedMetaEngine {
 public:
 	BuriedMetaEngine() : AdvancedMetaEngine(Buried::gameDescriptions, sizeof(Buried::BuriedGameDescription), buriedGames) {
-		_singleid = "buried";
 		_flags = kADFlagUseExtraAsHint;
 		_maxScanDepth = 3;
 		_directoryGlobs = Buried::directoryGlobs;
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineID() const {
+		return "buried";
+	}
+
+	const char *getName() const {
 		return "The Journeyman Project 2: Buried in Time";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const {
 		return "The Journeyman Project 2: Buried in Time (C) Presto Studios";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
-	virtual SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const { return 999; }
-	virtual void removeSaveState(const char *target, int slot) const;
+	bool hasFeature(MetaEngineFeature f) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	SaveStateList listSaves(const char *target) const;
+	int getMaximumSaveSlot() const { return 999; }
+	void removeSaveState(const char *target, int slot) const;
 };
 
 bool BuriedMetaEngine::hasFeature(MetaEngineFeature f) const {

@@ -1,6 +1,6 @@
-/* ScummVM - Graphic Adventure Engine
+/* Cabal - Legacy Game Implementations
  *
- * ScummVM is the legal property of its developers, whose names
+ * Cabal is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
  * file distributed with this source distribution.
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+// Based on the ScummVM (GPLv2+) file of the same name
 
 #ifndef ENGINES_METAENGINE_H
 #define ENGINES_METAENGINE_H
@@ -64,6 +66,9 @@ typedef Common::Array<ExtraGuiOption> ExtraGuiOptions;
 class MetaEngine : public PluginObject {
 public:
 	virtual ~MetaEngine() {}
+
+	/// Get the engine ID
+	virtual const char *getEngineID() const = 0;
 
 	/** Returns some copyright information about the original engine. */
 	virtual const char *getOriginalCopyright() const = 0;
@@ -257,10 +262,29 @@ typedef PluginSubclass<MetaEngine> EnginePlugin;
  */
 class EngineManager : public Common::Singleton<EngineManager> {
 public:
-	GameDescriptor findGameInLoadedPlugins(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
-	GameDescriptor findGame(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
+	/// Find a game descriptor within an engine
+	GameDescriptor findGame(const Common::String &engineID, const Common::String &gameID, const EnginePlugin **plugin = 0) const;
+
+	/// Given a list of FSNodes in a given directory, detect a set of games contained within.
+	/// Returns an empty list if none are found.
 	GameList detectGames(const Common::FSList &fslist) const;
+
+	/// Find a plugin by its engine ID
+	const EnginePlugin *findPlugin(const Common::String &engineID) const;
+
+	/// Get the list of all engine plugins
 	const EnginePlugin::List &getPlugins() const;
+
+	/// Legacy function for finding a game across all plugins. This should only be used
+	/// if the engine ID is unknown.
+	GameDescriptor findGame(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
+
+private:
+	/// Legacy internal function for finding a game across all loaded plugins
+	GameDescriptor findGameInLoadedPlugins(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
+
+	/// Find a loaded plugin with the given engine ID
+	const EnginePlugin *findLoadedPlugin(const Common::String &engineID) const;
 };
 
 /** Convenience shortcut for accessing the engine manager. */
