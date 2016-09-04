@@ -629,24 +629,13 @@ static void listTargets() {
 		Common::String name(iter->_key);
 		Common::String description(iter->_value.getVal("description"));
 
-		if (description.empty()) {
-			// Figure out the game ID for the target
-			Common::String gameID;
-			if (iter->_value.contains("gameid"))
-				gameID = iter->_value.getVal("gameid");
-			else
-				gameID = name;
+		// If there's no description, fallback on the default description.
+		if (description.empty())
+			description = EngineMan.findTarget(name).getDescription();
 
-			GameDescriptor g;
-			if (iter->_value.contains("engineid"))
-				g = EngineMan.findGame(iter->_value.getVal("engineid"), gameID);
-			else
-				g = EngineMan.findGame(gameID);
-
-			description = g.getDescription();
-			if (description.empty())
-				description = "<Unknown game>";
-		}
+		// If there's still no description, we cannot come up with one. Insert some dummy text.
+		if (description.empty())
+			description = "<Unknown game>";
 
 		targets.push_back(Common::String::format("%-20s %s", name.c_str(), description.c_str()));
 	}
@@ -680,16 +669,18 @@ static Common::Error listSaves(const char *target) {
 		gameID = target;
 	gameID.toLowercase();	// Normalize it to lower case
 
-	// Find the plugin that will handle the game
-	const EnginePlugin *plugin = 0;
-	GameDescriptor game;
+	// Look for the target
+	const EnginePlugin *plugin;
+	GameDescriptor game = EngineMan.findTarget(target, &plugin);
+
+	// Figure out an identification string
 	Common::String idString;
-	if (domain && domain->contains("engineid")) {
+	if (!game.getGameID().empty()) {
+		idString = Common::String::format("engine ID '%s', game ID '%s'", game.getEngineID().c_str(), game.getGameID().c_str());
+	} else if (domain && domain->contains("engineid")) {
 		Common::String engineID = domain->getVal("engineid");
-		game = EngineMan.findGame(engineID, gameID, &plugin);
 		idString = Common::String::format("engine ID '%s', game ID '%s'", engineID.c_str(), gameID.c_str());
 	} else {
-		game = EngineMan.findGame(gameID, &plugin);
 		idString = Common::String::format("game ID '%s'", gameID.c_str());
 	}
 
@@ -1004,8 +995,7 @@ bool processSettings(Common::String &command, Common::StringMap &settings, Commo
 	// domain (i.e. a target) matching this argument, or alternatively
 	// whether there is a gameid matching that name.
 	if (!command.empty()) {
-		// FIXME: Using the command as game ID instead of target is bogus
-		GameDescriptor gd = EngineMan.findGame(command);
+		GameDescriptor gd = EngineMan.findTarget(command);
 		if (ConfMan.hasGameDomain(command) || !gd.getGameID().empty()) {
 			bool idCameFromCommandLine = false;
 

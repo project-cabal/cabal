@@ -91,79 +91,68 @@ static bool launcherDialog() {
 }
 
 static const EnginePlugin *detectPlugin() {
-	// Try to figure out what the engine ID is
-	Common::String engineID;
-	if (ConfMan.hasKey("engineid"))
-		engineID = ConfMan.get("engineid");
-
 	// Figure out the target
 	Common::String target(ConfMan.getActiveDomainName());
-
-	// Try to figure out what the game ID is. Use the target if the game ID
-	// is not available (for compatibility? Why is this being done?).
-	Common::String gameID;
-	if (ConfMan.hasKey("gameid")) {
-		gameID = ConfMan.get("gameid");
-	} else {
-		gameID = target;
-		ConfMan.set("gameid", gameID);
-	}
 
 	// Set the last selected game, so the game will be highlighted next time the user
 	// returns to the launcher.
 	ConfMan.set("lastselectedgame", target, Common::ConfigManager::kApplicationDomain);
 	ConfMan.flushToDisk();
 
-	// Query the plugins looking for the game
-	const EnginePlugin *plugin = 0;
-	GameDescriptor game;
+	// Query the game descriptor for the target
+	const EnginePlugin *plugin;
+	GameDescriptor game = EngineMan.findTarget(target, &plugin);
 
-	if (engineID.empty()) {
-		// Compatibility mode for entries without 'engineid'
-		printf("User picked target '%s' (game ID '%s')...\n", ConfMan.getActiveDomainName().c_str(), gameID.c_str());
-		printf("  Looking for a plugin supporting this game ID... ");
+	// If we failed to find the game, display messages that we failed to find the game
+	if (game.getGameID().empty()) {
+		// Figure out the engine ID
+		Common::String engineID;
+		if (ConfMan.hasKey("engineid"))
+			engineID = ConfMan.get("engineid");
 
-		// Request that the game be found via the game ID
-		game = EngineMan.findGame(gameID, &plugin);
-
-		// If we couldn't find the plugin, print a specific message for the case
-		if (!plugin) {
-			printf("failed\n");
-			warning("%s is an invalid game ID. Use the --list-games option to list supported game IDs", gameID.c_str());
-			return 0;
+		// Try to figure out what the game ID is. Use the target if the game ID
+		// is not available (for compatibility? Why is this being done?).
+		Common::String gameID;
+		if (ConfMan.hasKey("gameid")) {
+			gameID = ConfMan.get("gameid");
+		} else {
+			gameID = target;
+			ConfMan.set("gameid", gameID);
 		}
 
-		// Print that the engine was found
-		printf("%s\n", plugin->getName());
+		// Format a string to write the IDs
+		Common::String idString;
+		if (engineID.empty())
+			idString = Common::String::format("game ID '%s'", gameID.c_str());
+		else
+			idString = Common::String::format("engine ID '%s', game ID '%s'", engineID.c_str(), gameID.c_str());
 
-		// Update the engine ID in the ConfMan. We won't hit this case again.
-		ConfMan.set("engineid", (*plugin)->getEngineID());
-		ConfMan.flushToDisk();
-	} else {
-		// Look for the plugin with that engine ID
-		printf("User picked target '%s' (engine ID '%s', game ID '%s')...\n", ConfMan.getActiveDomainName().c_str(), engineID.c_str(), gameID.c_str());
-		printf("  Looking for a plugin supporting this engine ID... ");
-		plugin = EngineMan.findPlugin(engineID);
-		if (!plugin) {
-			printf("failed\n");
-			warning("%s is an invalid engine ID. Use the --list-engines option to list supported engine IDs", engineID.c_str());
-			return 0;
-		}
+		// Write the output that we failed to find it
+		printf("User picked target '%s' (%s)...\n", target.c_str(), idString.c_str());
+		printf("   Looking for a plugin supporting this target... failed\n");
 
-		// Look for the game now
-		printf("%s\n  Looking for the game ID... ", plugin->getName());
-		game = (*plugin)->findGame(gameID.c_str());
-		if (game.getGameID().empty()) {
-			printf("failed\n");
-			warning("%s is an invalid game ID for the engine. Use the --list-games option to list supported game IDs", gameID.c_str());
-			return 0;
-		}
+		if (engineID.empty() || EngineMan.findPlugin(engineID))
+			warning("'%s' is an invalid game ID. Use the --list-games option to list supported game IDs", gameID.c_str());
+		else
+			warning("'%s' is an invalid engine ID. Use the --list-engines to list supported engine IDs", engineID.c_str());
 
-		// Print the game ID
-		printf("found\n");
+		return 0;
 	}
 
+	// Print text saying what's going on
+	printf("User picked target '%s' (engine ID '%s', game ID '%s')...\n", target.c_str(), game.getEngineID().c_str(), game.getGameID().c_str());
+	printf("   Looking for a plugin supporting this target... %s\n", plugin->getName());
 	printf("Starting '%s'\n", game.getDescription().c_str());
+
+	// Update the engine ID in the ConfMan so it doesn't need to be looked up
+	// This is an upgrade for old targets
+	if (!ConfMan.hasKey("engineid")) {
+		debug(1, "Setting the engine ID for the target");
+		ConfMan.set("engineid", (*plugin)->getEngineID());
+		ConfMan.flushToDisk();
+	}
+
+	// Return the plugin
 	return plugin;
 }
 
@@ -223,12 +212,8 @@ static Common::Error runGame(const EnginePlugin *plugin, OSystem &system, const 
 	// Set the window caption to the game name
 	Common::String caption(ConfMan.get("description"));
 
-	if (caption.empty()) {
-		if (ConfMan.hasKey("engineid"))
-			caption = EngineMan.findGame(ConfMan.get("engineid"), ConfMan.get("gameid")).getDescription();
-		else
-			caption = EngineMan.findGame(ConfMan.get("gameid")).getDescription();
-	}
+	if (caption.empty())
+		caption = EngineMan.findTarget(ConfMan.getActiveDomainName()).getDescription();
 	if (caption.empty())
 		caption = ConfMan.getActiveDomainName();	// Use the domain (=target) name
 	if (!caption.empty())	{

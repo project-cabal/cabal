@@ -262,29 +262,28 @@ typedef PluginSubclass<MetaEngine> EnginePlugin;
  */
 class EngineManager : public Common::Singleton<EngineManager> {
 public:
-	/// Find a game descriptor within an engine
-	GameDescriptor findGame(const Common::String &engineID, const Common::String &gameID, const EnginePlugin **plugin = 0) const;
-
 	/// Given a list of FSNodes in a given directory, detect a set of games contained within.
 	/// Returns an empty list if none are found.
 	GameList detectGames(const Common::FSList &fslist) const;
 
-	/// Find a plugin by its engine ID
+	/// Find a plugin by its engine ID.
 	const EnginePlugin *findPlugin(const Common::String &engineID) const;
 
-	/// Get the list of all engine plugins
+	/// Get the list of all engine plugins.
 	const EnginePlugin::List &getPlugins() const;
 
-	/// Legacy function for finding a game across all plugins. This should only be used
-	/// if the engine ID is unknown.
-	GameDescriptor findGame(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
+	/// Find a target
+	GameDescriptor findTarget(const Common::String &target, const EnginePlugin **plugin = NULL) const;
 
 private:
-	/// Legacy internal function for finding a game across all loaded plugins
+	/// Legacy internal function for finding a game across all loaded plugins [deprecated]
 	GameDescriptor findGameInLoadedPlugins(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
 
 	/// Find a loaded plugin with the given engine ID
 	const EnginePlugin *findLoadedPlugin(const Common::String &engineID) const;
+
+	/// Legacy function for finding a game across all plugins
+	GameDescriptor findGame(const Common::String &gameName, const EnginePlugin **plugin = NULL) const;
 };
 
 /** Convenience shortcut for accessing the engine manager. */

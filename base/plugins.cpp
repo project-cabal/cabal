@@ -492,28 +492,6 @@ GameDescriptor EngineManager::findGame(const Common::String &gameName, const Eng
 	return result;
 }
 
-GameDescriptor EngineManager::findGame(const Common::String &engineID, const Common::String &gameID, const EnginePlugin **plugin) const {
-	// Reset the pointer to 0
-	if (plugin)
-		*plugin = 0;
-
-	// Look for the engine plugin
-	const EnginePlugin *foundPlugin = findPlugin(engineID);
-	if (!foundPlugin)
-		return GameDescriptor();
-
-	// Try to find the game
-	GameDescriptor result = (*foundPlugin)->findGame(gameID.c_str());
-	if (result.getGameID().empty())
-		return GameDescriptor();
-
-	// Set the result
-	if (plugin)
-		*plugin = foundPlugin;
-
-	return result;
-}
-
 GameDescriptor EngineManager::findGameInLoadedPlugins(const Common::String &gameName, const EnginePlugin **plugin) const {
 	// Find the GameDescriptor for this target
 	const EnginePlugin::List &plugins = getPlugins();
@@ -581,6 +559,42 @@ const EnginePlugin *EngineManager::findPlugin(const Common::String &engineID) co
 	} while (PluginMan.loadNextPlugin());
 
 	return 0;
+}
+
+GameDescriptor EngineManager::findTarget(const Common::String &target, const EnginePlugin **plugin) const {
+	// Default the plugin
+	if (plugin)
+		*plugin = 0;
+
+	// Ignore empty targets
+	if (target.empty())
+		return GameDescriptor();
+
+	// Lookup the domain. If we have no domain, fallback on the old function [ultra-deprecated].
+	const Common::ConfigManager::Domain *domain = ConfMan.getDomain(target);
+	if (!domain || !domain->contains("gameid"))
+		return findGame(target, plugin);
+
+	// Look for the engine ID
+	Common::String gameID(domain->getVal("gameid"));
+	if (domain->contains("engineid")) {
+		const EnginePlugin *foundPlugin = findPlugin(domain->getVal("engineid"));
+		if (foundPlugin) {
+			// Make sure it does support the game ID
+			GameDescriptor desc = (*foundPlugin)->findGame(gameID.c_str());
+
+			if (!desc.getGameID().empty() && plugin)
+				*plugin = foundPlugin;
+
+			return desc;
+		}
+
+		// No engine found otherwise
+		return GameDescriptor();
+	}
+
+	// Fallback on the game ID [deprecated]
+	return findGame(gameID, plugin);
 }
 
 // Music plugins

@@ -102,43 +102,6 @@ protected:
 	}
 };
 
-namespace {
-
-// Helper function to find a plugin for a domain/target
-const EnginePlugin *findPluginForDomain(const Common::String &domain) {
-	// Look up the engine via the engine ID. This is the current method.
-	if (ConfMan.hasKey("engineid", domain))		
-		return EngineMan.findPlugin(ConfMan.get("engineid", domain));
-
-	// Fallback on game ID. And if that isn't found, fallback on the domain
-	// itself, which is a really ancient method of identifying a game.
-	Common::String gameID(ConfMan.get("gameid", domain));
-	if (gameID.empty())
-		gameID = domain;
-
-	const EnginePlugin *plugin = 0;
-	EngineMan.findGame(gameID, &plugin);
-	return plugin;
-}
-
-// Helper function to find a descriptor for a domain/target
-GameDescriptor findDescriptorForDomain(const Common::String &domain) {
-	// Figure out the game ID. And if that isn't found, fallback on the domain
-	// itself, which is a really ancient method of identifying a game.
-	Common::String gameID(ConfMan.get("gameid", domain));
-	if (gameID.empty())
-		gameID = domain;
-
-	// Look up the engine via the engine ID. This is the current method.
-	if (ConfMan.hasKey("engineid", domain))		
-		return EngineMan.findGame(ConfMan.get("engineid", domain), gameID);
-
-	// Fallback on using only the game ID
-	return EngineMan.findGame(gameID);
-}
-
-} // End of anonymous namespace
-
 /*
  * A dialog that allows the user to edit a config game entry.
  * TODO: add widgets for some/all of the following
@@ -191,7 +154,8 @@ protected:
 
 EditGameDialog::EditGameDialog(const String &domain, const String &desc) : OptionsDialog(domain, "GameOptions") {
 	// Retrieve all game specific options.
-	const EnginePlugin *plugin = findPluginForDomain(domain);
+	const EnginePlugin *plugin;
+	EngineMan.findTarget(domain, &plugin);
 	
 	if (plugin) {
 		_engineOptions = (*plugin)->getExtraGuiOptions(domain);
@@ -776,7 +740,7 @@ void LauncherDialog::updateListing() {
 			gameid = iter->_key;
 
 		if (description.empty())
-			description = findDescriptorForDomain(iter->_key).getDescription();
+			description = EngineMan.findTarget(iter->_key).getDescription();
 
 		if (description.empty()) {
 			description = Common::String::format("Unknown (target %s, gameid %s)", iter->_key.c_str(), gameid.c_str());
@@ -1001,7 +965,7 @@ void LauncherDialog::editGame(int item) {
 	// music support etc.
 	assert(item >= 0);
 
-	EditGameDialog editDialog(_domains[item], findDescriptorForDomain(_domains[item]).getDescription());
+	EditGameDialog editDialog(_domains[item], EngineMan.findTarget(_domains[item]).getDescription());
 	if (editDialog.runModal() > 0) {
 		// User pressed OK, so make changes permanent
 
@@ -1021,7 +985,10 @@ void LauncherDialog::loadGameButtonPressed(int item) {
 
 void LauncherDialog::loadGame(int item) {	
 	String target = _domains[item];
-	const EnginePlugin *plugin = findPluginForDomain(target);
+
+	// Look for the plugin
+	const EnginePlugin *plugin;
+	EngineMan.findTarget(target, &plugin);
 
 	target.toLowercase();
 
